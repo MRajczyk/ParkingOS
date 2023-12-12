@@ -6,7 +6,10 @@ const { status, signOut } = useAuth();
   <div class="topbar">
     <NuxtLink to="/">
       <div class="topbar-title">
-        <img style="vertical-align: middle" src="/images/logo.png" />
+        <img
+          style="vertical-align: middle; width: 40px; height: 40px"
+          src="/images/logo.png"
+        />
         <span style="vertical-align: middle">ParkingOS</span>
       </div>
     </NuxtLink>
@@ -35,11 +38,7 @@ const { status, signOut } = useAuth();
   align-items: center;
   justify-content: space-between;
   padding-right: 1em;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 59, 148, 0.41) 0%,
-    rgba(188, 38, 128, 0.41) 100%
-  );
+  background: grey;
 }
 
 .topbar-title {
