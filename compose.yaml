@@ -11,17 +11,18 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
-      - prokuchnix-vlan
+      - parkingos-vlan
 
   adminer:
     image: adminer:latest
     ports:
       - 8080:8080
     networks:
-      - prokuchnix-vlan
+      - parkingos-vlan
 
 volumes:
   postgres-data:
 
 networks:
-  prokuchnix-vlan:
+  parkingos-vlan:
+    driver: bridge
