@@ -173,7 +173,7 @@ body {
   display: flex;
   width: 100%;
   height: 100%;
-  color: #da80a8;
+  color: gray;
   text-align: center;
   font-family: Poppins;
   font-size: 69px;
@@ -192,14 +192,6 @@ body {
   width: 70%;
   margin-right: 10%;
 }
-
-/*
-.edit-personal-data-form-container {
-    display: block;
-    width: 300px;
-    margin-left: auto;
-    margin-right: auto;
-}*/
 
 .edit-personal-data-form-container {
   width: 100%;
@@ -228,27 +220,8 @@ body {
   width: 20%;
   height: 40px;
   margin-top: 15px;
-  background-color: #f589b0;
-  color: #fff0de;
-  border: 0;
-  border-radius: 7px;
-  text-align: center;
-  font-family: Poppins;
-  font-size: 1.2rem;
-  cursor: pointer;
-}
-
-#edit-picture {
-  margin-left: auto;
-  margin-right: auto;
-  line-height: 40px;
-  justify-content: center;
-  margin-top: 20px;
-  display: flex;
-  width: 60%;
-  height: 40px;
-  background-color: #f589b0;
-  color: #fff0de;
+  background-color: gray;
+  color: #fff;
   border: 0;
   border-radius: 7px;
   text-align: center;

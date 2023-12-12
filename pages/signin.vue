@@ -77,7 +77,7 @@ const handleSignIn = async ({
   border: 0;
   font-family: Poppins;
   font-weight: 400;
-  color: #fff0de;
+  color: #fff;
   font-size: 24px;
 }
 
@@ -99,7 +99,7 @@ const handleSignIn = async ({
 }
 
 .login {
-  color: #da80a8;
+  color: grey;
   display: block;
   text-align: center;
   font-family: Poppins;
@@ -145,8 +145,8 @@ const handleSignIn = async ({
 .login-form-button {
   width: 150px;
   height: 40px;
-  background-color: #f589b0;
-  color: #fff0de;
+  background-color: grey;
+  color: #fff;
   border: 0;
   border-radius: 7px;
   text-align: center;

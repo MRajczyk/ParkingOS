@@ -21,6 +21,6 @@ useHead({
 }
 
 body {
-  background-color: #fff0de;
+  background-color: #fff;
 }
 </style>

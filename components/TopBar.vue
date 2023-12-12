@@ -19,7 +19,10 @@ const { status, signOut } = useAuth();
           wyloguj
         </button>
         <NuxtLink to="/profile">
-          <img style="vertical-align: middle" src="/images/user_info.png" />
+          <img
+            style="vertical-align: middle; width: 50px; height: 50px"
+            src="/images/user.png"
+          />
         </NuxtLink>
       </div>
     </div>
@@ -43,7 +46,7 @@ const { status, signOut } = useAuth();
 
 .topbar-title {
   margin-left: 10px;
-  color: #fff0de;
+  color: #fff;
   display: inline-block;
   font-family: Poppins;
   font-weight: 600;
@@ -67,7 +70,7 @@ const { status, signOut } = useAuth();
   font-family: Poppins;
   font-weight: 400;
   text-decoration: none;
-  color: #fff0de;
+  color: #fff;
   font-size: 24px;
 }
 
