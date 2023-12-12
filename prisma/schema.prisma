@@ -1,0 +1,21 @@
+datasource db {
+    provider = "postgresql"
+    url = "postgresql://student:student@localhost:5432/db?schema=public"
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+enum Role {
+    USER
+    ADMIN
+}
+
+model User {
+    id       Int        @id @default(autoincrement())
+    username String     @unique
+    email    String     @unique
+    password String
+    role     Role
+}
