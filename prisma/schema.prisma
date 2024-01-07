@@ -13,9 +13,62 @@ enum Role {
 }
 
 model User {
-    id       Int        @id @default(autoincrement())
-    username String     @unique
-    email    String     @unique
-    password String
-    role     Role
+    id              Int @id @default(autoincrement())
+    name            String
+    username        String
+    email           String @unique
+    password        String
+    role            Role
+    balance         Float
+    isBanned        Boolean
+    cars            Car[]
+}
+
+model Car {
+    registrationNumber      String @id @unique
+    name                    String
+    userId                  Int
+    user                    User @relation(fields: [userId], references: [id])
+}
+
+model Parking {
+    id                      Int @id @default(autoincrement())
+    monthlyCosts            MonthlyCost[]
+    name                    String
+    address                 String
+    floors                  Int
+    parkingPlacesPerFloor   Int
+    chargePlanId            Int
+    chargePlan              ChargePlan?
+    parkingPlaces           ParkingSpace[]
+}
+
+model ParkingSpace {
+    id                 Int @id @default(autoincrement())
+    ocuppied           Boolean
+    parkingId          Int
+    parking            Parking @relation(fields: [parkingId], references: [id])
+}
+
+model ParkingSession {
+    id              Int        @id @default(autoincrement())
+    ticket          String     @unique
+    entranceDate    DateTime
+    leaveDate       DateTime?
+    finalCost       Float
+}
+
+model ChargePlan {
+    id                      Int @id @default(autoincrement())   
+    parkingId               Int @unique
+    parking                 Parking @relation(fields: [parkingId], references: [id])
+    nightTariffStartHour    Int
+}
+
+model MonthlyCost {
+    id          Int         @id @default(autoincrement())
+    parking     Parking     @relation(fields: [parkingId], references: [id])
+    parkingId   Int 
+    costName    String
+    costValue   Int
 }
