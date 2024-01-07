@@ -157,7 +157,7 @@ function registerUser() {
   margin-top: 3px;
 }
 .register {
-  color: gray;
+  color: #163020;
   display: block;
   text-align: center;
   font-family: Poppins;
@@ -198,7 +198,7 @@ function registerUser() {
   display: block;
   width: 150px;
   height: 40px;
-  background-color: grey;
+  background-color: #163020;
   color: #fff;
   border: 0;
   border-radius: 7px;
@@ -227,7 +227,7 @@ function registerUser() {
 
 .label {
   font-size: 13px;
-  color: grey;
+  color: #163020;
   margin-top: 15px;
   display: flex;
   flex-direction: column;

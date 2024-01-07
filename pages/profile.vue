@@ -173,7 +173,7 @@ body {
   display: flex;
   width: 100%;
   height: 100%;
-  color: gray;
+  color: #163020;
   text-align: center;
   font-family: Poppins;
   font-size: 69px;
@@ -220,7 +220,7 @@ body {
   width: 20%;
   height: 40px;
   margin-top: 15px;
-  background-color: gray;
+  background-color: #163020;
   color: #fff;
   border: 0;
   border-radius: 7px;
@@ -236,7 +236,7 @@ body {
 
 .label {
   font-size: 13px;
-  color: gray;
+  color: #163020;
   margin-top: 15px;
   display: flex;
   flex-direction: column;
