@@ -50,6 +50,7 @@ function putUserProfile() {
 
   axios
     .put("http://localhost:3000/api/profiles", {
+      id: data.value.user.id,
       name: name.value,
       surname: surname.value,
       email: email.value,

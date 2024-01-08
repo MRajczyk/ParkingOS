@@ -21,7 +21,7 @@ export default eventHandler(async (event) => {
   });
 
   if (createUser) {
-    return { statusMessage: "Rejestracja pomyślna!" };
+    return { statusMessage: "Register successfull!" };
   } else {
     throw createError({
       statusMessage: "Register unsucessfull",

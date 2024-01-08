@@ -12,30 +12,36 @@ export default eventHandler(async (event) => {
 
   const body = await readBody(event);
   // @ts-ignore
-  if (session.user?.username !== body.username) {
+  if (!Number.isNaN(body.id) && session.user?.id !== body.id) {
     throw createError({
-      statusMessage: "Nieprawidłowa sesja",
+      statusMessage: "Invalid session",
       statusCode: 418,
     });
   }
 
-  const updateUser = await prisma.user.update({
-    where: {
-      username: body.username,
-    },
-    data: {
-      email: body.email,
-      password: await hash(body.password, SALT_ROUNDS),
-    },
-  });
-  if (updateUser) {
-    return {
-      statusMessage: "Zmiana hasła przebiegła poprawnie!",
-    };
-  } else {
-    throw createError({
-      statusMessage: "Internal server error",
-      statusCode: 500,
+  try {
+    const updateUser = await prisma.user.update({
+      where: {
+        id: Number.parseInt(body.id),
+      },
+      data: {
+        email: body.email,
+        name: body.name,
+        surname: body.surname,
+        password: await hash(body.password, SALT_ROUNDS),
+      },
     });
+    if (updateUser) {
+      return {
+        statusMessage: "User updated successfully",
+      };
+    } else {
+      throw createError({
+        statusMessage: "Profile update error",
+        statusCode: 400,
+      });
+    }
+  } catch (e) {
+    console.log(e.message);
   }
 });

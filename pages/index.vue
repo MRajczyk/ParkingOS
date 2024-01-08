@@ -4,7 +4,7 @@ import TopBar from "/components/TopBar.vue";
 
 <template>
   <TopBar />
-  <div class="title">Content</div>
+  <div class="title">Home page</div>
 </template>
 
 <style scoped>
