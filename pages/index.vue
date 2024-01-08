@@ -8,11 +8,6 @@ import TopBar from "/components/TopBar.vue";
 </template>
 
 <style scoped>
-* {
-  margin: 0;
-  padding: 0;
-}
-
 body {
   padding-bottom: 1000px;
 }
