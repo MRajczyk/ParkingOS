@@ -9,12 +9,14 @@ definePageMeta({
   },
 });
 
-const username = ref("");
+const name = ref("");
+const surname = ref("");
 const email = ref("");
 const firstPassword = ref("");
 const secondPassword = ref("");
 
 const isNameError = ref(false);
+const isSurnameError = ref(false);
 const isEmailError = ref(false);
 const passwordError = ref("");
 
@@ -22,11 +24,13 @@ const registerSuccess = ref("");
 const registerError = ref("");
 
 function registerUser() {
-  console.log("function fired");
   registerSuccess.value = "";
   registerError.value = "";
 
-  if (username.value.length === 0) {
+  if (name.value.length === 0) {
+    isNameError.value = true;
+  }
+  if (surname.value.length === 0) {
     isNameError.value = true;
   }
   if (email.value.length === 0) {
@@ -54,7 +58,8 @@ function registerUser() {
 
   axios
     .post("http://localhost:3000/api/profiles", {
-      username: username.value,
+      name: name.value,
+      surname: surname.value,
       email: email.value,
       password: firstPassword.value,
     })
@@ -70,9 +75,8 @@ function registerUser() {
 </script>
 
 <template>
-  <TopBar />
   <div class="register">
-    <label class="register-title">ZAREJESTRUJ SIĘ</label>
+    <label class="register-title">REGISTER</label>
     <form
       class="register-form"
       v-on:submit.prevent="onsubmit"
@@ -80,29 +84,43 @@ function registerUser() {
       @submit="registerUser()"
     >
       <div class="register-form-container">
-        <label class="label">Nazwa użytkownika</label>
-        <input
-          type="text"
-          name="username"
-          class="register-input"
-          v-model="username"
-        />
-        <span class="info-span" style="color: red" v-if="isNameError">
-          Enter valid username
-        </span>
-        <label class="label">Email</label>
+        <label class="label">Email address</label>
         <input
           type="text"
           name="email"
+          placeholder="Email"
           v-model="email"
           class="register-input"
         />
         <span class="info-span" style="color: red" v-if="isEmailError">
           Please enter valid email!
         </span>
-        <label class="label">Hasło</label>
+        <label class="label">Name</label>
+        <input
+          type="text"
+          name="name"
+          placeholder="Name"
+          class="register-input"
+          v-model="name"
+        />
+        <span class="info-span" style="color: red" v-if="isNameError">
+          Enter valid name
+        </span>
+        <label class="label">Surname</label>
+        <input
+          type="text"
+          placeholder="Surname"
+          name="surname"
+          class="register-input"
+          v-model="surname"
+        />
+        <span class="info-span" style="color: red" v-if="isSurnameError">
+          Enter valid surname
+        </span>
+        <label class="label">Password</label>
         <input
           type="password"
+          placeholder="Password"
           name="password"
           class="register-input"
           v-model="firstPassword"
@@ -114,9 +132,10 @@ function registerUser() {
         >
           {{ passwordError }}
         </span>
-        <label class="label">Powtórz hasło</label>
+        <label class="label">Repeat password</label>
         <input
           type="password"
+          placeholder="Repeat Password"
           name="password"
           v-model="secondPassword"
           class="register-input"
@@ -160,7 +179,6 @@ function registerUser() {
   color: #163020;
   display: block;
   text-align: center;
-  font-family: Poppins;
   font-weight: 500;
   font-size: 69px;
   width: 100%;
@@ -205,7 +223,6 @@ function registerUser() {
   text-align: center;
   margin-left: auto;
   margin-right: auto;
-  font-family: Poppins;
   font-size: 1.2rem;
   cursor: pointer;
 }
