@@ -7,7 +7,6 @@ export default eventHandler(async (event) => {
   const prisma: PrismaClient = event.context.prisma;
 
   const body = await readBody(event);
-  console.log(body);
   const createUser = await prisma.user.create({
     data: {
       name: body.name,
@@ -21,7 +20,7 @@ export default eventHandler(async (event) => {
   });
 
   if (createUser) {
-    return { statusMessage: "Register successfull!" };
+    return { statusMessage: "Rejestracja pomyślna!" };
   } else {
     throw createError({
       statusMessage: "Register unsucessfull",
