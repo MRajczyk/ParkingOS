@@ -7,12 +7,16 @@ export default eventHandler(async (event) => {
   const prisma: PrismaClient = event.context.prisma;
 
   const body = await readBody(event);
+  console.log(body);
   const createUser = await prisma.user.create({
     data: {
-      username: body.username,
+      name: body.name,
+      surname: body.surname,
       email: body.email,
       password: await hash(body.password, SALT_ROUNDS),
       role: Role.USER,
+      isBanned: false,
+      balance: 0,
     },
   });
 
@@ -20,8 +24,8 @@ export default eventHandler(async (event) => {
     return { statusMessage: "Rejestracja pomyślna!" };
   } else {
     throw createError({
-      statusMessage: "Internal server error",
-      statusCode: 500,
+      statusMessage: "Register unsucessfull",
+      statusCode: 400,
     });
   }
 });
