@@ -25,7 +25,8 @@ model User {
 }
 
 model Car {
-    registrationNumber      String @id @unique
+    id                      Int @id @default(autoincrement())
+    registrationNumber      String @unique
     name                    String
     userId                  Int
     user                    User @relation(fields: [userId], references: [id])
