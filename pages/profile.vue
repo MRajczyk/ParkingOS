@@ -5,12 +5,14 @@ definePageMeta({ middleware: "auth" });
 
 const { status, data } = useAuth();
 
-const username = ref(data.value.user.username);
+const name = ref(data.value.user.name);
+const surname = ref(data.value.user.surname);
 const email = ref(data.value.user.email);
 const firstPassword = ref("");
 const secondPassword = ref("");
 
 const isNameError = ref(false);
+const isSurnameError = ref(false);
 const isEmailError = ref(false);
 const passwordError = ref("");
 
@@ -21,8 +23,12 @@ function putUserProfile() {
   patchSuccess.value = "";
   patchError.value = "";
 
-  if (username.value.length === 0) {
+  if (name.value.length === 0) {
     isNameError.value = true;
+    return;
+  }
+  if (surname.value.length === 0) {
+    isSurnameError.value = true;
     return;
   }
   if (email.value.length === 0) {
@@ -34,16 +40,18 @@ function putUserProfile() {
     !secondPassword.value.length === 0 ||
     firstPassword.value !== secondPassword.value
   ) {
-    passwordError.value = "Nieprawidłowe hasło";
+    passwordError.value = "Incorrect Password";
     return;
   }
+  isSurnameError.value = false;
   isNameError.value = false;
   isEmailError.value = false;
   passwordError.value = "";
 
   axios
     .put("http://localhost:3000/api/profiles", {
-      username: username.value,
+      name: name.value,
+      surname: surname.value,
       email: email.value,
       password: firstPassword.value,
     })
@@ -74,17 +82,29 @@ function putUserProfile() {
       >
         <div class="edit-personal-data-form-container">
           <div class="setting-wraper">
-            <label class="label">Nazwa użytkownika</label>
+            <label class="label">Name</label>
             <input
-              disabled="disabled"
               form="none"
               type="text"
-              name="username"
-              v-model="username"
+              name="name"
+              v-model="name"
               class="edit-personal-data-input"
             />
             <span class="info-span" style="color: red" v-if="isNameError">
-              This shouldn't be altered in any way :]
+              Incorrect name
+            </span>
+          </div>
+          <div class="setting-wraper">
+            <label class="label">Surname</label>
+            <input
+              form="none"
+              type="text"
+              name="surname"
+              v-model="surname"
+              class="edit-personal-data-input"
+            />
+            <span class="info-span" style="color: red" v-if="isNameError">
+              Incorrect surname
             </span>
           </div>
           <div class="setting-wraper">
@@ -96,7 +116,7 @@ function putUserProfile() {
               class="edit-personal-data-input"
             />
             <span class="info-span" style="color: red" v-if="isEmailError">
-              Podaj prawidłowy adres email!
+              Incorrect email address
             </span>
           </div>
           <div class="setting-wraper">
@@ -175,7 +195,6 @@ body {
   height: 100%;
   color: #163020;
   text-align: center;
-  font-family: Poppins;
   font-size: 69px;
   margin-top: 40px;
 }
@@ -225,7 +244,6 @@ body {
   border: 0;
   border-radius: 7px;
   text-align: center;
-  font-family: Poppins;
   font-size: 1.2rem;
   cursor: pointer;
 }

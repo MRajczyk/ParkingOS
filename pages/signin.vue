@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const { signIn } = useAuth();
 
-const username = ref("");
+const email = ref("");
 const password = ref("");
 
 definePageMeta({
@@ -13,15 +13,15 @@ definePageMeta({
 const isError = ref(false);
 
 const handleSignIn = async ({
-  username,
+  email,
   password,
 }: {
-  username: string;
+  email: string;
   password: string;
 }) => {
   //https://sidebase.io/nuxt-auth/application-side/custom-sign-in-page
   const { error, url } = await signIn("credentials", {
-    username,
+    email,
     password,
     redirect: false,
   });
@@ -36,18 +36,12 @@ const handleSignIn = async ({
 </script>
 
 <template>
-  <TopBar />
   <div class="login">
-    <label class="register-title">ZALOGUJ SIĘ</label>
-    <div class="register-form">
+    <label class="login-title">ZALOGUJ SIĘ</label>
+    <div class="login-form">
       <div class="login-form-container">
-        <label class="label">Nazwa użytkownika</label>
-        <input
-          v-model="username"
-          type="text"
-          name="username"
-          class="login-input"
-        />
+        <label class="label">Adres email</label>
+        <input v-model="email" type="text" name="email" class="login-input" />
         <label class="label">Hasło</label>
         <input
           v-model="password"
@@ -57,7 +51,7 @@ const handleSignIn = async ({
         />
         <span class="alert-error" v-if="isError">Błędne dane logowania! </span>
         <button
-          @click="handleSignIn({ username, password })"
+          @click="handleSignIn({ email, password })"
           class="login-form-button"
         >
           Login
@@ -65,17 +59,16 @@ const handleSignIn = async ({
       </div>
     </div>
     <span class="have-account">Nie masz jeszcze konta? </span>
-    <NuxtLink to="/signup" class="span-register">Zarejestruj się!</NuxtLink>
+    <NuxtLink to="/signup" class="span-login">Zarejestruj się!</NuxtLink>
   </div>
 </template>
 
 <style scoped>
 .login-button,
-.register-button,
+.login-button,
 .split {
   background: transparent;
   border: 0;
-  font-family: Poppins;
   font-weight: 400;
   color: #fff;
   font-size: 24px;
@@ -85,7 +78,6 @@ const handleSignIn = async ({
   color: #ff0000;
   display: block;
   text-align: center;
-  font-family: Poppins;
   font-weight: 500;
   margin-top: 20px;
   font-size: 14px;
@@ -94,7 +86,7 @@ const handleSignIn = async ({
 }
 
 .login-button:hover,
-.register-button:hover {
+.login-button:hover {
   cursor: pointer;
 }
 
@@ -102,7 +94,6 @@ const handleSignIn = async ({
   color: #163020;
   display: block;
   text-align: center;
-  font-family: Poppins;
   font-weight: 500;
   font-size: 69px;
   width: 100%;
@@ -152,7 +143,6 @@ const handleSignIn = async ({
   text-align: center;
   margin-left: auto;
   margin-right: auto;
-  font-family: Poppins;
   font-size: 1.2rem;
   cursor: pointer;
 }
@@ -164,7 +154,7 @@ const handleSignIn = async ({
   font-weight: 400;
 }
 
-.span-register {
+.span-login {
   padding: 0;
   color: blue;
   font-size: 20px;

@@ -16,7 +16,8 @@ export default NuxtAuthHandler({
           ...token,
           id: u.id,
           email: u.email,
-          username: u.username,
+          name: u.name,
+          surname: u.surname,
         };
       }
       return token;
@@ -28,7 +29,8 @@ export default NuxtAuthHandler({
         user: {
           ...session.user,
           id: token.id,
-          username: token.username,
+          name: token.name,
+          surname: token.surname,
           email: token.email,
         },
       };
@@ -45,13 +47,13 @@ export default NuxtAuthHandler({
     CredentialsProvider.default({
       name: "Credentials",
       credentials: {
-        username: { label: "Username", type: "text", placeholder: "" },
+        email: { label: "Email", type: "text", placeholder: "" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials: any) {
         const user = await prisma.user.findFirst({
           where: {
-            username: credentials.username,
+            email: credentials.email,
           },
         });
 
@@ -67,7 +69,8 @@ export default NuxtAuthHandler({
         return {
           id: user.id + "",
           email: user.email,
-          username: user.username,
+          name: user.name,
+          surname: user.surname,
         };
       },
     }),
