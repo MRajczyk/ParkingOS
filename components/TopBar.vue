@@ -4,28 +4,28 @@ const { status, signOut } = useAuth();
 
 <template>
   <div class="topbar">
+    <div class="topbar-buttons">
+      <NuxtLink to="/finder/search" class="link">
+        <span class="profile-link">Finder</span>
+      </NuxtLink>
+      <span class="split" style="font-weight: 200">|</span>
+      <NuxtLink to="/payment" class="link">
+        <span class="profile-link">Payment</span>
+      </NuxtLink>
+    </div>
     <NuxtLink to="/">
       <div class="topbar-title">
         <span style="vertical-align: middle">ParkingOS</span>
       </div>
     </NuxtLink>
-    <div v-if="status === 'authenticated'">
-      <div class="topbar-buttons">
-        <button @click="signOut({ callbackUrl: '/' })" class="logout">
-          wyloguj
-        </button>
-        <NuxtLink to="/profile">
-          <img
-            style="vertical-align: middle; width: 50px; height: 50px"
-            src="/images/user.png"
-          />
-        </NuxtLink>
-      </div>
-    </div>
-    <div v-else class="topbar-buttons">
-      <NuxtLink to="/signin" class="login">Zaloguj</NuxtLink>
+    <div class="topbar-buttons">
+      <NuxtLink to="/profile" class="link">
+        <span class="profile-link">Account</span>
+      </NuxtLink>
       <span class="split" style="font-weight: 200">|</span>
-      <NuxtLink to="/signup" class="register">Zarejestruj</NuxtLink>
+      <button @click="signOut({ callbackUrl: '/' })" class="logout">
+        Logout
+      </button>
     </div>
   </div>
 </template>
@@ -36,18 +36,21 @@ const { status, signOut } = useAuth();
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding-right: 1em;
-  background: #163020;
+  padding-left: 16px;
+  padding-right: 16px;
+  background: #304d30;
 }
 
 .topbar-title {
-  margin-left: 10px;
   color: #fff;
   display: inline-block;
-  font-family: Poppins;
   font-weight: 600;
   font-size: 36px;
   cursor: pointer;
+}
+
+.link {
+  text-decoration: none;
 }
 
 .topbar-buttons {
@@ -56,6 +59,7 @@ const { status, signOut } = useAuth();
 }
 
 .recipes,
+.profile-link,
 .create,
 .logout,
 .login,
@@ -63,15 +67,10 @@ const { status, signOut } = useAuth();
 .split {
   background: transparent;
   border: 0;
-  font-family: Poppins;
   font-weight: 400;
   text-decoration: none;
   color: #fff;
   font-size: 24px;
-}
-
-.logout {
-  margin-right: 10px;
 }
 
 .split {
