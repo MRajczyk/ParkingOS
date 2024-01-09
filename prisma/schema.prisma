@@ -61,10 +61,19 @@ model ParkingSession {
 }
 
 model ChargePlan {
-    id                      Int @id @default(autoincrement())   
-    parkingId               Int @unique
-    parking                 Parking @relation(fields: [parkingId], references: [id])
-    nightTariffStartHour    Int
+    id                 Int @id @default(autoincrement())
+    parkingId          Int @unique
+    parking            Parking @relation(fields: [parkingId], references: [id])
+    nightStart         DateTime
+    nightEnd           DateTime
+    dayHour1Tariff     Float
+    dayHour2Tariff     Float
+    dayHour3Tariff     Float
+    dayHour4Tariff     Float
+    nightHour1Tariff   Float
+    nightHour2Tariff   Float
+    nightHour3Tariff   Float
+    nightHour4Tariff   Float
 }
 
 model MonthlyCost {
