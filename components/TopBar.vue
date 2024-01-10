@@ -1,33 +1,56 @@
 <script setup>
 const { status, signOut } = useAuth();
+
+function hideBurger() {
+  const burgerOptions = document.getElementById("burger-options");
+  const burgerButton = document.getElementById("burger-button");
+  if (burgerOptions.style.display === "flex") {
+    burgerOptions.style.display = "none";
+    burgerButton.style.color = "white";
+    burgerButton.style.backgroundColor = "transparent";
+  } else {
+    burgerOptions.style.display = "flex";
+    burgerButton.style.color = "#304d30";
+    burgerButton.style.backgroundColor = "white";
+  }
+}
 </script>
 
 <template>
   <div class="container">
     <div class="topbar">
+      <a
+        href="javascript:void(0);"
+        class="burger"
+        id="burger-button"
+        @click="hideBurger()"
+      >
+        <i class="fa fa-bars"></i>
+      </a>
       <div class="topbar-buttons" style="padding-left: 16px">
-        <NuxtLink to="/finder/search" class="link">
-          <span class="profile-link">Finder</span>
-        </NuxtLink>
+        <NuxtLink to="/finder/search" class="profile-link">Finder</NuxtLink>
         <span class="split" style="font-weight: 200">|</span>
-        <NuxtLink to="/payment" class="link">
-          <span class="profile-link">Payment</span>
-        </NuxtLink>
+        <NuxtLink to="/payment" class="profile-link">Payment</NuxtLink>
       </div>
-      <NuxtLink to="/">
-        <div class="topbar-title">
-          <span style="vertical-align: middle">ParkingOS</span>
-        </div>
-      </NuxtLink>
+      <NuxtLink to="/" class="topbar-title"> ParkingOS </NuxtLink>
       <div class="topbar-buttons" style="padding-right: 16px">
-        <NuxtLink to="/profile" class="link">
-          <span class="profile-link">Account</span>
-        </NuxtLink>
+        <NuxtLink to="/account" class="profile-link">Account</NuxtLink>
         <span class="split" style="font-weight: 200">|</span>
-        <button @click="signOut({ callbackUrl: '/' })" class="logout">
+        <button @click="signOut({ callbackUrl: '/signin' })" class="logout">
           Logout
         </button>
       </div>
+    </div>
+    <div class="burger-options" id="burger-options">
+      <NuxtLink to="/finder/search" class="burger-option">Finder</NuxtLink>
+      <NuxtLink to="/payment" class="burger-option">Payment</NuxtLink>
+      <NuxtLink to="/account" class="burger-option">Account</NuxtLink>
+      <button
+        @click="signOut({ callbackUrl: '/signin' })"
+        class="burger-option"
+      >
+        Logout
+      </button>
     </div>
     <slot></slot>
   </div>
@@ -42,10 +65,11 @@ const { status, signOut } = useAuth();
 .topbar {
   display: flex;
   width: 100%;
+  min-height: 60px;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
-  background: #304d30;
+  justify-content: center;
+  background: var(--primary-lighter);
 }
 
 .topbar-title {
@@ -54,15 +78,56 @@ const { status, signOut } = useAuth();
   font-weight: 600;
   font-size: 36px;
   cursor: pointer;
-}
-
-.link {
   text-decoration: none;
 }
 
 .topbar-buttons {
-  display: inline-block;
-  line-height: 58px;
+  display: none;
+}
+
+.burger {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  left: 0px;
+  width: 60px;
+  height: 60px;
+  background: transparent;
+  border: 0;
+  text-decoration: none;
+  color: #fff;
+  font-size: 36px;
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+.burger-options {
+  display: none;
+  position: absolute;
+  top: 60px;
+  flex-direction: column;
+  background-color: var(--primary-lighter);
+  width: 200px;
+  border-top: 2px solid #fff;
+}
+
+.burger-option {
+  text-align: start;
+  display: block;
+  background: transparent;
+  border: 0;
+  font-weight: 400;
+  padding: 12px;
+  text-decoration: none;
+  color: #fff;
+  font-size: 24px;
+  border-bottom: 2px solid #fff;
+}
+
+.burger-options:last-child {
+  border: none;
 }
 
 .recipes,
@@ -85,9 +150,26 @@ const { status, signOut } = useAuth();
   margin-right: 5px;
 }
 
-.logout:hover,
+a.logout:hover,
 .login:hover,
 .register:hover {
   cursor: pointer;
+}
+
+@media screen and (min-width: 600px) {
+  .burger-options {
+    display: none;
+  }
+  .burger {
+    display: none;
+  }
+  .topbar-buttons {
+    display: inline-block;
+    line-height: 58px;
+  }
+
+  .topbar {
+    justify-content: space-between;
+  }
 }
 </style>

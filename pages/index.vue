@@ -1,7 +1,6 @@
 <script setup>
 import TopBar from "/components/TopBar.vue";
 </script>
-
 <template>
   <TopBar>
     <div class="home-container">
@@ -41,7 +40,7 @@ import TopBar from "/components/TopBar.vue";
 
 .menu-link {
   width: 200px;
-  padding: 50px;
+  padding: 30px;
   cursor: pointer;
   text-decoration: none;
   text-align: center;
@@ -57,7 +56,7 @@ import TopBar from "/components/TopBar.vue";
 
 .menu-link-text {
   font-weight: bold;
-  font-size: 30px;
+  font-size: 24px;
 }
 
 /* BIG SCREENS */
@@ -68,7 +67,7 @@ import TopBar from "/components/TopBar.vue";
   }
 
   .menu-link {
-    height: 440px;
+    height: 400px;
     width: 280px;
     display: flex;
     gap: 40px;
@@ -99,6 +98,17 @@ import TopBar from "/components/TopBar.vue";
 
   .menu-link-text {
     font-size: 34px;
+  }
+}
+
+@media only screen and (min-height: 700px) and (min-width: 400px) {
+  .menu-link {
+    padding: 50px;
+  }
+
+  .menu-link-text {
+    font-weight: bold;
+    font-size: 30px;
   }
 }
 </style>
