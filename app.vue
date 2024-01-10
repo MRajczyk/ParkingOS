@@ -16,6 +16,13 @@ useHead({
 </template>
 
 <style>
+:root {
+  --primary-lighter: #304d30;
+  --bg-light: #eef0e5;
+  --shadow: #5c5c5c;
+  --bg-darker: #dde7dd;
+}
+
 * {
   margin: 0;
   padding: 0;
