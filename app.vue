@@ -22,7 +22,15 @@ useHead({
   font-family: "Inter";
 }
 
+html {
+  height: 100%;
+}
+
 body {
-  background-color: #fff;
+  height: 100%;
+}
+
+#__nuxt {
+  height: 100%;
 }
 </style>

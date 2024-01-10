@@ -13,74 +13,77 @@ const tickets = [{ id: "P1C1S10801231010" }, { id: "2" }, { id: "3" }];
 </script>
 
 <template>
-  <TopBar />
-  <div v-if="stage === 0" class="background">
-    <h1>Payment</h1>
+  <TopBar>
+    <div v-if="stage === 0" class="background">
+      <h1>Payment</h1>
 
-    <div class="search-wraper">
-      <label class="label">Ticket ID</label>
-      <select v-model="ticketId">
-        <option v-for="ticket in tickets" :key="ticket.id" :value="ticket.id">
-          {{ ticket.id }}
-        </option>
-      </select>
+      <div class="search-wraper">
+        <label class="label">Ticket ID</label>
+        <select v-model="ticketId">
+          <option v-for="ticket in tickets" :key="ticket.id" :value="ticket.id">
+            {{ ticket.id }}
+          </option>
+        </select>
+      </div>
+
+      <p class="or">Or</p>
+
+      <div class="search-wraper">
+        <label class="label">Ticket ID</label>
+        <input type="file" @change="handleFileChange" accept=".png" />
+      </div>
+
+      <button @click="stage++" :disabled="ticketId === null">
+        Check ticket
+      </button>
     </div>
 
-    <p class="or">Or</p>
+    <div v-else-if="stage === 1" class="background">
+      <h1>Payment</h1>
 
-    <div class="search-wraper">
-      <label class="label">Ticket ID</label>
-      <input type="file" @change="handleFileChange" accept=".png" />
+      <div class="search-wraper">
+        <label class="label">Ticket ID</label>
+        <br />
+        <div class="ticket-id">{{ ticketId }}</div>
+      </div>
+
+      <div class="amount-wraper">
+        <h1 class="cost">Amount due:</h1>
+        <h1 class="cost">{{ cost }} PLN</h1>
+      </div>
+
+      <button class="home" @click="stage--">Back</button>
+      <button @click="stage++">Pay</button>
     </div>
 
-    <button @click="stage++" :disabled="ticketId === null">Check ticket</button>
-  </div>
-
-  <div v-else-if="stage === 1" class="background">
-    <h1>Payment</h1>
-
-    <div class="search-wraper">
-      <label class="label">Ticket ID</label>
-      <br />
-      <div class="ticket-id">{{ ticketId }}</div>
+    <div v-else-if="stage === 2 && isSuccess" class="background">
+      <h1>Payment successful</h1>
+      <img src="/images/success.png" class="failure" />
+      <div class="payment-info">
+        <p>Ticket id:</p>
+        <p class="value">{{ ticketId }}</p>
+      </div>
+      <div class="payment-info">
+        <h2 class="h2-split">Amount paid:</h2>
+        <h2 class="value">{{ cost }} PLN</h2>
+      </div>
+      <NuxtLink to="/">
+        <button>Home</button>
+      </NuxtLink>
     </div>
 
-    <div class="amount-wraper">
-      <h1 class="cost">Amount due:</h1>
-      <h1 class="cost">{{ cost }} PLN</h1>
+    <div v-else-if="stage === 2 && !isSuccess" class="background">
+      <h1>Insufficient funds</h1>
+      <img src="/images/failure.png" class="failure" />
+      <h2>You don’t have enough funds in your account. Add funds or resign.</h2>
+      <NuxtLink to="/">
+        <button class="home">Home</button>
+      </NuxtLink>
+      <NuxtLink to="/">
+        <button>Add funds</button>
+      </NuxtLink>
     </div>
-
-    <button class="home" @click="stage--">Back</button>
-    <button @click="stage++">Pay</button>
-  </div>
-
-  <div v-else-if="stage === 2 && isSuccess" class="background">
-    <h1>Payment successful</h1>
-    <img src="/images/success.png" class="failure" />
-    <div class="payment-info">
-      <p>Ticket id:</p>
-      <p class="value">{{ ticketId }}</p>
-    </div>
-    <div class="payment-info">
-      <h2 class="h2-split">Amount paid:</h2>
-      <h2 class="value">{{ cost }} PLN</h2>
-    </div>
-    <NuxtLink to="/">
-      <button>Home</button>
-    </NuxtLink>
-  </div>
-
-  <div v-else-if="stage === 2 && !isSuccess" class="background">
-    <h1>Insufficient funds</h1>
-    <img src="/images/failure.png" class="failure" />
-    <h2>You don’t have enough funds in your account. Add funds or resign.</h2>
-    <NuxtLink to="/">
-      <button class="home">Home</button>
-    </NuxtLink>
-    <NuxtLink to="/">
-      <button>Add funds</button>
-    </NuxtLink>
-  </div>
+  </TopBar>
 </template>
 
 <style>

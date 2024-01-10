@@ -3,41 +3,48 @@ const { status, signOut } = useAuth();
 </script>
 
 <template>
-  <div class="topbar">
-    <div class="topbar-buttons">
-      <NuxtLink to="/finder/search" class="link">
-        <span class="profile-link">Finder</span>
-      </NuxtLink>
-      <span class="split" style="font-weight: 200">|</span>
-      <NuxtLink to="/payment" class="link">
-        <span class="profile-link">Payment</span>
-      </NuxtLink>
-    </div>
-    <NuxtLink to="/">
-      <div class="topbar-title">
-        <span style="vertical-align: middle">ParkingOS</span>
+  <div class="container">
+    <div class="topbar">
+      <div class="topbar-buttons" style="padding-left: 16px">
+        <NuxtLink to="/finder/search" class="link">
+          <span class="profile-link">Finder</span>
+        </NuxtLink>
+        <span class="split" style="font-weight: 200">|</span>
+        <NuxtLink to="/payment" class="link">
+          <span class="profile-link">Payment</span>
+        </NuxtLink>
       </div>
-    </NuxtLink>
-    <div class="topbar-buttons">
-      <NuxtLink to="/profile" class="link">
-        <span class="profile-link">Account</span>
+      <NuxtLink to="/">
+        <div class="topbar-title">
+          <span style="vertical-align: middle">ParkingOS</span>
+        </div>
       </NuxtLink>
-      <span class="split" style="font-weight: 200">|</span>
-      <button @click="signOut({ callbackUrl: '/' })" class="logout">
-        Logout
-      </button>
+      <div class="topbar-buttons" style="padding-right: 16px">
+        <NuxtLink to="/profile" class="link">
+          <span class="profile-link">Account</span>
+        </NuxtLink>
+        <span class="split" style="font-weight: 200">|</span>
+        <button @click="signOut({ callbackUrl: '/' })" class="logout">
+          Logout
+        </button>
+      </div>
     </div>
+    <slot></slot>
   </div>
 </template>
 
 <style scoped>
+.container {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+}
 .topbar {
   display: flex;
+  width: 100%;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding-left: 16px;
-  padding-right: 16px;
   background: #304d30;
 }
 
