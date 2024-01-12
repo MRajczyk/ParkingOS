@@ -13,6 +13,7 @@
     "@sidebase/nuxt-auth": "^0.6.3",
     "@sidebase/nuxt-session": "^0.2.7",
     "@types/node": "^18.16.19",
+    "@types/nodemailer": "^6.4.14",
     "nuxt": "^3.6.2",
     "prisma": "^5.2.0"
   },
@@ -22,6 +23,7 @@
     "axios": "^1.5.0",
     "bcrypt": "^5.1.1",
     "next-auth": "4.21.1",
+    "nodemailer": "^6.9.8",
     "uuid": "^9.0.1"
   },
   "prisma": {
