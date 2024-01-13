@@ -44,44 +44,106 @@ const handleSignIn = async ({
 
 <template>
   <div class="login">
-    <label class="login-title">ZALOGUJ SIĘ</label>
     <div class="login-form">
-      <div class="login-form-container">
-        <label class="label">Adres email</label>
-        <input v-model="email" type="text" name="email" class="login-input" />
-        <label class="label">Hasło</label>
-        <input
-          v-model="password"
-          type="password"
-          name="password"
-          class="login-input"
-        />
-        <span class="alert-error" v-if="isError">Incorrect credentials</span>
-        <span class="alert-error" v-if="isErrorTooManyTries"
-          >Too many tries. Try again in a minute.
-        </span>
-        <button
-          @click="handleSignIn({ email, password })"
-          class="login-form-button"
-        >
-          Login
-        </button>
-      </div>
+      <label class="login-subtitle">Sign in to</label>
+      <label class="login-title">ParkingOS</label>
+      <NuxtLink to="/signup" class="login-link" style="margin-top: 50px"
+        >Don't have an account? Sign up!</NuxtLink
+      >
+      <label class="label">Email Address</label>
+      <input
+        placeholder="Email"
+        v-model="email"
+        type="text"
+        name="email"
+        class="login-input"
+      />
+      <label class="label">Password</label>
+      <input
+        v-model="password"
+        type="password"
+        name="password"
+        class="login-input"
+        placeholder="Password"
+      />
+      <span class="alert-error" v-if="isError">Incorrect credentials</span>
+      <span class="alert-error" v-if="isErrorTooManyTries"
+        >Too many tries. Try again in a minute.
+      </span>
+      <NuxtLink to="/signup" class="login-link" style="margin-top: 10px"
+        >Forgot password?</NuxtLink
+      >
+      <button
+        @click="handleSignIn({ email, password })"
+        class="login-form-button"
+      >
+        Login
+      </button>
     </div>
-    <span class="have-account">Nie masz jeszcze konta? </span>
-    <NuxtLink to="/signup" class="span-login">Zarejestruj się!</NuxtLink>
   </div>
 </template>
 
 <style scoped>
-.login-button,
-.login-button,
-.split {
-  background: transparent;
-  border: 0;
-  font-weight: 400;
-  color: #fff;
-  font-size: 24px;
+.login {
+  background-color: var(--bg-light);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  height: 100%;
+}
+
+.login-subtitle {
+  color: var(--primary-lighter);
+  font-size: 36px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.login-title {
+  color: var(--primary);
+  font-size: 42px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.login-form {
+  padding-top: 100px;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+@media screen and (min-width: 700px) {
+  .login-subtitle {
+    color: var(--primary-lighter);
+    font-size: 48px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+  }
+
+  .login-title {
+    color: var(--primary);
+    font-size: 72px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+  }
+
+  .login-form {
+    padding-top: 100px;
+    width: 360px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+  }
 }
 
 .alert-error {
@@ -95,47 +157,6 @@ const handleSignIn = async ({
   height: 100%;
 }
 
-.login-button:hover,
-.login-button:hover {
-  cursor: pointer;
-}
-
-.login {
-  color: #163020;
-  display: block;
-  text-align: center;
-  font-weight: 500;
-  font-size: 69px;
-  width: 100%;
-  height: 100%;
-  margin-top: 100px;
-}
-
-.login-form-container {
-  display: block;
-  width: 300px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.login-title {
-  margin-top: 100px;
-}
-
-.login-form {
-  position: block;
-}
-
-.login-input {
-  display: block;
-  width: 100%;
-  height: 40px;
-  border-radius: 7px;
-  border-width: 1px;
-  border-style: solid;
-  padding-left: 12px;
-}
-
 .login-form-button {
   margin-top: 20px;
   display: block;
@@ -144,38 +165,48 @@ const handleSignIn = async ({
 }
 
 .login-form-button {
-  width: 150px;
-  height: 40px;
-  background-color: #163020;
+  width: 220px;
+  height: 50px;
+  background-color: var(--primary-lighter);
   color: #fff;
   border: 0;
-  border-radius: 7px;
-  text-align: center;
-  margin-left: auto;
-  margin-right: auto;
-  font-size: 1.2rem;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 24px;
   cursor: pointer;
+  align-self: center;
 }
 
-.have-account {
-  padding: 0;
-  color: black;
-  font-size: 20px;
-  font-weight: 400;
+.login-link {
+  color: var(--primary-lighter);
+  align-self: center;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  text-decoration-line: underline;
 }
 
-.span-login {
-  padding: 0;
-  color: blue;
-  font-size: 20px;
-  font-weight: 400;
-  cursor: pointer;
+.login-input {
+  display: block;
+  width: 100%;
+  height: 36px;
+  border-radius: 12px;
+  border-width: 1px;
+  border-style: solid;
+  padding-left: 12px;
+  background-color: transparent;
+}
+
+.login-input:focus {
+  outline: none !important;
+  border: 2px solid var(--primary-lighter);
 }
 
 .label {
+  margin-top: 10px;
   font-size: 13px;
   color: #163020;
-  margin-top: 15px;
   display: flex;
   flex-direction: column;
   text-align: left;

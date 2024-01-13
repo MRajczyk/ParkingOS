@@ -31,7 +31,7 @@ function registerUser() {
     isNameError.value = true;
   }
   if (surname.value.length === 0) {
-    isNameError.value = true;
+    isSurnameError.value = true;
   }
   if (email.value.length === 0) {
     isEmailError.value = true;
@@ -53,6 +53,7 @@ function registerUser() {
   }
 
   isNameError.value = false;
+  isSurnameError.value = false;
   isEmailError.value = false;
   passwordError.value = "";
 
@@ -76,96 +77,96 @@ function registerUser() {
 
 <template>
   <div class="register">
-    <label class="register-title">REGISTER</label>
     <form
       class="register-form"
       v-on:submit.prevent="onsubmit"
       method="POST"
       @submit="registerUser()"
     >
-      <div class="register-form-container">
-        <label class="label">Email address</label>
-        <input
-          type="text"
-          name="email"
-          placeholder="Email"
-          v-model="email"
-          class="register-input"
-        />
-        <span class="info-span" style="color: red" v-if="isEmailError">
-          Please enter valid email!
-        </span>
-        <label class="label">Name</label>
-        <input
-          type="text"
-          name="name"
-          placeholder="Name"
-          class="register-input"
-          v-model="name"
-        />
-        <span class="info-span" style="color: red" v-if="isNameError">
-          Enter valid name
-        </span>
-        <label class="label">Surname</label>
-        <input
-          type="text"
-          placeholder="Surname"
-          name="surname"
-          class="register-input"
-          v-model="surname"
-        />
-        <span class="info-span" style="color: red" v-if="isSurnameError">
-          Enter valid surname
-        </span>
-        <label class="label">Password</label>
-        <input
-          type="password"
-          placeholder="Password"
-          name="password"
-          class="register-input"
-          v-model="firstPassword"
-        />
-        <span
-          class="info-span"
-          style="color: red"
-          v-if="passwordError.length > 0"
-        >
-          {{ passwordError }}
-        </span>
-        <label class="label">Repeat password</label>
-        <input
-          type="password"
-          placeholder="Repeat Password"
-          name="password"
-          v-model="secondPassword"
-          class="register-input"
-        />
-        <span
-          class="info-span"
-          style="color: red"
-          v-if="passwordError.length > 0"
-        >
-          {{ passwordError }}
-        </span>
-        <span
-          class="info-span"
-          style="color: red"
-          v-if="registerError.length > 0"
-        >
-          {{ registerError }}
-        </span>
-        <span
-          class="info-span"
-          style="color: green"
-          v-if="registerSuccess.length > 0"
-        >
-          {{ registerSuccess }}
-        </span>
-        <button type="submit" class="register-form-button">Sign-up</button>
-      </div>
+      <label class="register-subtitle">Sign in to</label>
+      <label class="register-title">ParkingOS</label>
+      <NuxtLink to="/signin" class="register-link" style="margin-top: 50px"
+        >Already have an account? Sign in!
+      </NuxtLink>
+      <label class="register-label">Email address</label>
+      <input
+        type="text"
+        name="email"
+        placeholder="Email"
+        v-model="email"
+        class="register-input"
+      />
+      <span class="info-span" style="color: red" v-if="isEmailError">
+        Please enter valid email!
+      </span>
+      <label class="register-label">Name</label>
+      <input
+        type="text"
+        name="name"
+        placeholder="Name"
+        class="register-input"
+        v-model="name"
+      />
+      <span class="info-span" style="color: red" v-if="isNameError">
+        Enter valid name
+      </span>
+      <label class="register-label">Surname</label>
+      <input
+        type="text"
+        placeholder="Surname"
+        name="surname"
+        class="register-input"
+        v-model="surname"
+      />
+      <span class="info-span" style="color: red" v-if="isSurnameError">
+        Enter valid surname
+      </span>
+      <label class="register-label">Password</label>
+      <input
+        type="password"
+        placeholder="Password"
+        name="password"
+        class="register-input"
+        v-model="firstPassword"
+      />
+      <span
+        class="info-span"
+        style="color: red"
+        v-if="passwordError.length > 0"
+      >
+        {{ passwordError }}
+      </span>
+      <label class="register-label">Repeat password</label>
+      <input
+        type="password"
+        placeholder="Repeat Password"
+        name="password"
+        v-model="secondPassword"
+        class="register-input"
+      />
+      <span
+        class="info-span"
+        style="color: red"
+        v-if="passwordError.length > 0"
+      >
+        {{ passwordError }}
+      </span>
+      <span
+        class="info-span"
+        style="color: red"
+        v-if="registerError.length > 0"
+      >
+        {{ registerError }}
+      </span>
+      <span
+        class="info-span"
+        style="color: green"
+        v-if="registerSuccess.length > 0"
+      >
+        {{ registerSuccess }}
+      </span>
+      <button type="submit" class="register-form-button">Sign-up</button>
     </form>
-    <span class="have-account">Masz już konto? </span>
-    <NuxtLink to="/signin" class="span-login">Zaloguj się!</NuxtLink>
   </div>
 </template>
 
@@ -176,76 +177,128 @@ function registerUser() {
   margin-top: 3px;
 }
 .register {
-  color: #163020;
-  display: block;
-  text-align: center;
-  font-weight: 500;
-  font-size: 69px;
+  background-color: var(--bg-light);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   width: 100%;
   height: 100%;
-  margin-top: 60px;
+}
+
+.register-subtitle {
+  color: var(--primary-lighter);
+  font-size: 36px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
 }
 
 .register-title {
-  padding-bottom: 20px;
-}
-
-.register-form-container {
-  display: block;
-  width: 300px;
-  margin-left: auto;
-  margin-right: auto;
+  color: var(--primary);
+  font-size: 42px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
 }
 
 .register-form {
+  padding-top: 100px;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+@media screen and (min-width: 700px) {
+  .register-subtitle {
+    color: var(--primary-lighter);
+    font-size: 48px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+  }
+
+  .register-title {
+    color: var(--primary);
+    font-size: 72px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+  }
+
+  .register-form {
+    padding-top: 100px;
+    width: 360px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+  }
+}
+
+.alert-error {
+  color: #ff0000;
   display: block;
+  text-align: center;
+  font-weight: 500;
+  margin-top: 20px;
+  font-size: 14px;
+  width: 100%;
+  height: 100%;
+}
+
+.register-form-button {
+  margin-top: 20px;
+  display: block;
+  width: 100%;
+  height: 40px;
+}
+
+.register-form-button {
+  width: 220px;
+  height: 50px;
+  background-color: var(--primary-lighter);
+  color: #fff;
+  border: 0;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 24px;
+  cursor: pointer;
+  align-self: center;
+}
+
+.register-link {
+  color: var(--primary-lighter);
+  align-self: center;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  text-decoration-line: underline;
 }
 
 .register-input {
   display: block;
   width: 100%;
-  height: 40px;
-  border-radius: 7px;
+  height: 36px;
+  border-radius: 12px;
   border-width: 1px;
   border-style: solid;
   padding-left: 12px;
+  background-color: transparent;
 }
 
-.register-form-button {
-  margin-top: 30px;
-  display: block;
-  width: 150px;
-  height: 40px;
-  background-color: #163020;
-  color: #fff;
-  border: 0;
-  border-radius: 7px;
-  text-align: center;
-  margin-left: auto;
-  margin-right: auto;
-  font-size: 1.2rem;
-  cursor: pointer;
+.register-input:focus {
+  outline: none !important;
+  border: 2px solid var(--primary-lighter);
 }
 
-.have-account {
-  padding: 0;
-  color: black;
-  font-size: 20px;
-  font-weight: 400;
-}
-
-.span-login {
-  padding: 0;
-  color: blue;
-  font-size: 20px;
-  font-weight: 400;
-  cursor: pointer;
-}
-
-.label {
+.register-label {
+  margin-top: 10px;
   font-size: 13px;
   color: #163020;
-  margin-top: 15px;
   display: flex;
   flex-direction: column;
   text-align: left;
