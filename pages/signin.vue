@@ -11,6 +11,7 @@ definePageMeta({
   },
 });
 const isError = ref(false);
+const isErrorTooManyTries = ref(false);
 
 const handleSignIn = async ({
   email,
@@ -19,18 +20,24 @@ const handleSignIn = async ({
   email: string;
   password: string;
 }) => {
-  //https://sidebase.io/nuxt-auth/application-side/custom-sign-in-page
-  const { error, url } = await signIn("credentials", {
-    email,
-    password,
-    redirect: false,
-  });
-  if (error) {
-    isError.value = true;
-  } else {
-    console.log(url);
-    // No error, continue with the sign in, e.g., by following the returned redirect:
-    return navigateTo(url, { external: true });
+  try {
+    isError.value = false;
+    isErrorTooManyTries.value = false;
+    //https://sidebase.io/nuxt-auth/application-side/custom-sign-in-page
+    const { error, url } = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+    if (error) {
+      isError.value = true;
+    } else {
+      console.log(url);
+      // No error, continue with the sign in, e.g., by following the returned redirect:
+      return navigateTo(url, { external: true });
+    }
+  } catch (error) {
+    isErrorTooManyTries.value = true;
   }
 };
 </script>
@@ -49,7 +56,10 @@ const handleSignIn = async ({
           name="password"
           class="login-input"
         />
-        <span class="alert-error" v-if="isError">Błędne dane logowania! </span>
+        <span class="alert-error" v-if="isError">Incorrect credentials</span>
+        <span class="alert-error" v-if="isErrorTooManyTries"
+          >Too many tries. Try again in a minute.
+        </span>
         <button
           @click="handleSignIn({ email, password })"
           class="login-form-button"
