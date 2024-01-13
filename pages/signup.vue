@@ -23,7 +23,17 @@ const passwordError = ref("");
 const registerSuccess = ref("");
 const registerError = ref("");
 
+function checkPassword(str) {
+  var re =
+    /^(?=.*[0-9])(?=.*[!"#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~])[a-zA-Z0-9!"#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~*]{8,}$/;
+  return re.test(str);
+}
+
 function registerUser() {
+  isNameError.value = false;
+  isSurnameError.value = false;
+  isEmailError.value = false;
+  passwordError.value = "";
   registerSuccess.value = "";
   registerError.value = "";
 
@@ -44,18 +54,19 @@ function registerUser() {
     passwordError.value = "Passwords don't match";
   }
 
+  if (!checkPassword(firstPassword.value)) {
+    passwordError.value =
+      "Password must contain at least one lowercase, one uppercase, one digit and one special character while being 8 characters long.";
+  }
+
   if (
     isEmailError.value ||
     passwordError.value.length > 0 ||
-    isNameError.value
+    isNameError.value ||
+    isSurnameError.value
   ) {
     return;
   }
-
-  isNameError.value = false;
-  isSurnameError.value = false;
-  isEmailError.value = false;
-  passwordError.value = "";
 
   axios
     .post("http://localhost:3000/api/profiles", {
@@ -160,7 +171,7 @@ function registerUser() {
       </span>
       <span
         class="info-span"
-        style="color: green"
+        style="color: green; align-self: center"
         v-if="registerSuccess.length > 0"
       >
         {{ registerSuccess }}
