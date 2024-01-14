@@ -3,7 +3,8 @@ export default defineNuxtRouteMiddleware((to, from) => {
   if (
     status.value !== "authenticated" &&
     to.path !== "/signin" &&
-    to.path !== "/signup"
+    to.path !== "/signup" &&
+    !to.path.startsWith("/forgot-password")
   ) {
     return navigateTo("/signin");
   }

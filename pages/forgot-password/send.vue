@@ -1,94 +1,89 @@
-<script setup lang="ts">
-const { signIn } = useAuth();
-
-const email = ref("");
-const password = ref("");
-
+<script setup>
 definePageMeta({
   auth: {
     unauthenticatedOnly: true,
     navigateAuthenticatedTo: "/",
   },
 });
-const isError = ref(false);
-const isErrorTooManyTries = ref(false);
+import axios from "axios";
 
-const handleSignIn = async ({
-  email,
-  password,
-}: {
-  email: string;
-  password: string;
-}) => {
-  try {
-    isError.value = false;
-    isErrorTooManyTries.value = false;
-    //https://sidebase.io/nuxt-auth/application-side/custom-sign-in-page
-    //@ts-expect-error
-    const { error, url } = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-    if (error) {
-      isError.value = true;
-    } else {
-      console.log(url);
-      // No error, continue with the sign in, e.g., by following the returned redirect:
-      return navigateTo(url, { external: true });
-    }
-  } catch (error) {
-    isErrorTooManyTries.value = true;
+const email = ref("");
+
+const isEmailError = ref(false);
+const sendEmailSuccess = ref("");
+const sendEmailError = ref("");
+
+function sendEmail() {
+  isEmailError.value = false;
+  sendEmailSuccess.value = "";
+  sendEmailError.value = "";
+
+  if (email.value.length === 0) {
+    isEmailError.value = true;
+    return;
   }
-};
+  axios
+    .post("http://localhost:3000/api/forgot-password", {
+      email: email.value,
+    })
+    .then((response) => {
+      console.log(response);
+      sendEmailSuccess.value = response.data.statusMessage;
+    })
+    .catch((error) => {
+      console.log(error);
+      sendEmailError.value = error.response.data.statusMessage;
+    });
+}
 </script>
 
 <template>
-  <div class="login">
-    <div class="login-form">
-      <label class="login-subtitle">Sign in to</label>
-      <label class="login-title">ParkingOS</label>
-      <NuxtLink to="/signup" class="login-link" style="margin-top: 50px"
-        >Don't have an account? Sign up!</NuxtLink
-      >
-      <label class="label">Email Address</label>
+  <div class="register">
+    <form
+      class="register-form"
+      v-on:submit.prevent="onsubmit"
+      method="POST"
+      @submit="sendEmail()"
+    >
+      <label class="register-subtitle">Recover Password</label>
+      <label class="register-title">ParkingOS</label>
+      <label class="register-label">Email address</label>
       <input
-        placeholder="Email"
-        v-model="email"
         type="text"
         name="email"
-        class="login-input"
+        placeholder="Email"
+        v-model="email"
+        class="register-input"
       />
-      <label class="label">Password</label>
-      <input
-        v-model="password"
-        type="password"
-        name="password"
-        class="login-input"
-        placeholder="Password"
-      />
-      <span class="alert-error" v-if="isError">Incorrect credentials</span>
-      <span class="alert-error" v-if="isErrorTooManyTries"
-        >Too many tries. Try again in a minute.
+      <span class="info-span" style="color: red" v-if="isEmailError">
+        Please enter valid email!
       </span>
-      <NuxtLink
-        to="/forgot-password/send"
-        class="login-link"
-        style="margin-top: 10px"
-        >Forgot password?</NuxtLink
+      <span
+        class="info-span"
+        style="color: red"
+        v-if="sendEmailError.length > 0"
       >
-      <button
-        @click="handleSignIn({ email, password })"
-        class="login-form-button"
+        {{ sendEmailError }}
+      </span>
+      <span
+        class="info-span"
+        style="color: green; align-self: center"
+        v-if="sendEmailSuccess.length > 0"
       >
-        Login
-      </button>
-    </div>
+        {{ sendEmailSuccess }}
+      </span>
+      <button type="submit" class="register-form-button">Send email</button>
+    </form>
   </div>
 </template>
 
 <style scoped>
-.login {
+.info-span {
+  display: block;
+  font-size: 13px;
+  margin-top: 3px;
+}
+.register {
   background-color: var(--bg-light);
   display: flex;
   flex-direction: column;
@@ -98,7 +93,7 @@ const handleSignIn = async ({
   height: 100%;
 }
 
-.login-subtitle {
+.register-subtitle {
   color: var(--primary-lighter);
   font-size: 36px;
   font-style: normal;
@@ -106,7 +101,7 @@ const handleSignIn = async ({
   line-height: normal;
 }
 
-.login-title {
+.register-title {
   color: var(--primary);
   font-size: 42px;
   font-style: normal;
@@ -114,7 +109,7 @@ const handleSignIn = async ({
   line-height: normal;
 }
 
-.login-form {
+.register-form {
   padding-top: 100px;
   width: 200px;
   display: flex;
@@ -124,7 +119,7 @@ const handleSignIn = async ({
 }
 
 @media screen and (min-width: 700px) {
-  .login-subtitle {
+  .register-subtitle {
     color: var(--primary-lighter);
     font-size: 48px;
     font-style: normal;
@@ -132,7 +127,7 @@ const handleSignIn = async ({
     line-height: normal;
   }
 
-  .login-title {
+  .register-title {
     color: var(--primary);
     font-size: 72px;
     font-style: normal;
@@ -140,7 +135,7 @@ const handleSignIn = async ({
     line-height: normal;
   }
 
-  .login-form {
+  .register-form {
     padding-top: 100px;
     width: 360px;
     display: flex;
@@ -158,16 +153,17 @@ const handleSignIn = async ({
   margin-top: 20px;
   font-size: 14px;
   width: 100%;
+  height: 100%;
 }
 
-.login-form-button {
+.register-form-button {
   margin-top: 20px;
   display: block;
   width: 100%;
   height: 40px;
 }
 
-.login-form-button {
+.register-form-button {
   width: 220px;
   height: 50px;
   background-color: var(--primary-lighter);
@@ -180,7 +176,7 @@ const handleSignIn = async ({
   align-self: center;
 }
 
-.login-link {
+.register-link {
   color: var(--primary-lighter);
   align-self: center;
   font-size: 12px;
@@ -190,7 +186,7 @@ const handleSignIn = async ({
   text-decoration-line: underline;
 }
 
-.login-input {
+.register-input {
   display: block;
   width: 100%;
   height: 36px;
@@ -201,12 +197,12 @@ const handleSignIn = async ({
   background-color: transparent;
 }
 
-.login-input:focus {
+.register-input:focus {
   outline: none !important;
   border: 2px solid var(--primary-lighter);
 }
 
-.label {
+.register-label {
   margin-top: 10px;
   font-size: 13px;
   color: #163020;

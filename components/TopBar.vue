@@ -36,7 +36,11 @@ function hideBurger() {
       <div class="topbar-buttons" style="padding-right: 16px">
         <NuxtLink to="/account" class="profile-link">Account</NuxtLink>
         <span class="split" style="font-weight: 200">|</span>
-        <button @click="signOut({ callbackUrl: '/signin' })" class="logout">
+        <button
+          @click="signOut({ callbackUrl: '/signin' })"
+          class="burger-option"
+          style="display: inline; text-decoration: none"
+        >
           Logout
         </button>
       </div>
@@ -124,6 +128,11 @@ function hideBurger() {
   color: #fff;
   font-size: 24px;
   border-bottom: 2px solid #fff;
+  cursor: pointer;
+}
+
+.burger-option:hover {
+  cursor: pointer;
 }
 
 .burger-options:last-child {
@@ -170,6 +179,11 @@ a.logout:hover,
 
   .topbar {
     justify-content: space-between;
+  }
+
+  .burger-option {
+    cursor: pointer;
+    border-bottom: none;
   }
 }
 </style>
