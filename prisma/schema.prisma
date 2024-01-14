@@ -13,19 +13,29 @@ enum Role {
 }
 
 model User {
+    id                      Int @id @default(autoincrement())
+    name                    String
+    surname                 String
+    email                   String @unique
+    password                String
+    role                    Role
+    balance                 Float
+    isBanned                Boolean
+    cars                    Car[]
+    passwordRecoveryTokens  PasswordResetToken[]
+}
+
+model PasswordResetToken {
     id              Int @id @default(autoincrement())
-    name            String
-    surname         String
-    email           String @unique
-    password        String
-    role            Role
-    balance         Float
-    isBanned        Boolean
-    cars            Car[]
+    userId          Int
+    user            User @relation(fields: [userId], references: [id])
+    token           String
+    expiration      DateTime         
 }
 
 model Car {
-    registrationNumber      String @id @unique
+    id                      Int @id @default(autoincrement())
+    registrationNumber      String @unique
     name                    String
     userId                  Int
     user                    User @relation(fields: [userId], references: [id])
@@ -35,6 +45,7 @@ model Parking {
     id                      Int @id @default(autoincrement())
     monthlyCosts            MonthlyCost[]
     name                    String
+    city                    String
     address                 String
     floors                  Int
     parkingPlacesPerFloor   Int
@@ -59,10 +70,19 @@ model ParkingSession {
 }
 
 model ChargePlan {
-    id                      Int @id @default(autoincrement())   
-    parkingId               Int @unique
-    parking                 Parking @relation(fields: [parkingId], references: [id])
-    nightTariffStartHour    Int
+    id                 Int @id @default(autoincrement())
+    parkingId          Int @unique
+    parking            Parking @relation(fields: [parkingId], references: [id])
+    nightStart         DateTime
+    nightEnd           DateTime
+    dayHour1Tariff     Float
+    dayHour2Tariff     Float
+    dayHour3Tariff     Float
+    dayHour4Tariff     Float
+    nightHour1Tariff   Float
+    nightHour2Tariff   Float
+    nightHour3Tariff   Float
+    nightHour4Tariff   Float
 }
 
 model MonthlyCost {

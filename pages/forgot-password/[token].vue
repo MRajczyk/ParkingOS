@@ -1,27 +1,20 @@
 <script setup>
-import TopBar from "/components/TopBar.vue";
-import axios from "axios";
-
 definePageMeta({
   auth: {
     unauthenticatedOnly: true,
     navigateAuthenticatedTo: "/",
   },
 });
+import axios from "axios";
 
-const name = ref("");
-const surname = ref("");
-const email = ref("");
+const route = useRoute();
+
 const firstPassword = ref("");
 const secondPassword = ref("");
-
-const isNameError = ref(false);
-const isSurnameError = ref(false);
-const isEmailError = ref(false);
 const passwordError = ref("");
-
-const registerSuccess = ref("");
-const registerError = ref("");
+const tokenError = ref("");
+const resetSuccess = ref("");
+const resetError = ref("");
 
 function checkPassword(str) {
   var re =
@@ -29,23 +22,12 @@ function checkPassword(str) {
   return re.test(str);
 }
 
-function registerUser() {
-  isNameError.value = false;
-  isSurnameError.value = false;
-  isEmailError.value = false;
+function resetPassword() {
+  tokenError.value = "";
   passwordError.value = "";
-  registerSuccess.value = "";
-  registerError.value = "";
+  resetSuccess.value = "";
+  resetError.value = "";
 
-  if (name.value.length === 0) {
-    isNameError.value = true;
-  }
-  if (surname.value.length === 0) {
-    isSurnameError.value = true;
-  }
-  if (email.value.length === 0) {
-    isEmailError.value = true;
-  }
   if (
     firstPassword.value.length === 0 ||
     !secondPassword.value.length === 0 ||
@@ -59,29 +41,26 @@ function registerUser() {
       "Password must contain at least one lowercase, one uppercase, one digit and one special character while being 8 characters long.";
   }
 
-  if (
-    isEmailError.value ||
-    passwordError.value.length > 0 ||
-    isNameError.value ||
-    isSurnameError.value
-  ) {
+  if (passwordError.value.length > 0) {
+    return;
+  }
+  if (!route.params.token || !route.params.token.length) {
+    tokenError.value = "Invalid password reset token";
     return;
   }
 
   axios
-    .post("http://localhost:3000/api/profiles", {
-      name: name.value,
-      surname: surname.value,
-      email: email.value,
+    .post("http://localhost:3000/api/reset-password", {
+      token: route.params.token,
       password: firstPassword.value,
     })
     .then((response) => {
       console.log(response);
-      registerSuccess.value = response.data.statusMessage;
+      resetSuccess.value = response.data.statusMessage;
     })
     .catch((error) => {
       console.log(error);
-      registerError.value = error.response.data.statusMessage;
+      resetError.value = error.response.data.statusMessage;
     });
 }
 </script>
@@ -92,46 +71,10 @@ function registerUser() {
       class="register-form"
       v-on:submit.prevent="onsubmit"
       method="POST"
-      @submit="registerUser()"
+      @submit="resetPassword()"
     >
-      <label class="register-subtitle">Sign in to</label>
+      <label class="register-subtitle">Password reset</label>
       <label class="register-title">ParkingOS</label>
-      <NuxtLink to="/signin" class="register-link" style="margin-top: 50px"
-        >Already have an account? Sign in!
-      </NuxtLink>
-      <label class="register-label">Email address</label>
-      <input
-        type="text"
-        name="email"
-        placeholder="Email"
-        v-model="email"
-        class="register-input"
-      />
-      <span class="info-span" style="color: red" v-if="isEmailError">
-        Please enter valid email!
-      </span>
-      <label class="register-label">Name</label>
-      <input
-        type="text"
-        name="name"
-        placeholder="Name"
-        class="register-input"
-        v-model="name"
-      />
-      <span class="info-span" style="color: red" v-if="isNameError">
-        Enter valid name
-      </span>
-      <label class="register-label">Surname</label>
-      <input
-        type="text"
-        placeholder="Surname"
-        name="surname"
-        class="register-input"
-        v-model="surname"
-      />
-      <span class="info-span" style="color: red" v-if="isSurnameError">
-        Enter valid surname
-      </span>
       <label class="register-label">Password</label>
       <input
         type="password"
@@ -146,6 +89,9 @@ function registerUser() {
         v-if="passwordError.length > 0"
       >
         {{ passwordError }}
+      </span>
+      <span class="info-span" style="color: red" v-if="tokenError.length > 0">
+        {{ tokenError }}
       </span>
       <label class="register-label">Repeat password</label>
       <input
@@ -162,21 +108,17 @@ function registerUser() {
       >
         {{ passwordError }}
       </span>
-      <span
-        class="info-span"
-        style="color: red"
-        v-if="registerError.length > 0"
-      >
-        {{ registerError }}
+      <span class="info-span" style="color: red" v-if="resetError.length > 0">
+        {{ resetError }}
       </span>
       <span
         class="info-span"
         style="color: green; align-self: center"
-        v-if="registerSuccess.length > 0"
+        v-if="resetSuccess.length > 0"
       >
-        {{ registerSuccess }}
+        {{ resetSuccess }}
       </span>
-      <button type="submit" class="register-form-button">Sign-up</button>
+      <button type="submit" class="register-form-button">Reset password</button>
     </form>
   </div>
 </template>
