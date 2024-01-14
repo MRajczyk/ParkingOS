@@ -15,6 +15,14 @@ export default defineNuxtConfig({
         maxRequests: 5,
         intervalSeconds: 60,
       },
+      "/api/reset-password": {
+        maxRequests: 5,
+        intervalSeconds: 60,
+      },
+      "/api/forgot-password": {
+        maxRequests: 5,
+        intervalSeconds: 60,
+      },
     },
   },
 });
