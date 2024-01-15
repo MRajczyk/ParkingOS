@@ -1,9 +1,8 @@
 import { getServerSession } from "#auth";
 import { PrismaClient } from "@prisma/client";
-import { hash } from "bcrypt";
+import { compareSync } from "bcrypt";
 
 export default eventHandler(async (event) => {
-  const SALT_ROUNDS = 10;
   const prisma: PrismaClient = event.context.prisma;
   const session = await getServerSession(event);
   if (!session) {
@@ -14,12 +13,45 @@ export default eventHandler(async (event) => {
   // @ts-ignore
   if (!Number.isNaN(body.id) && session.user?.id !== body.id) {
     throw createError({
-      statusMessage: "Invalid session",
-      statusCode: 418,
+      statusMessage: "Invalid user id in request",
+      statusCode: 400,
+    });
+  }
+
+  if (
+    !body.name ||
+    body.name.length < 1 ||
+    !body.surname ||
+    body.surname.length < 1
+  ) {
+    throw createError({
+      statusMessage: "Invalid data",
+      statusCode: 400,
     });
   }
 
   try {
+    const foundUser = await prisma.user.findFirst({
+      where: {
+        id: Number.parseInt(body.id),
+      },
+    });
+
+    if (!foundUser) {
+      throw createError({
+        statusMessage: "Invalid user id",
+        statusCode: 400,
+      });
+    }
+
+    const passwordValid = compareSync(body.password, foundUser.password);
+    if (!passwordValid) {
+      throw createError({
+        statusMessage: "Invalid password",
+        statusCode: 400,
+      });
+    }
+
     const updateUser = await prisma.user.update({
       where: {
         id: Number.parseInt(body.id),
@@ -27,7 +59,6 @@ export default eventHandler(async (event) => {
       data: {
         name: body.name,
         surname: body.surname,
-        password: await hash(body.password, SALT_ROUNDS),
       },
     });
     if (updateUser) {
@@ -41,6 +72,10 @@ export default eventHandler(async (event) => {
       });
     }
   } catch (e) {
-    console.log(e.message);
+    throw createError({
+      //@ts-expect-error
+      statusMessage: e.message,
+      statusCode: 400,
+    });
   }
 });

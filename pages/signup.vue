@@ -1,5 +1,6 @@
 <script setup>
 import axios from "axios";
+import { checkPassword } from "/utils/utils";
 
 definePageMeta({
   auth: {
@@ -21,12 +22,6 @@ const passwordError = ref("");
 
 const registerSuccess = ref("");
 const registerError = ref("");
-
-function checkPassword(str) {
-  var re =
-    /^(?=.*[0-9])(?=.*[!"#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~])[a-zA-Z0-9!"#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~*]{8,}$/;
-  return re.test(str);
-}
 
 function registerUser() {
   isNameError.value = false;

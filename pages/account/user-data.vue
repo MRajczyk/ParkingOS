@@ -1,85 +1,21 @@
 <script setup>
 import TopBar from "/components/TopBar.vue";
-import axios from "axios";
+import PasswordForm from "/components/account/user-data/PasswordForm.vue";
+import PersonalDetailsForm from "/components/account/user-data/PersonalDetailsForm.vue";
 definePageMeta({ middleware: "auth" });
 
-const { status, data } = useAuth();
+const passwordTabOn = ref(false);
 
-const name = ref("");
-const surname = ref("");
-const firstPassword = ref("");
-const secondPassword = ref("");
-
-const isNameError = ref(false);
-const isSurnameError = ref(false);
-const passwordError = ref("");
-
-const putSuccess = ref("");
-const putError = ref("");
-
-axios
-  .get("http://localhost:3000/api/profiles/" + data.value.user.id)
-  .then((response) => {
-    name.value = response.data.data.name;
-    surname.value = response.data.data.surname;
-  })
-  .catch((error) => {
-    alert(error);
-  });
-
-function checkPassword(str) {
-  var re =
-    /^(?=.*[0-9])(?=.*[!"#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~])[a-zA-Z0-9!"#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~*]{8,}$/;
-  return re.test(str);
+function changeFormToPassword() {
+  if (passwordTabOn.value !== true) {
+    passwordTabOn.value = true;
+  }
 }
 
-function putUserProfile() {
-  isSurnameError.value = false;
-  isNameError.value = false;
-  passwordError.value = "";
-  putSuccess.value = "";
-  putError.value = "";
-
-  if (name.value.length === 0) {
-    isNameError.value = true;
+function changeFormToPersonalData() {
+  if (passwordTabOn.value !== false) {
+    passwordTabOn.value = false;
   }
-  if (surname.value.length === 0) {
-    return;
-  }
-  if (
-    firstPassword.value.length === 0 ||
-    !secondPassword.value.length === 0 ||
-    firstPassword.value !== secondPassword.value
-  ) {
-    passwordError.value = "Incorrect Password";
-  }
-
-  if (!checkPassword(firstPassword.value)) {
-    passwordError.value =
-      "Password must contain at least one lowercase, one uppercase, one digit and one special character while being 8 characters long.";
-  }
-
-  if (
-    passwordError.value.length > 0 ||
-    isNameError.value ||
-    isSurnameError.value
-  ) {
-    return;
-  }
-
-  axios
-    .put("http://localhost:3000/api/profiles", {
-      id: data.value.user.id,
-      name: name.value,
-      surname: surname.value,
-      password: firstPassword.value,
-    })
-    .then((response) => {
-      putSuccess.value = response.data.statusMessage;
-    })
-    .catch((error) => {
-      putError.value = error.response.data.statusMessage;
-    });
 }
 </script>
 
@@ -99,76 +35,32 @@ function putUserProfile() {
         <NuxtLink to="/account/cars" class="profile-nav-button">Cars </NuxtLink>
       </div>
       <div class="profile-form-container">
-        <form
-          class="profile-form"
-          v-on:submit.prevent="onsubmit"
-          method="POST"
-          @submit="putUserProfile()"
-        >
-          <label class="profile-label">Name</label>
-          <input
-            type="text"
-            name="name"
-            placeholder="Name"
-            class="profile-input"
-            v-model="name"
-          />
-          <span class="info-span" style="color: red" v-if="isNameError">
-            Enter valid name
-          </span>
-          <label class="profile-label">Surname</label>
-          <input
-            type="text"
-            placeholder="Surname"
-            name="surname"
-            class="profile-input"
-            v-model="surname"
-          />
-          <span class="info-span" style="color: red" v-if="isSurnameError">
-            Enter valid surname
-          </span>
-          <label class="profile-label">Password</label>
-          <input
-            type="password"
-            placeholder="Password"
-            name="password"
-            class="profile-input"
-            v-model="firstPassword"
-          />
-          <span
-            class="info-span"
-            style="color: red"
-            v-if="passwordError.length > 0"
+        <div class="user-data-toggle-buttons-container">
+          <button
+            @click="changeFormToPersonalData()"
+            class="user-data-toggle-button"
+            :style="
+              passwordTabOn
+                ? { backgroundColor: 'var(--bg-darker)' }
+                : { backgroundColor: 'var(--primary)' }
+            "
           >
-            {{ passwordError }}
-          </span>
-          <label class="profile-label">Repeat password</label>
-          <input
-            type="password"
-            placeholder="Repeat Password"
-            name="password"
-            v-model="secondPassword"
-            class="profile-input"
-          />
-          <span
-            class="info-span"
-            style="color: red"
-            v-if="passwordError.length > 0"
+            Personal Data
+          </button>
+          <button
+            @click="changeFormToPassword()"
+            class="user-data-toggle-button"
+            :style="
+              passwordTabOn
+                ? { backgroundColor: 'var(--primary)' }
+                : { backgroundColor: 'var(--bg-darker)' }
+            "
           >
-            {{ passwordError }}
-          </span>
-          <span class="info-span" style="color: red" v-if="putError.length > 0">
-            {{ putError }}
-          </span>
-          <span
-            class="info-span"
-            style="color: green; align-self: center"
-            v-if="putSuccess.length > 0"
-          >
-            {{ putSuccess }}
-          </span>
-          <button type="submit" class="profile-form-button">Update</button>
-        </form>
+            Password
+          </button>
+        </div>
+        <PersonalDetailsForm v-if="!passwordTabOn" />
+        <PasswordForm v-if="passwordTabOn" />
       </div>
     </div>
   </TopBar>
@@ -179,6 +71,7 @@ function putUserProfile() {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
   background-color: white;
   border-radius: 40px;
   padding: 40px;
@@ -192,7 +85,6 @@ function putUserProfile() {
   gap: 16px;
   width: 100%;
 }
-
 .profile-nav-button {
   border-radius: 20px;
   text-decoration: none;
@@ -202,6 +94,25 @@ function putUserProfile() {
   color: white;
   background-color: var(--bg-darker);
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
+}
+
+.user-data-toggle-buttons-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.user-data-toggle-button {
+  border-radius: 20px;
+  text-decoration: none;
+  text-align: center;
+  width: 150px;
+  padding: 10px 0px;
+  color: white;
+  border: 0;
 }
 
 .info-span {
@@ -219,14 +130,6 @@ function putUserProfile() {
   height: 100%;
 }
 
-.profile-form {
-  width: 200px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-}
-
 @media screen and (min-width: 700px) {
   .profile-nav-buttons {
     flex-direction: row;
@@ -234,12 +137,8 @@ function putUserProfile() {
     gap: 20px;
   }
 
-  .profile-form {
-    width: 360px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
+  .user-data-toggle-buttons-container {
+    flex-direction: row;
   }
 }
 
@@ -252,52 +151,6 @@ function putUserProfile() {
   font-size: 14px;
   width: 100%;
   height: 100%;
-}
-
-.profile-form-button {
-  margin-top: 20px;
-  display: block;
-  width: 100%;
-  height: 40px;
-}
-
-.profile-form-button {
-  width: 220px;
-  height: 50px;
-  background-color: var(--primary-lighter);
-  color: #fff;
-  border: 0;
-  border-radius: 25px;
-  font-weight: 600;
-  font-size: 24px;
-  cursor: pointer;
-  align-self: center;
-}
-
-.profile-link {
-  color: var(--primary-lighter);
-  align-self: center;
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-  text-decoration-line: underline;
-}
-
-.profile-input {
-  display: block;
-  width: calc(100% - 12px);
-  height: 36px;
-  border-radius: 12px;
-  border-width: 1px;
-  border-style: solid;
-  padding-left: 12px;
-  background-color: transparent;
-}
-
-.profile-input:focus {
-  outline: none !important;
-  border: 2px solid var(--primary-lighter);
 }
 
 .profile-label {
