@@ -1,7 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { hash } from "bcrypt";
 import { Role } from "@prisma/client";
-import { createTransport } from "nodemailer";
 
 function checkPassword(str: string) {
   var re =

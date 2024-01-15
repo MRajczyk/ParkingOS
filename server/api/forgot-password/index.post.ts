@@ -53,7 +53,7 @@ export default eventHandler(async (event) => {
       text:
         "Go to following url to reset password at Parking OS: localhost:3000/forgot-password/" +
         token,
-      html: `<p>Go to following url to reset password at Parking OS: <a>localhost:3000/forgot-password/${token}<a/> Link is valid only for 30 minutes.</p>`,
+      html: `<p>Go to following url to reset password at Parking OS: <a href="localhost:3000/forgot-password/${token}">localhost:3000/forgot-password/${token}</a> Link is valid only for 30 minutes.</p>`,
     });
     console.log("Message sent: %s", info.messageId);
   } catch (e) {

@@ -35,7 +35,9 @@ function hideBurger() {
       </div>
       <NuxtLink to="/" class="topbar-title"> ParkingOS </NuxtLink>
       <div class="topbar-buttons" style="padding-right: 16px">
-        <NuxtLink to="/account" class="profile-link">Account</NuxtLink>
+        <NuxtLink to="/account/user-data" class="profile-link"
+          >Account</NuxtLink
+        >
         <span class="split" style="font-weight: 200">|</span>
         <button
           @click="signOut({ callbackUrl: '/signin' })"
@@ -49,7 +51,7 @@ function hideBurger() {
     <div class="burger-options" id="burger-options">
       <NuxtLink to="/finder/search" class="burger-option">Finder</NuxtLink>
       <NuxtLink to="/payment" class="burger-option">Payment</NuxtLink>
-      <NuxtLink to="/account" class="burger-option">Account</NuxtLink>
+      <NuxtLink to="/account/user-data" class="burger-option">Account</NuxtLink>
       <button
         @click="signOut({ callbackUrl: '/signin' })"
         class="burger-option"
