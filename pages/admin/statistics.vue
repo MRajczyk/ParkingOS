@@ -32,6 +32,13 @@ import TopBar from "/components/TopBar.vue";
     rightSelected.value = type;
     console.log(`Right Button clicked: ${type}`);
   };
+  const parkingInfo = ref({
+  creationDate: '2022-01-15',
+  maxCapacity: 100,
+  revenueGenerated: '$100,000',
+  carsParkedToDate: 50,
+  sumOfMonthlyCosts: '$10,000',
+});
   </script>
   
 
@@ -39,8 +46,7 @@ import TopBar from "/components/TopBar.vue";
 <template>
     <TopBar>
       <div class="container">
-        <!-- Lewa strona (20%) -->
-        <div class="left-side">
+         <div class="left-side">
           <div class="search-input-container">
             <input
               type="text"
@@ -62,8 +68,7 @@ import TopBar from "/components/TopBar.vue";
             </button>
           </div>
         </div>
-        <!-- Prawa strona (80%) -->
-        <div class="right-side">
+         <div class="right-side">
           <div class="selected-title">{{ selectedParkingName }}</div>
           <div class="right-buttons">
             <button
@@ -89,11 +94,16 @@ import TopBar from "/components/TopBar.vue";
             </button>
           </div>
           <div class="content-container">
-            <!-- Tutaj dodaj dynamiczny content w zależności od wybranego przycisku -->
-            <div class="dynamic-content">
-              <!-- Treść w zależności od wybranego przycisku -->
+           <div v-if="rightSelected === 'Parking'">
+            <div class="parking-info">
+              <p>Parking creation date: {{ parkingInfo.creationDate }}</p>
+              <p>Max. capacity: {{ parkingInfo.maxCapacity }}</p>
+              <p>Revenue generated: {{ parkingInfo.revenueGenerated }}</p>
+              <p>Cars parked to date: {{ parkingInfo.carsParkedToDate }}</p>
+              <p>Sum of monthly costs: {{ parkingInfo.sumOfMonthlyCosts }}</p>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </TopBar>
@@ -102,27 +112,26 @@ import TopBar from "/components/TopBar.vue";
   
 
   <style scoped>
-  /* Globalne style */
-  * {
+   * {
     box-sizing: border-box;
   }
   
   body {
     margin: 0;
     font-family: 'Arial', sans-serif;
+    background-color: #eef0e5;
+
   }
   
-  /* Styl kontenera głównego */
-  .container {
+   .container {
     display: flex;
     justify-content: space-between;
     background-color: #eef0e5;
-    min-height: 100vh; /* Minimalna wysokość ekranu */
-    color: #333; /* Kolor tekstu */
+    min-height: 100vh;  
+    color: #333;  
   }
   
-  /* Styl lewej strony */
-  .left-side {
+   .left-side {
     padding-top: 60px;
     width: 18%;
     display: flex;
@@ -132,8 +141,7 @@ import TopBar from "/components/TopBar.vue";
     border-right: 1px solid #ccc;
   }
   
-  /* Styl prawej strony */
-  .right-side {
+   .right-side {
     width: 80%;
     display: flex;
     flex-direction: column;
@@ -144,11 +152,11 @@ import TopBar from "/components/TopBar.vue";
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 15px; /* Zmniejszono odległość na dole */
-  font-size: 30px;
+  margin-bottom: 15px;  
+  font-size: 64px;
   margin-top: 30px;
   font-weight: bold;
-  color: #333; /* Kolor tekstu */
+  color: #5C5C5C;  
 }
 
 
@@ -166,12 +174,15 @@ import TopBar from "/components/TopBar.vue";
   
   input {
     padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 20px;
-    width: 90%; /* Dodane */
+     border-radius: 20px;
+    width: 90%;  
   margin-right:10%;
     max-height: 200px;
-    color: #333; /* Kolor tekstu */
+    height:50px;
+    font-size: 30px;
+    color: #333;  
+   background-color: #eef0e5;
+ 
   }
   
  
@@ -186,106 +197,107 @@ import TopBar from "/components/TopBar.vue";
   width: 100%;
 }
 
-
- 
 .left-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 10px;
   margin-top: 5px;
   margin-bottom: 5px;
   cursor: pointer;
   border: none;
   border-radius: 20px;
-  background-color: #4caf50;
-  color: #ffffff;
+  background-color: #ffffff;
+  color: #000000;
   flex-shrink: 0;
-   box-sizing: border-box; /* Dodane */
+  box-sizing: border-box;
   margin-right: 5%;
-  height: 40px;
-  transition: background-color 0.3s;
-  width: 95%; /* Dodane */
-  margin-right:5%;
+  height: 50px;
+  transition: background-color 0.3s, box-shadow 0.3s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 95%;
+  margin-right: 5%;
+  font-size: 30px;
 }
 
-
-
-
-/* Styl suwaka przewijania */
 .buttons-container::-webkit-scrollbar {
   width: 10px;
-  margin-left: 10px; /* Dodany margines po lewej stronie suwaka */
+  margin-left: 10px;
 }
 
 .buttons-container::-webkit-scrollbar-thumb {
-  background-color: #4caf50; /* Kolor kciuka suwaka */
+  background-color: #c7e5c2;
   border-radius: 20px;
   border: 6px solid transparent;
 }
 
 .buttons-container::-webkit-scrollbar-track {
-  background-color: #eef0e5; /* Kolor toru suwaka */
+  background-color: #eef0e5;
+}
+
+.left-button.active {
+  background-color: #DDE7DD;
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
+}
+
+.left-button:hover {
+  background-color: #c7e5c2;
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+}
+
+
+  .right-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  margin: 5px;
+  cursor: pointer;
+  border: none;
+  border-radius: 20px;
+  background-color: #DDE7DD;
+  color: #ffffff;
+  width: 100%;
+  height: 50px;
+  transition: background-color 0.3s, box-shadow 0.3s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-weight: bold;
+  font-size: 30px;
+}
+
+.right-button.active {
+  background-color: #163020;
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
+}
+
+.right-button:hover {
+  background-color: #68a691;
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+}
+
+.right-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-left: 13%;
+  margin-right: 14%;
+  width: 73%;
 }
 
   
-
- 
-
-  .left-button.active {
-    background-color: #9d1856;
-  }
-
-  .left-button:hover {
-    background-color: #4d388e;
-  }
-
-  /* Styl przycisków po prawej stronie */
-  .right-button {
-    padding: 10px;
-    margin: 5px;
-    cursor: pointer;
-    border: none;
-    border-radius: 20px;
-    background-color: #4caf50;
-    color: #ffffff;
-    width: 100%;
-    height: 40px;
-    transition: background-color 0.3s;
-  }
-
-  .right-button.active {
-    background-color: #9d1856;
-  }
-
-  .right-button:hover {
-    background-color: #4d388e;
-  }
-  
-  /* Styl prawej granicy */
-  .right-border {
-    width: 1px;
-    height: 100%;
-    background-color: #ccc;
-    margin-left: 10px;
-  }
-  
-
-  /* Styl przycisków po prawej stronie */
-  .right-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-left: 13%;
-    margin-right: 14%;
-    width: 73%;
-  }
-  
-  /* Styl kontenera na dynamiczny content */
-  .content-container {
+   .content-container {
     flex-grow: 1;
+    width: 100%;
+ 
   }
+  .parking-info {
+  font-size: 30px;  
+  line-height: 2;  
+  width: 95%;
+  align-items: left;
+margin-top: 40px;
+margin-left: 5%;
   
-  /* Styl dynamicznego contentu */
-  .dynamic-content {
-    margin-top: 5%;
-    height: 95%;
-  }
+}
+ 
   </style>
   
