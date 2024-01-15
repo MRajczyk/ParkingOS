@@ -1,72 +1,5 @@
-<template>
-    <TopBar>
-      <div class="container">
-        <!-- Lewa strona (20%) -->
-        <div class="left-side">
-          <div class="search-container">
-            <label for="search" :class="{ 'active-label': searchQuery !== '' }"></label>
-            <div class="search-input-container">
-              <input
-                type="text"
-                id="search"
-                v-model="searchQuery"
-                @input="filterParkings"
-                placeholder="Search"
-              />
-            </div>
-          </div>
-          <div class="buttons-container">
-            <div class="buttons-list" ref="buttonsList">
-              <button
-                v-for="parking in filteredParkings"
-                :key="parking.id"
-                :class="{ active: selectedParking === parking.id }"
-                @click="selectParking(parking.id, parking.name)"
-              >
-                {{ parking.name }}
-              </button>
-            </div>
-          </div>
-        </div>
-  
-        <!-- Prawa strona (80%) -->
-        <div class="right-side">
-          <div class="right-header">
-            <div class="selected-parking-title">{{ selectedParkingName }}</div>
-          </div>
-          <div class="right-buttons">
-            <button
-              @click="handleRightButtonClick('Parking')"
-              :class="{ active: rightSelected === 'Parking' }"
-            >
-              Parking
-            </button>
-            <button
-              @click="handleRightButtonClick('Space')"
-              :class="{ active: rightSelected === 'Space' }"
-            >
-              Space
-            </button>
-            <button
-              @click="handleRightButtonClick('Car')"
-              :class="{ active: rightSelected === 'Car' }"
-            >
-              Car
-            </button>
-          </div>
-          <div class="content-container">
-            <!-- Tutaj dodaj dynamiczny content w zależności od wybranego przycisku -->
-            <div class="dynamic-content">
-              <!-- Treść w zależności od wybranego przycisku -->
-            </div>
-          </div>
-        </div>
-      </div>
-    </TopBar>
-  </template>
-  
-  <script setup>
-  import TopBar from "/components/TopBar.vue";
+<script setup>
+import TopBar from "/components/TopBar.vue";
   import { ref } from 'vue';
   
   const parkings = ref([
@@ -101,6 +34,73 @@
   };
   </script>
   
+
+
+<template>
+    <TopBar>
+      <div class="container">
+        <!-- Lewa strona (20%) -->
+        <div class="left-side">
+          <div class="search-input-container">
+            <input
+              type="text"
+              id="search"
+              v-model="searchQuery"
+              @input="filterParkings"
+              placeholder="Search"
+            />
+          </div>
+          <div class="buttons-container" ref="buttonsList">
+            <button
+              v-for="parking in filteredParkings"
+              :key="parking.id"
+              class="left-button"
+              :class="{ active: selectedParking === parking.id }"
+              @click="selectParking(parking.id, parking.name)"
+            >
+              {{ parking.name }}
+            </button>
+          </div>
+        </div>
+        <!-- Prawa strona (80%) -->
+        <div class="right-side">
+          <div class="selected-title">{{ selectedParkingName }}</div>
+          <div class="right-buttons">
+            <button
+              @click="handleRightButtonClick('Parking')"
+              class="right-button"
+              :class="{ active: rightSelected === 'Parking' }"
+            >
+              Parking
+            </button>
+            <button
+              @click="handleRightButtonClick('Space')"
+              class="right-button"
+              :class="{ active: rightSelected === 'Space' }"
+            >
+              Space
+            </button>
+            <button
+              @click="handleRightButtonClick('Car')"
+              class="right-button"
+              :class="{ active: rightSelected === 'Car' }"
+            >
+              Car
+            </button>
+          </div>
+          <div class="content-container">
+            <!-- Tutaj dodaj dynamiczny content w zależności od wybranego przycisku -->
+            <div class="dynamic-content">
+              <!-- Treść w zależności od wybranego przycisku -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </TopBar>
+  </template>
+
+  
+
   <style scoped>
   /* Globalne style */
   * {
@@ -140,83 +140,107 @@
     align-items: center;
   }
   
-  /* Styl nagłówka prawej strony */
-  .right-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 20px;
-  }
+  .selected-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 15px; /* Zmniejszono odległość na dole */
+  font-size: 30px;
+  margin-top: 30px;
+  font-weight: bold;
+  color: #333; /* Kolor tekstu */
+}
+
+
+
+
+
   
-  /* Styl nagłówka h1 */
-  h1 {
-    margin-bottom: 20px;
-    color: #333; /* Kolor tekstu */
-  }
-  
-  /* Styl pola wyszukiwania */
-  .search-container {
-    width: 100%;
-    margin-bottom: 25px;
-    position: relative;
-  }
-  
-  label.active-label {
-    position: absolute;
-    top: 50%;
-    left: 15px;
-    transform: translateY(-50%);
-    color: #ccc;
-    pointer-events: none;
-    transition: transform 0.3s, font-size 0.3s;
-  }
-  
+ 
   .search-input-container {
     position: relative;
     width: 100%;
+    margin-bottom: 25px;
+
   }
   
   input {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 20px;
-    width: calc(100% - 30px);
+    width: 90%; /* Dodane */
+  margin-right:10%;
     max-height: 200px;
     color: #333; /* Kolor tekstu */
   }
   
-  /* Styl kontenera przycisków */
-  .buttons-container {
-    max-height: 200px;
-    overflow-y: auto;
-    scrollbar-width: thin; /* Dla przeglądarek nie opartych na Chromium */
-    margin-right: 10px; /* Dodany margines po prawej stronie suwaka */
-  }
+ 
+.buttons-container {
+  max-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+   display: flex;
+  flex-direction: column;
+ 
   
-  .buttons-container::-webkit-scrollbar {
-    width: 10px;
-    margin-left: 10px; /* Dodany margines po lewej stronie suwaka */
-  }
+  width: 100%;
+}
+
+
+ 
+.left-button {
+  padding: 10px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  cursor: pointer;
+  border: none;
+  border-radius: 20px;
+  background-color: #4caf50;
+  color: #ffffff;
+  flex-shrink: 0;
+   box-sizing: border-box; /* Dodane */
+  margin-right: 5%;
+  height: 40px;
+  transition: background-color 0.3s;
+  width: 95%; /* Dodane */
+  margin-right:5%;
+}
+
+
+
+
+/* Styl suwaka przewijania */
+.buttons-container::-webkit-scrollbar {
+  width: 10px;
+  margin-left: 10px; /* Dodany margines po lewej stronie suwaka */
+}
+
+.buttons-container::-webkit-scrollbar-thumb {
+  background-color: #4caf50; /* Kolor kciuka suwaka */
+  border-radius: 20px;
+  border: 6px solid transparent;
+}
+
+.buttons-container::-webkit-scrollbar-track {
+  background-color: #eef0e5; /* Kolor toru suwaka */
+}
+
   
-  .buttons-container::-webkit-scrollbar-thumb {
-    background-color: #4caf50; /* Kolor kciuka suwaka */
-    border-radius: 20px;
-    border: 6px solid transparent;
+
+ 
+
+  .left-button.active {
+    background-color: #9d1856;
   }
-  
-  .buttons-container::-webkit-scrollbar-track {
-    background-color: #eef0e5; /* Kolor toru suwaka */
+
+  .left-button:hover {
+    background-color: #4d388e;
   }
-  
-  .buttons-list {
-    width: 100%;
-    overflow: hidden;
-  }
-  
-  /* Styl przycisków */
-  button {
-    margin: 5px;
+
+  /* Styl przycisków po prawej stronie */
+  .right-button {
     padding: 10px;
+    margin: 5px;
     cursor: pointer;
     border: none;
     border-radius: 20px;
@@ -226,13 +250,12 @@
     height: 40px;
     transition: background-color 0.3s;
   }
-  
-  button.active {
+
+  .right-button.active {
     background-color: #9d1856;
   }
-  
-  /* Dodatkowy efekt dla przycisków po najechaniu myszką */
-  button:hover {
+
+  .right-button:hover {
     background-color: #4d388e;
   }
   
@@ -244,15 +267,7 @@
     margin-left: 10px;
   }
   
-  /* Styl tytułu wybranego parkingu */
-  .selected-parking-title {
-    font-size: 30px;
-    margin-bottom: 10px;
-    margin-top: 30px;
-    font-weight: bold;
-    color: #333; /* Kolor tekstu */
-  }
-  
+
   /* Styl przycisków po prawej stronie */
   .right-buttons {
     display: flex;
@@ -271,7 +286,6 @@
   .dynamic-content {
     margin-top: 5%;
     height: 95%;
- 
   }
   </style>
   
