@@ -1,20 +1,20 @@
 <script setup>
 import TopBar from "/components/TopBar.vue";
-import { useRoute } from "vue-router";
-// definePageMeta({ middleware: "auth" });
+import { useRoute } from 'vue-router';
+import QrcodeVue from 'qrcode.vue'
+import axios from "axios";
 
 const route = useRoute();
-const { status, data } = useAuth();
+const { data } = useAuth();
+const userId = ref(data.value.user.id);
 
 const parkingId = route.query.parkingId;
-// todo
-const parking = ref("Parking 1");
-const spot = 1;
+const parkingName = ref(null);
+const spot = ref(null);
 const car = route.query.car;
-const isBanned = ref(false);
-const ticketId = ref(
-  "P" + parkingId + "C" + car + "S" + spot + getFormattedDate()
-);
+const isBanned = ref(null);
+const isLoading = ref(true);
+const ticketId = ref(null);
 
 function getFormattedDate() {
   const currentDate = new Date();
@@ -37,45 +37,115 @@ function copy() {
 }
 
 function download() {
-  const link = document.createElement("a");
-  link.href = "/images/qr.png";
-  link.download = ticketId.value + ".png";
-  document.body.appendChild(link);
+  const link = document.createElement('a');
+  link.download = ticketId.value + '.png';
+  link.href = document.getElementById('qr').toDataURL();
   link.click();
-  document.body.removeChild(link);
 }
+
+onMounted(async () => {
+  axios
+    .get("/api/ticket/userState", {
+      params: { id: userId.value },
+    })
+    .then((response) => {
+      isBanned.value = response.data;
+      isLoading.value = false;
+    })
+    .catch((error) => {
+      console.error('Error fetching parking info:', error);
+    });
+
+  axios
+    .get("/api/ticket/parkingInfo", {
+      params: { id: parkingId },
+    })
+    .then((response) => {
+      parkingName.value = response.data.name;
+    })
+    .catch((error) => {
+      console.error('Error fetching parking info:', error);
+    });
+
+  axios
+    .get("/api/ticket/spot", {
+      params: { id: parkingId },
+    })
+    .then((response) => {
+      spot.value = response.data.id;
+      const date = getFormattedDate();
+      ticketId.value = 'P' + parkingId + 'C' + car + 'S' + spot.value + date;
+
+      axios
+        .post("/api/ticket/createReservation", {
+          ticket: ticketId.value,
+          date: date,
+          parkingId: parkingId,
+          car: car,
+          spot: spot.value,
+          userId: userId.value,
+        })
+        .then((response) => {
+          console.log(response.data.statusMessage);
+        })
+        .catch((error) => {
+          console.log(error.response.data.statusMessage);
+        });
+    })
+    .catch((error) => {
+      console.error('Error fetching spots:', error);
+    });
+
+  axios
+    .put("/api/ticket/carState", {
+      id: car,
+      isParked: "true",
+    })
+    .then((response) => {
+      console.log(response.data.statusMessage);
+    })
+    .catch((error) => {
+      console.log(error.response.data.statusMessage);
+    });
+
+
+
+});
+
 </script>
 
 <template>
   <TopBar>
-    <div v-if="!isBanned" class="background">
-      <h1>Entrance ticket</h1>
+    <div v-if="isLoading"></div>
+    <div v-else>
+      <div v-if="!isBanned" class="background">
+        <h1>Entrance ticket</h1>
 
-      <!-- todo -->
-      <img src="/images/qr.png" class="qr" />
+        <qrcode-vue :value="ticketId" :size="200" id="qr"></qrcode-vue>
 
-      <div class="ticket-id">
-        <p>ID: {{ ticketId }}</p>
-        <img src="/images/copy.png" class="copy" @click="copy" />
+        <div class="ticket-id">
+          <p>ID: {{ ticketId }}</p>
+          <img src="/images/copy.png" class="copy" @click="copy">
+        </div>
+
+        <p>Parking: {{ parkingName }}</p>
+        <p>Parking spot: {{ spot }}</p>
+
+        <div class="buttons-div">
+          <NuxtLink to="/">
+            <button class="home">Home</button>
+          </NuxtLink>
+          <button @click="download">Download QR</button>
+        </div>
       </div>
-
-      <p>Parking: {{ parking }}</p>
-      <p>Parking spot: {{ spot }}</p>
-
-      <div class="buttons-div">
+      <div v-else class="background">
+        <h1>BANNED</h1>
+        <img src="/images/failure.png" class="failure">
+        <h2>Contact admin or regulate pending costs</h2>
         <NuxtLink to="/">
-          <button class="home">Home</button>
+          <button>Home</button>
         </NuxtLink>
-        <button @click="download">Download QR</button>
       </div>
-    </div>
-    <div v-else class="background">
-      <h1>BANNED</h1>
-      <img src="/images/failure.png" class="failure" />
-      <h2>Contact admin or regulate pending costs</h2>
-      <NuxtLink to="/">
-        <button>Home</button>
-      </NuxtLink>
     </div>
   </TopBar>
 </template>
@@ -130,9 +200,9 @@ p {
   margin: 1%;
 }
 
-.qr {
+#qr {
   margin: 0 auto;
-  width: 50%;
+  padding: 10%;
 }
 
 button {

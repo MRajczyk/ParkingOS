@@ -1,40 +1,59 @@
 <script setup>
 import TopBar from "/components/TopBar.vue";
-import { useRouter } from "vue-router";
-// definePageMeta({ middleware: "auth" });
+import { useRouter } from 'vue-router';
+import { ref, onMounted } from 'vue';
 
-const { status, data } = useAuth();
 const router = useRouter();
+const { data } = useAuth();
+const userId = ref(data.value.user.id);
 
 const searchClicked = ref(false);
-const city = ref("");
+const city = ref('');
 const hours = ref(null);
-const selectedVehicle = ref(null);
-//todo
-const vehicles = [
-  { id: 1, name: "Fiat Punto", plate: "EL 11111" },
-  { id: 2, name: "VW Polo", plate: "SCZ 2222" },
-  { id: 3, name: "Peugot 206", plate: "CW 33333" },
-];
+
+const selectedCity = ref(null);
+const cities = ref([]);
+
+const selectedCar = ref(null);
+const cars = ref([]);
 
 function search() {
-  if (
-    city.value.trim() !== "" &&
-    hours.value !== null &&
-    selectedVehicle.value !== null
-  ) {
-    router.push({
-      path: "/finder/results",
-      query: {
-        city: city.value,
-        hours: hours.value,
-        car: selectedVehicle.value,
-      },
-    });
-  } else {
-    searchClicked.value = true;
-  }
+    if (selectedCity.value !== null && hours.value !== null && selectedCar.value !== null) {
+        router.push({
+            path: '/finder/results',
+            query: {
+                city: selectedCity.value,
+                hours: hours.value,
+                car: selectedCar.value
+            }
+        })
+    } else {
+        searchClicked.value = true;
+    }
 }
+
+onMounted(async () => {
+    try {
+        const response = await fetch('/api/search/cities');
+        const data = await response.json();
+        cities.value = data;
+    } catch (error) {
+        console.error('Error fetching cities:', error);
+    }
+
+    try {
+        let params = new URLSearchParams([
+            ["userId", userId.value],
+        ]);
+
+        const response = await fetch('/api/search/cars?userId=' + userId.value);
+        const data = await response.json();
+        cars.value = data;
+    } catch (error) {
+        console.error('Error fetching cars:', error);
+    }
+});
+
 </script>
 
 <template>
@@ -42,16 +61,13 @@ function search() {
     <div class="background">
       <h1>Parking finder</h1>
 
-      <div class="search-wraper">
-        <label class="label">City</label>
-        <br />
-        <input
-          type="text"
-          name="city"
-          v-model="city"
-          :class="{ error: city.trim() === '' && searchClicked }"
-        />
-      </div>
+        <div class="search-wraper">
+            <label class="label">City</label>
+            <br>
+            <select v-model="selectedCity" :class="{ 'error': selectedCity === null && searchClicked }">
+                <option v-for="city in cities" :key="city" :value="city">{{ city }}</option>
+            </select>
+        </div>
 
       <div class="search-wraper">
         <label class="label">Estimated hours amount</label>
@@ -66,21 +82,13 @@ function search() {
         />
       </div>
 
-      <div class="search-wraper">
-        <label class="label">Vehicle</label>
-        <select
-          v-model="selectedVehicle"
-          :class="{ error: selectedVehicle === null && searchClicked }"
-        >
-          <option
-            v-for="vehicle in vehicles"
-            :key="vehicle.id"
-            :value="vehicle.id"
-          >
-            {{ vehicle.name }} - {{ vehicle.plate }}
-          </option>
-        </select>
-      </div>
+        <div class="search-wraper">
+            <label class="label">Vehicle</label>
+            <select v-model="selectedCar" :class="{ 'error': selectedCar === null && searchClicked }">
+                <option v-for="car in cars" :key="car.id" :value="car.id">{{ car.name }} -
+                    {{ car.registrationNumber }}</option>
+            </select>
+        </div>
 
       <button type="submit" @click="search">Search</button>
 
