@@ -37,6 +37,7 @@ model Car {
     id                      Int @id @default(autoincrement())
     registrationNumber      String @unique
     name                    String
+    isParked                Boolean
     userId                  Int
     user                    User @relation(fields: [userId], references: [id])
 }
@@ -67,6 +68,10 @@ model ParkingSession {
     entranceDate    DateTime
     leaveDate       DateTime?
     finalCost       Float
+    parkingId       Int
+    spot            Int
+    carId           Int
+    userId          Int
 }
 
 model ChargePlan {

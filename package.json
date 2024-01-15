@@ -29,6 +29,8 @@
     "nodemailer": "^6.9.8",
     "nuxt-rate-limit": "^1.1.0",
     "uuid": "^9.0.1",
+    "qrcode.vue": "^3.4.1",
+    "vue-qrcode-reader": "^5.5.1",
     "vuedraggable": "^2.24.3"
   },
   "prisma": {
