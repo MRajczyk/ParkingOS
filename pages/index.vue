@@ -1,4 +1,5 @@
 <script setup>
+definePageMeta({ middleware: "auth" });
 import TopBar from "/components/TopBar.vue";
 
 const { data: session, status, signOut } = useAuth();
