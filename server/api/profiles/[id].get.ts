@@ -24,7 +24,10 @@ export default defineEventHandler(async (event) => {
       },
     });
     if (foundUser) {
-      return { statusCode: 200, data: foundUser.balance };
+      return {
+        statusCode: 200,
+        data: { name: foundUser.name, surname: foundUser.surname },
+      };
     }
     return {
       statusCode: 404,

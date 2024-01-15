@@ -5,8 +5,8 @@ definePageMeta({ middleware: "auth" });
 
 const { status, data } = useAuth();
 
-const name = ref(data.value.user.name);
-const surname = ref(data.value.user.surname);
+const name = ref("");
+const surname = ref("");
 const firstPassword = ref("");
 const secondPassword = ref("");
 
@@ -16,6 +16,16 @@ const passwordError = ref("");
 
 const putSuccess = ref("");
 const putError = ref("");
+
+axios
+  .get("http://localhost:3000/api/profiles/" + data.value.user.id)
+  .then((response) => {
+    name.value = response.data.data.name;
+    surname.value = response.data.data.surname;
+  })
+  .catch((error) => {
+    alert(error);
+  });
 
 function checkPassword(str) {
   var re =
