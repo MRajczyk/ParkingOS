@@ -1,5 +1,4 @@
 <script setup>
-import TopBar from "/components/TopBar.vue";
 import axios from "axios";
 
 definePageMeta({
