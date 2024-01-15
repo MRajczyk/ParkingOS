@@ -35,16 +35,7 @@ function changeFormToPersonalData() {
         <NuxtLink to="/account/cars" class="profile-nav-button">Cars </NuxtLink>
       </div>
       <div class="profile-form-container">
-        <div
-          style="
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: row;
-            gap: 10px;
-            margin-bottom: 10px;
-          "
-        >
+        <div class="user-data-toggle-buttons-container">
           <button
             @click="changeFormToPersonalData()"
             class="user-data-toggle-button"
@@ -105,6 +96,15 @@ function changeFormToPersonalData() {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
 }
 
+.user-data-toggle-buttons-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
 .user-data-toggle-button {
   border-radius: 20px;
   text-decoration: none;
@@ -135,6 +135,10 @@ function changeFormToPersonalData() {
     flex-direction: row;
     padding: 50px 0px;
     gap: 20px;
+  }
+
+  .user-data-toggle-buttons-container {
+    flex-direction: row;
   }
 }
 
