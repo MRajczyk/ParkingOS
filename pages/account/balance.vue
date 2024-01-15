@@ -26,7 +26,7 @@ function addFunds() {
   operationSuccess.value = "";
   operationError.value = "";
 
-  if (amount.value.length === 0) {
+  if (amount.value.length === 0 || amount.value <= 0) {
     isAmountError.value = true;
     return;
   }
