@@ -67,12 +67,6 @@ function putUserProfile() {
 <template>
   <TopBar>
     <div class="content">
-      <div class="edit-picture-container">
-        <img
-          style="vertical-align: middle; margin-top: 35px"
-          src="/images/user.png"
-        />
-      </div>
       <div class="personal-data-form-container">
         <form
           v-on:submit.prevent="onsubmit"

@@ -5,6 +5,7 @@ const { data: session, status, signOut } = useAuth();
 </script>
 <template>
   <TopBar>
+    <!-- user home screen -->
     <div class="home-container" v-if="session.user.role === 'USER'">
       <a class="menu-link" href="/finder/search">
         <div class="menu-link-image-container">
@@ -18,13 +19,14 @@ const { data: session, status, signOut } = useAuth();
         </div>
         <span class="menu-link-text">MANAGE PAYMENTS</span>
       </a>
-      <a class="menu-link" href="/account">
+      <a class="menu-link" href="/account/user-data">
         <div class="menu-link-image-container">
           <img src="/images/accounting.png" class="menu-link-image" />
         </div>
         <span class="menu-link-text">CHECK YOUR ACCOUNT</span>
       </a>
     </div>
+    <!-- admin home screen -->
     <div class="home-container" v-if="session.user.role === 'ADMIN'">
       <a class="menu-link" href="/admin/temp-maker">
         <div class="menu-link-image-container">
