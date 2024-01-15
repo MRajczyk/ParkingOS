@@ -18,6 +18,7 @@ export default NuxtAuthHandler({
           email: u.email,
           name: u.name,
           surname: u.surname,
+          role: u.role,
         };
       }
       return token;
@@ -32,6 +33,7 @@ export default NuxtAuthHandler({
           name: token.name,
           surname: token.surname,
           email: token.email,
+          role: token.role,
         },
       };
     },
@@ -71,6 +73,7 @@ export default NuxtAuthHandler({
           email: user.email,
           name: user.name,
           surname: user.surname,
+          role: user.role,
         };
       },
     }),

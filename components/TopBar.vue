@@ -1,5 +1,5 @@
 <script setup>
-const { status, signOut } = useAuth();
+const { data: session, status, signOut } = useAuth();
 
 function hideBurger() {
   const burgerOptions = document.getElementById("burger-options");
@@ -17,7 +17,8 @@ function hideBurger() {
 </script>
 
 <template>
-  <div class="container">
+  <!-- user topbar -->
+  <div class="container" v-if="session.user.role === 'USER'">
     <div class="topbar">
       <a
         href="javascript:void(0);"
@@ -34,7 +35,9 @@ function hideBurger() {
       </div>
       <NuxtLink to="/" class="topbar-title"> ParkingOS </NuxtLink>
       <div class="topbar-buttons" style="padding-right: 16px">
-        <NuxtLink to="/account" class="profile-link">Account</NuxtLink>
+        <NuxtLink to="/account/user-data" class="profile-link"
+          >Account</NuxtLink
+        >
         <span class="split" style="font-weight: 200">|</span>
         <button
           @click="signOut({ callbackUrl: '/signin' })"
@@ -48,7 +51,63 @@ function hideBurger() {
     <div class="burger-options" id="burger-options">
       <NuxtLink to="/finder/search" class="burger-option">Finder</NuxtLink>
       <NuxtLink to="/payment" class="burger-option">Payment</NuxtLink>
-      <NuxtLink to="/account" class="burger-option">Account</NuxtLink>
+      <NuxtLink to="/account/user-data" class="burger-option">Account</NuxtLink>
+      <button
+        @click="signOut({ callbackUrl: '/signin' })"
+        class="burger-option"
+      >
+        Logout
+      </button>
+    </div>
+    <slot></slot>
+  </div>
+  <!-- admin topbar -->
+  <div class="container" v-if="session.user.role === 'ADMIN'">
+    <div class="topbar">
+      <a
+        href="javascript:void(0);"
+        class="burger"
+        id="burger-button"
+        @click="hideBurger()"
+      >
+        <i class="fa fa-bars"></i>
+      </a>
+      <div class="topbar-buttons" style="padding-left: 16px">
+        <NuxtLink to="/admin/temp-maker" class="profile-link">Maker</NuxtLink>
+        <span class="split" style="font-weight: 200">|</span>
+        <NuxtLink to="/admin/temp-maker" class="profile-link">Users</NuxtLink>
+        <span class="split" style="font-weight: 200">|</span>
+        <NuxtLink to="/admin/temp-maker" class="profile-link"
+          >Live View</NuxtLink
+        >
+      </div>
+      <NuxtLink to="/" class="topbar-title"> ParkingOS </NuxtLink>
+      <div class="topbar-buttons" style="padding-right: 16px">
+        <NuxtLink to="/admin/statistics" class="profile-link"
+          >Statistics</NuxtLink
+        >
+        <span class="split" style="font-weight: 200">|</span>
+        <NuxtLink to="/admin/temp-maker" class="profile-link">Summary</NuxtLink>
+        <span class="split" style="font-weight: 200">|</span>
+        <button
+          @click="signOut({ callbackUrl: '/signin' })"
+          class="burger-option"
+          style="display: inline; text-decoration: none"
+        >
+          Logout
+        </button>
+      </div>
+    </div>
+    <div class="burger-options" id="burger-options">
+      <NuxtLink to="/admin/temp-maker" class="burger-option">Maker</NuxtLink>
+      <NuxtLink to="/admin/temp-maker" class="burger-option">Users</NuxtLink>
+      <NuxtLink to="/admin/temp-maker" class="burger-option"
+        >Live view</NuxtLink
+      >
+      <NuxtLink to="/admin/statistics" class="burger-option"
+        >Statistics</NuxtLink
+      >
+      <NuxtLink to="/admin/temp-maker" class="burger-option">Summary</NuxtLink>
       <button
         @click="signOut({ callbackUrl: '/signin' })"
         class="burger-option"
@@ -165,8 +224,11 @@ a.logout:hover,
   cursor: pointer;
 }
 
-@media screen and (min-width: 600px) {
+@media screen and (min-width: 900px) {
   .burger-options {
+    display: none;
+  }
+  .burger-option {
     display: none;
   }
   .burger {
@@ -184,6 +246,7 @@ a.logout:hover,
   .burger-option {
     cursor: pointer;
     border-bottom: none;
+    padding: 0;
   }
 }
 </style>

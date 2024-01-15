@@ -119,6 +119,17 @@ function resetPassword() {
         {{ resetSuccess }}
       </span>
       <button type="submit" class="register-form-button">Reset password</button>
+      <NuxtLink
+        to="/signin"
+        class="register-form-button"
+        style="
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          text-decoration: none;
+        "
+        >Back
+      </NuxtLink>
     </form>
   </div>
 </template>
