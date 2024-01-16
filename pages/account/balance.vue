@@ -14,7 +14,6 @@ const operationError = ref("");
 axios
   .get("http://localhost:3000/api/funds/" + data.value.user.id)
   .then((response) => {
-    console.log(response);
     startingAmount.value = response.data.data;
   })
   .catch((error) => {
@@ -192,19 +191,13 @@ function addFunds() {
 }
 
 .profile-form-button {
-  margin-top: 20px;
-  display: block;
-  width: 100%;
-  height: 40px;
-}
-
-.profile-form-button {
   width: 220px;
   height: 50px;
   background-color: var(--primary-lighter);
   color: #fff;
   border: 0;
   border-radius: 25px;
+  margin-top: 20px;
   font-weight: 600;
   font-size: 24px;
   cursor: pointer;
@@ -238,7 +231,7 @@ function addFunds() {
 }
 
 .profile-label {
-  margin-top: 10px;
+  margin-top: 20px;
   font-size: 13px;
   color: #163020;
   display: flex;

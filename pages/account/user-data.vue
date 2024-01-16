@@ -113,6 +113,7 @@ function changeFormToPersonalData() {
   padding: 10px 0px;
   color: white;
   border: 0;
+  cursor: pointer;
 }
 
 .info-span {

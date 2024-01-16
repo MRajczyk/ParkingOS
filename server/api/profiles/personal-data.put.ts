@@ -11,7 +11,7 @@ export default eventHandler(async (event) => {
 
   const body = await readBody(event);
   // @ts-ignore
-  if (!Number.isNaN(body.id) && session.user?.id !== body.id) {
+  if (Number.isNaN(body.id) || session.user?.id !== body.id) {
     throw createError({
       statusMessage: "Invalid user id in request",
       statusCode: 400,

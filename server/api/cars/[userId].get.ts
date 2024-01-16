@@ -2,7 +2,7 @@ import { getServerSession } from "#auth";
 import { PrismaClient } from "@prisma/client";
 
 export default defineEventHandler(async (event) => {
-  const { id } = getRouterParams(event);
+  const { userId } = getRouterParams(event);
   const prisma: PrismaClient = event.context.prisma;
   const session = await getServerSession(event);
   if (!session) {
@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // @ts-ignore
-  if (Number.isNaN(id) || session.user?.id !== id) {
+  if (Number.isNaN(userId) || session.user?.id !== userId) {
     throw createError({
       statusMessage: "Invalid session",
       statusCode: 404,
@@ -18,17 +18,17 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const foundUser = await prisma.user.findFirst({
+    const userCars = await prisma.car.findMany({
       where: {
-        id: Number.parseInt(id),
+        userId: Number.parseInt(userId),
       },
     });
-    if (foundUser) {
-      return { statusCode: 200, data: foundUser.balance };
+    if (userCars) {
+      return { statusCode: 200, data: userCars };
     }
     return {
       statusCode: 404,
-      statusMessage: "User not found",
+      statusMessage: "Invalid userId",
     };
   } catch (e) {
     //@ts-expect-error

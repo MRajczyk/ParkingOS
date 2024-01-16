@@ -239,7 +239,7 @@ function putUserData() {
 }
 
 .profile-label {
-  margin-top: 10px;
+  margin-top: 20px;
   font-size: 13px;
   color: #163020;
   display: flex;

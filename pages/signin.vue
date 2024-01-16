@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 const { signIn } = useAuth();
 
 const email = ref("");
@@ -13,28 +13,25 @@ definePageMeta({
 const isError = ref(false);
 const isErrorTooManyTries = ref(false);
 
-const handleSignIn = async ({
-  email,
-  password,
-}: {
-  email: string;
-  password: string;
-}) => {
+const handleSignIn = async () => {
+  isError.value = false;
+  isErrorTooManyTries.value = false;
+  if (email.value.length < 1 || password.value.length < 1) {
+    isError.value = true;
+    return;
+  }
   try {
-    isError.value = false;
-    isErrorTooManyTries.value = false;
     //https://sidebase.io/nuxt-auth/application-side/custom-sign-in-page
     //@ts-expect-error
     const { error, url } = await signIn("credentials", {
-      email,
-      password,
+      email: email.value,
+      password: password.value,
       redirect: false,
     });
     if (error) {
       isError.value = true;
     } else {
-      console.log(url);
-      // No error, continue with the sign in, e.g., by following the returned redirect:
+      // console.log(url);
       return navigateTo(url, { external: true });
     }
   } catch (error) {
@@ -45,7 +42,12 @@ const handleSignIn = async ({
 
 <template>
   <div class="login">
-    <div class="login-form">
+    <form
+      class="login-form"
+      v-on:submit.prevent="onsubmit"
+      method="POST"
+      @submit="handleSignIn()"
+    >
       <label class="login-subtitle">Sign in to</label>
       <label class="login-title">ParkingOS</label>
       <NuxtLink to="/signup" class="login-link" style="margin-top: 50px"
@@ -77,13 +79,8 @@ const handleSignIn = async ({
         style="margin-top: 10px"
         >Forgot password?</NuxtLink
       >
-      <button
-        @click="handleSignIn({ email, password })"
-        class="login-form-button"
-      >
-        Login
-      </button>
-    </div>
+      <button type="submit" class="login-form-button">Login</button>
+    </form>
   </div>
 </template>
 

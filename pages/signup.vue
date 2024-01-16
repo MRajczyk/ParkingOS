@@ -88,7 +88,7 @@ function registerUser() {
       method="POST"
       @submit="registerUser()"
     >
-      <label class="register-subtitle">Sign in to</label>
+      <label class="register-subtitle">Sign up at</label>
       <label class="register-title">ParkingOS</label>
       <NuxtLink to="/signin" class="register-link" style="margin-top: 50px"
         >Already have an account? Sign in!
