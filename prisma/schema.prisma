@@ -23,6 +23,7 @@ model User {
     isBanned                Boolean
     cars                    Car[]
     passwordRecoveryTokens  PasswordResetToken[]
+    parkingSessions         ParkingSession[]
 }
 
 model PasswordResetToken {
@@ -40,6 +41,7 @@ model Car {
     isParked                Boolean
     userId                  Int
     user                    User @relation(fields: [userId], references: [id])
+    parkingSessions         ParkingSession[]
 }
 
 model Parking {
@@ -71,7 +73,9 @@ model ParkingSession {
     parkingId       Int
     spot            Int
     carId           Int
+    car             Car @relation(fields: [carId], references: [id])
     userId          Int
+    user            User @relation(fields: [userId], references: [id])
 }
 
 model ChargePlan {

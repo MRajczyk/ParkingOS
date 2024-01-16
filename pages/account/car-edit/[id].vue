@@ -159,7 +159,7 @@ function putUserProfile() {
               {{ patchSuccess }}
             </span>
             <button type="submit" class="edit-personal-data-form-button">
-              Zapisz
+              Save
             </button>
           </div>
         </form>

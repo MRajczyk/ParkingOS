@@ -1,7 +1,24 @@
 <script setup>
 import TopBar from "/components/TopBar.vue";
+import CarContainer from "/components/account/cars/CarContainer.vue";
 import axios from "axios";
 definePageMeta({ middleware: "auth" });
+
+const { status, data } = useAuth();
+const cars = ref([]);
+
+axios
+  .get("http://localhost:3000/api/cars/" + data.value.user.id)
+  .then((response) => {
+    cars.value = response.data.data;
+  })
+  .catch((error) => {
+    alert(error);
+  });
+
+function removeCar(id) {
+  console.log("remove car with id", id);
+}
 </script>
 
 <template>
@@ -21,20 +38,49 @@ definePageMeta({ middleware: "auth" });
           >Cars
         </NuxtLink>
       </div>
-      <div class="profile-form-container">Cars</div>
+      <div class="cars-container">
+        <NuxtLink to="/account/car-add" class="add-car-button"
+          >Add car</NuxtLink
+        >
+        <CarContainer
+          v-for="car in cars"
+          :id="car.id"
+          :name="car.name"
+          :licensePlateNumber="car.registrationNumber"
+          :discardCallback="removeCar"
+        />
+      </div>
     </div>
   </TopBar>
 </template>
 
 <style scoped>
-.profile-form-container {
+.cars-container {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
-  background-color: white;
-  border-radius: 40px;
-  padding: 40px;
+  height: 100%;
+  overflow-y: auto;
+  margin-bottom: 100px;
+  gap: 20px;
 }
+
+.cars-container::-webkit-scrollbar {
+  width: 10px;
+  margin-left: 10px;
+}
+
+.cars-container::-webkit-scrollbar-thumb {
+  background-color: var(--primary-lighter);
+  border-radius: 20px;
+  border: 6px solid transparent;
+}
+
+.cars-container::-webkit-scrollbar-track {
+  background-color: #eef0e5;
+}
+
 .profile-nav-buttons {
   display: flex;
   flex-direction: column;
@@ -63,7 +109,7 @@ definePageMeta({ middleware: "auth" });
   align-items: center;
   justify-content: flex-start;
   width: 100%;
-  height: 100%;
+  height: calc(100% - 60px);
 }
 
 @media screen and (min-width: 700px) {
@@ -83,5 +129,22 @@ definePageMeta({ middleware: "auth" });
   font-size: 14px;
   width: 100%;
   height: 100%;
+}
+
+.add-car-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 220px;
+  min-height: 50px;
+  background-color: var(--primary-lighter);
+  color: #fff;
+  border: 0;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 24px;
+  cursor: pointer;
+  align-self: center;
+  text-decoration: none;
 }
 </style>
