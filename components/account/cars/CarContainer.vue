@@ -6,10 +6,35 @@ const props = defineProps({
   discardCallback: Function,
 });
 
-console.log(props);
+const showModalFlag = ref(false);
+
+function showModal() {
+  showModalFlag.value = true;
+}
+
+function hideModal() {
+  showModalFlag.value = false;
+}
 </script>
 
 <template>
+  <div class="modal" v-if="showModalFlag" @click="hideModal()">
+    <div class="modal-content">
+      <p>
+        Do you really wanna delete <b>{{ props.name }}</b
+        >?
+      </p>
+      <p style="color: red"><b>This action cannot be reversed.</b></p>
+      <button
+        class="modal-button"
+        @click="discardCallback(props.id)"
+        style="background-color: red; margin-top: 10px"
+      >
+        Delete
+      </button>
+      <button class="modal-button" @click="hideModal">Back</button>
+    </div>
+  </div>
   <div class="car-container">
     <div class="car-container-row">
       <div style="width: 100%">
@@ -49,22 +74,71 @@ console.log(props);
           {{ props.licensePlateNumber }}
         </span>
       </div>
-      <NuxtLink
-        to="/"
+      <button
+        @click="showModal()"
         style="
           display: flex;
           align-items: center;
           justify-content: center;
           padding-top: 15px;
+          background-color: transparent;
+          border: none;
+          cursor: pointer;
         "
       >
         <img src="/images/recycle-bin.png" style="height: 34px; width: 34px" />
-      </NuxtLink>
+      </button>
     </div>
   </div>
 </template>
 
 <style>
+.modal {
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  padding: 20px;
+  background-color: white;
+  width: 200px;
+  gap: 4px;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  font-size: 20px;
+}
+
+.modal-content > p {
+  color: var(--primary-lighter);
+}
+
+.modal-button {
+  border-radius: 20px;
+  text-decoration: none;
+  text-align: center;
+  width: 160px;
+  padding: 10px 0px;
+  color: white;
+  font-size: 20px;
+  background-color: var(--primary);
+  cursor: pointer;
+}
+
 .car-container {
   display: flex;
   flex-direction: column;
@@ -72,7 +146,7 @@ console.log(props);
   padding: 20px;
   background-color: white;
   width: 220px;
-  gap: 20px;
+  gap: 10px;
 }
 
 .car-container-row {
@@ -109,6 +183,17 @@ console.log(props);
 
   .car-input {
     width: 410px;
+  }
+
+  .modal-content {
+    padding: 40px;
+    width: 300px;
+    font-size: 24px;
+  }
+
+  .modal-button {
+    width: 260px;
+    font-size: 20px;
   }
 }
 </style>
