@@ -112,15 +112,15 @@ function hideModal() {
   display: flex;
   flex-direction: column;
   border-radius: 20px;
-  padding: 40px;
+  padding: 20px;
   background-color: white;
-  width: 300px;
+  width: 200px;
   gap: 4px;
   text-align: center;
   align-items: center;
   justify-content: center;
   font-weight: 500;
-  font-size: 24px;
+  font-size: 20px;
 }
 
 .modal-content > p {
@@ -131,7 +131,7 @@ function hideModal() {
   border-radius: 20px;
   text-decoration: none;
   text-align: center;
-  width: 260px;
+  width: 160px;
   padding: 10px 0px;
   color: white;
   font-size: 20px;
@@ -183,6 +183,17 @@ function hideModal() {
 
   .car-input {
     width: 410px;
+  }
+
+  .modal-content {
+    padding: 40px;
+    width: 300px;
+    font-size: 24px;
+  }
+
+  .modal-button {
+    width: 260px;
+    font-size: 20px;
   }
 }
 </style>
