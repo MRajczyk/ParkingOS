@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
         id: Number.parseInt(carId),
       },
     });
-    if (!car) {
+    if (!car || car.isParked) {
       throw createError({
         statusMessage: "Error deleting data",
         statusCode: 400,

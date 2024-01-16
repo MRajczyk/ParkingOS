@@ -6,10 +6,35 @@ const props = defineProps({
   discardCallback: Function,
 });
 
-console.log(props);
+const showModalFlag = ref(false);
+
+function showModal() {
+  showModalFlag.value = true;
+}
+
+function hideModal() {
+  showModalFlag.value = false;
+}
 </script>
 
 <template>
+  <div class="modal" v-if="showModalFlag" @click="hideModal()">
+    <div class="modal-content">
+      <p>
+        Do you really wanna delete <b>{{ props.name }}</b
+        >?
+      </p>
+      <p style="color: red"><b>This action cannot be reversed.</b></p>
+      <button
+        class="modal-button"
+        @click="discardCallback(props.id)"
+        style="background-color: red; margin-top: 10px"
+      >
+        Delete
+      </button>
+      <button class="modal-button" @click="hideModal">Back</button>
+    </div>
+  </div>
   <div class="car-container">
     <div class="car-container-row">
       <div style="width: 100%">
@@ -50,7 +75,7 @@ console.log(props);
         </span>
       </div>
       <button
-        @click="discardCallback(props.id)"
+        @click="showModal()"
         style="
           display: flex;
           align-items: center;
@@ -68,6 +93,52 @@ console.log(props);
 </template>
 
 <style>
+.modal {
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  padding: 40px;
+  background-color: white;
+  width: 300px;
+  gap: 4px;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  font-size: 24px;
+}
+
+.modal-content > p {
+  color: var(--primary-lighter);
+}
+
+.modal-button {
+  border-radius: 20px;
+  text-decoration: none;
+  text-align: center;
+  width: 260px;
+  padding: 10px 0px;
+  color: white;
+  font-size: 20px;
+  background-color: var(--primary);
+  cursor: pointer;
+}
+
 .car-container {
   display: flex;
   flex-direction: column;
