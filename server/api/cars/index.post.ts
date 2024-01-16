@@ -35,6 +35,7 @@ export default eventHandler(async (event) => {
         userId: Number.parseInt(body.userId),
         name: body.name,
         registrationNumber: body.licensePlateNumber,
+        isParked: false,
       },
     });
     if (createdCar) {
