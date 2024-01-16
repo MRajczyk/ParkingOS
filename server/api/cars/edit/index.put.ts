@@ -37,6 +37,13 @@ export default eventHandler(async (event) => {
         id: Number.parseInt(body.carId),
       },
     });
+    if (car && car.isParked) {
+      throw createError({
+        statusMessage:
+          "Can't update info of parked car. Exit the parking first.",
+        statusCode: 400,
+      });
+    }
     //@ts-expect-error
     if (car && car.userId === Number.parseInt(session.user.id)) {
       await prisma.car.update({
@@ -54,6 +61,19 @@ export default eventHandler(async (event) => {
       });
     }
   } catch (e) {
+    if (
+      //@ts-expect-error
+      e.statusMessage &&
+      //@ts-expect-error
+      e.statusMessage ===
+        "Can't update info of parked car. Exit the parking first."
+    ) {
+      throw createError({
+        statusMessage:
+          "Can't update info of parked car. Exit the parking first.",
+        statusCode: 400,
+      });
+    }
     //@ts-expect-error
     console.log(e.message);
     throw createError({

@@ -44,15 +44,23 @@ export default eventHandler(async (event) => {
       };
     } else {
       throw createError({
-        statusMessage: "Car creating error",
+        statusMessage: "Error creating car",
         statusCode: 400,
       });
     }
   } catch (e) {
-    //@ts-expect-error
-    console.log(e.message);
+    if (
+      //@ts-expect-error
+      e.code === "P2002"
+    ) {
+      throw createError({
+        statusMessage:
+          "Car with provided license plate number already exists in the system.",
+        statusCode: 400,
+      });
+    }
     throw createError({
-      statusMessage: "Car creation error",
+      statusMessage: "Error creating car",
       statusCode: 400,
     });
   }
