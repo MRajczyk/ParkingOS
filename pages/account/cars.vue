@@ -8,7 +8,7 @@ const { status, data } = useAuth();
 const cars = ref([]);
 
 axios
-  .get("http://localhost:3000/api/cars/" + data.value.user.id)
+  .get(`http://localhost:3000/api/cars/${data.value.user.id}`)
   .then((response) => {
     cars.value = response.data.data;
   })
@@ -16,8 +16,16 @@ axios
     alert(error);
   });
 
-function removeCar(id) {
-  console.log("remove car with id", id);
+function removeCar(carId) {
+  axios
+    .delete(`http://localhost:3000/api/cars/delete/${carId}`)
+    .then((_response) => {
+      cars.value = cars.value.filter((car) => car.id !== carId);
+    })
+    .catch((error) => {
+      console.log(error);
+      alert(error.response.statusMessage);
+    });
 }
 </script>
 

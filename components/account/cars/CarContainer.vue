@@ -49,17 +49,20 @@ console.log(props);
           {{ props.licensePlateNumber }}
         </span>
       </div>
-      <NuxtLink
-        to="/"
+      <button
+        @click="discardCallback(props.id)"
         style="
           display: flex;
           align-items: center;
           justify-content: center;
           padding-top: 15px;
+          background-color: transparent;
+          border: none;
+          cursor: pointer;
         "
       >
         <img src="/images/recycle-bin.png" style="height: 34px; width: 34px" />
-      </NuxtLink>
+      </button>
     </div>
   </div>
 </template>
@@ -72,7 +75,7 @@ console.log(props);
   padding: 20px;
   background-color: white;
   width: 220px;
-  gap: 20px;
+  gap: 10px;
 }
 
 .car-container-row {
