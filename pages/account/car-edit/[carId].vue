@@ -3,6 +3,8 @@ import TopBar from "/components/TopBar.vue";
 import axios from "axios";
 definePageMeta({ middleware: "auth" });
 
+const route = useRoute();
+const carId = route.params.carId;
 const { data } = useAuth();
 
 const name = ref("");
@@ -10,12 +12,22 @@ const isNameError = ref(false);
 const licensePlateNumber = ref("");
 const isLicensePlateNumberError = ref(false);
 
-const postSuccess = ref("");
-const postError = ref("");
+axios
+  .get("http://localhost:3000/api/cars/edit/" + carId)
+  .then((response) => {
+    name.value = response.data.data.name;
+    licensePlateNumber.value = response.data.data.registrationNumber;
+  })
+  .catch((error) => {
+    alert(error);
+  });
 
-function addNewCar() {
-  postSuccess.value = "";
-  postError.value = "";
+const putSuccess = ref("");
+const putError = ref("");
+
+function update() {
+  putSuccess.value = "";
+  putError.value = "";
   isNameError.value = false;
   isLicensePlateNumberError.value = false;
 
@@ -27,18 +39,17 @@ function addNewCar() {
     return;
   }
   axios
-    .post(`http://localhost:3000/api/cars`, {
+    .put(`http://localhost:3000/api/cars/edit`, {
       userId: data.value.user.id,
       name: name.value,
+      carId: carId,
       licensePlateNumber: licensePlateNumber.value,
     })
     .then((response) => {
-      name.value = "";
-      licensePlateNumber.value = "";
-      postSuccess.value = response.data.statusMessage;
+      putSuccess.value = response.data.statusMessage;
     })
     .catch((error) => {
-      postError.value = error.response.data.statusMessage;
+      putError.value = error.response.data.statusMessage;
     });
 }
 </script>
@@ -49,10 +60,10 @@ function addNewCar() {
       <form
         v-on:submit.prevent="onsubmit"
         class="add-car-form"
-        method="POST"
-        @submit="addNewCar()"
+        method="PUT"
+        @submit="update()"
       >
-        <h3 class="add-car-heading">Add car</h3>
+        <h3 class="add-car-heading">Edit car info</h3>
         <div class="setting-wrapper">
           <label class="label">Car name</label>
           <input
@@ -83,15 +94,15 @@ function addNewCar() {
             Incorrect license plate number
           </span>
         </div>
-        <span class="info-span" style="color: red" v-if="postError.length > 0">
-          {{ postError }}
+        <span class="info-span" style="color: red" v-if="putError.length > 0">
+          {{ putError }}
         </span>
         <span
           class="info-span"
           style="color: green"
-          v-if="postSuccess.length > 0"
+          v-if="putSuccess.length > 0"
         >
-          {{ postSuccess }}
+          {{ putSuccess }}
         </span>
         <div class="add-car-navigation-buttons-container">
           <button type="submit" class="add-car-form-button">Save</button>

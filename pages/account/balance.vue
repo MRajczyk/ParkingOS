@@ -14,7 +14,6 @@ const operationError = ref("");
 axios
   .get("http://localhost:3000/api/funds/" + data.value.user.id)
   .then((response) => {
-    console.log(response);
     startingAmount.value = response.data.data;
   })
   .catch((error) => {
