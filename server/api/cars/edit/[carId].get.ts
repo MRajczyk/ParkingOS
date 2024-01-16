@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   if (Number.isNaN(carId)) {
     throw createError({
       statusMessage: "Invalid session",
-      statusCode: 418,
+      statusCode: 404,
     });
   }
 

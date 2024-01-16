@@ -10,10 +10,10 @@ export default defineEventHandler(async (event) => {
   }
 
   // @ts-ignore
-  if (!Number.isNaN(userId) && session.user?.id !== userId) {
+  if (Number.isNaN(userId) || session.user?.id !== userId) {
     throw createError({
       statusMessage: "Invalid session",
-      statusCode: 418,
+      statusCode: 404,
     });
   }
 

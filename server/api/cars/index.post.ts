@@ -10,10 +10,10 @@ export default eventHandler(async (event) => {
 
   const body = await readBody(event);
   // @ts-ignore
-  if (!Number.isNaN(body.userId) && session.user?.id !== body.userId) {
+  if (Number.isNaN(body.userId) || session.user?.id !== body.userId) {
     throw createError({
       statusMessage: "Invalid session",
-      statusCode: 418,
+      statusCode: 404,
     });
   }
 
