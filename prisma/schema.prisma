@@ -36,11 +36,12 @@ model PasswordResetToken {
 
 model Car {
     id                      Int @id @default(autoincrement())
-    registrationNumber      String @unique
+    registrationNumber      String
     name                    String
     isParked                Boolean
     userId                  Int
     user                    User @relation(fields: [userId], references: [id])
+    markedForDeletion       Boolean @default(false)
     parkingSessions         ParkingSession[]
 }
 
@@ -52,7 +53,6 @@ model Parking {
     address                 String
     floors                  Int
     parkingPlacesPerFloor   Int
-    chargePlanId            Int
     chargePlan              ChargePlan?
     parkingPlaces           ParkingSpace[]
 }
@@ -82,8 +82,8 @@ model ChargePlan {
     id                 Int @id @default(autoincrement())
     parkingId          Int @unique
     parking            Parking @relation(fields: [parkingId], references: [id])
-    nightStart         DateTime
-    nightEnd           DateTime
+    nightStart         Int
+    nightEnd           Int
     dayHour1Tariff     Float
     dayHour2Tariff     Float
     dayHour3Tariff     Float

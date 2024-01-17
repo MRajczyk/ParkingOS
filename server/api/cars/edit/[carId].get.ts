@@ -22,13 +22,17 @@ export default defineEventHandler(async (event) => {
         id: Number.parseInt(carId),
       },
     });
-    // @ts-ignore
-    if (car && car.userId === Number.parseInt(session.user?.id)) {
+    if (
+      car &&
+      // @ts-ignore
+      car.userId === Number.parseInt(session.user?.id) &&
+      !car.markedForDeletion
+    ) {
       return { statusCode: 200, data: car };
     }
     return {
       statusCode: 404,
-      statusMessage: "Invalid userId",
+      statusMessage: "Failed to fetch car data",
     };
   } catch (e) {
     //@ts-expect-error

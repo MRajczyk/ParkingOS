@@ -21,6 +21,7 @@ export default defineEventHandler(async (event) => {
     const userCars = await prisma.car.findMany({
       where: {
         userId: Number.parseInt(userId),
+        markedForDeletion: false,
       },
     });
     if (userCars) {
