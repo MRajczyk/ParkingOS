@@ -99,5 +99,5 @@ model MonthlyCost {
     parking     Parking     @relation(fields: [parkingId], references: [id])
     parkingId   Int 
     costName    String
-    costValue   Int
+    costValue   Float
 }
