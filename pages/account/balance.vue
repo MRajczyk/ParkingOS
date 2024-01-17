@@ -83,6 +83,7 @@ function addFunds() {
           <label class="profile-label">Amount to deposit</label>
           <input
             type="number"
+            step="0.5"
             name="amount"
             placeholder="Amount"
             class="profile-input"
