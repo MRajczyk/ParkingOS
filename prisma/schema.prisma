@@ -23,6 +23,7 @@ model User {
     isBanned                Boolean
     cars                    Car[]
     passwordRecoveryTokens  PasswordResetToken[]
+    parkingSessions         ParkingSession[]
 }
 
 model PasswordResetToken {
@@ -35,10 +36,13 @@ model PasswordResetToken {
 
 model Car {
     id                      Int @id @default(autoincrement())
-    registrationNumber      String @unique
+    registrationNumber      String
     name                    String
+    isParked                Boolean
     userId                  Int
     user                    User @relation(fields: [userId], references: [id])
+    markedForDeletion       Boolean @default(false)
+    parkingSessions         ParkingSession[]
 }
 
 model Parking {
@@ -49,7 +53,6 @@ model Parking {
     address                 String
     floors                  Int
     parkingPlacesPerFloor   Int
-    chargePlanId            Int
     chargePlan              ChargePlan?
     parkingPlaces           ParkingSpace[]
 }
@@ -67,14 +70,20 @@ model ParkingSession {
     entranceDate    DateTime
     leaveDate       DateTime?
     finalCost       Float
+    parkingId       Int
+    spot            Int
+    carId           Int
+    car             Car @relation(fields: [carId], references: [id])
+    userId          Int
+    user            User @relation(fields: [userId], references: [id])
 }
 
 model ChargePlan {
     id                 Int @id @default(autoincrement())
     parkingId          Int @unique
     parking            Parking @relation(fields: [parkingId], references: [id])
-    nightStart         DateTime
-    nightEnd           DateTime
+    nightStart         Int
+    nightEnd           Int
     dayHour1Tariff     Float
     dayHour2Tariff     Float
     dayHour3Tariff     Float
@@ -90,5 +99,5 @@ model MonthlyCost {
     parking     Parking     @relation(fields: [parkingId], references: [id])
     parkingId   Int 
     costName    String
-    costValue   Int
+    costValue   Float
 }

@@ -1,9 +1,7 @@
 import { getServerSession } from "#auth";
 import { PrismaClient } from "@prisma/client";
-import { hash } from "bcrypt";
 
 export default eventHandler(async (event) => {
-  const SALT_ROUNDS = 10;
   const prisma: PrismaClient = event.context.prisma;
   const session = await getServerSession(event);
   if (!session) {
@@ -12,10 +10,17 @@ export default eventHandler(async (event) => {
 
   const body = await readBody(event);
   // @ts-ignore
-  if (!Number.isNaN(body.id) && session.user?.id !== body.id) {
+  if (Number.isNaN(body.id) || session.user?.id !== body.id) {
     throw createError({
       statusMessage: "Invalid session",
-      statusCode: 418,
+      statusCode: 404,
+    });
+  }
+
+  if (!body.amount || body.amount <= 0) {
+    throw createError({
+      statusMessage: "Invalid deposit amount",
+      statusCode: 404,
     });
   }
 
@@ -25,15 +30,15 @@ export default eventHandler(async (event) => {
         id: Number.parseInt(body.id),
       },
       data: {
-        email: body.email,
-        name: body.name,
-        surname: body.surname,
-        password: await hash(body.password, SALT_ROUNDS),
+        balance: {
+          increment: body.amount,
+        },
       },
     });
     if (updateUser) {
       return {
-        statusMessage: "User updated successfully",
+        statusMessage: "Balance added successfully",
+        newBalance: updateUser.balance,
       };
     } else {
       throw createError({
@@ -42,6 +47,7 @@ export default eventHandler(async (event) => {
       });
     }
   } catch (e) {
+    //@ts-expect-error
     console.log(e.message);
   }
 });

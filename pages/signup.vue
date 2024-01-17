@@ -1,6 +1,6 @@
 <script setup>
-import TopBar from "/components/TopBar.vue";
 import axios from "axios";
+import { checkPassword } from "/utils/utils";
 
 definePageMeta({
   auth: {
@@ -22,12 +22,6 @@ const passwordError = ref("");
 
 const registerSuccess = ref("");
 const registerError = ref("");
-
-function checkPassword(str) {
-  var re =
-    /^(?=.*[0-9])(?=.*[!"#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~])[a-zA-Z0-9!"#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~*]{8,}$/;
-  return re.test(str);
-}
 
 function registerUser() {
   isNameError.value = false;
@@ -94,7 +88,7 @@ function registerUser() {
       method="POST"
       @submit="registerUser()"
     >
-      <label class="register-subtitle">Sign in to</label>
+      <label class="register-subtitle">Sign up at</label>
       <label class="register-title">ParkingOS</label>
       <NuxtLink to="/signin" class="register-link" style="margin-top: 50px"
         >Already have an account? Sign in!

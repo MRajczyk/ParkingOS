@@ -1,15 +1,75 @@
 <script setup>
 import TopBar from "/components/TopBar.vue";
-// definePageMeta({ middleware: "auth" });
+import { QrcodeDropZone } from 'vue-qrcode-reader'
+import axios from "axios";
 
-const { status, data } = useAuth();
+const { data } = useAuth();
+const userId = ref(data.value.user.id);
 
 const stage = ref(0);
 const isSuccess = ref(false);
+const money = ref(0);
 const cost = ref(21.31);
 const ticketId = ref(null);
-//todo
-const tickets = [{ id: "P1C1S10801231010" }, { id: "2" }, { id: "3" }];
+const tickets = ref([]);
+
+// async onDetect (async(promise)) {
+//     try {
+//       const {
+//         imageData,    // raw image data of image/frame
+//         content,      // decoded String or null
+//         location      // QR code coordinates or null
+//       } = await promise
+
+//       if (content === null) {
+//          // decoded nothing
+//       } else {
+//          // ...
+//       }
+//     } catch (error) {
+//       if (error.name === 'DropImageFetchError') {
+//         // drag-and-dropped URL (probably just an <img> element) from different
+//         // domain without CORS header caused same-origin-policy violation
+//       } else if (error.name === 'DropImageDecodeError') {
+//         // drag-and-dropped file is not of type image and can't be decoded
+//       } else {
+//         // idk, open an issue ¯\_(ツ)_/¯
+//       }
+//     }
+//   }
+
+onMounted(async () => {
+  axios
+    .get("/api/ticket/tickets", {
+      params: { id: userId.value },
+    })
+    .then((response) => {
+      tickets.value = response.data;
+    })
+    .catch((error) => {
+      console.error('Error fetching pending tickets:', error);
+    });
+
+    // axios
+    // .get("/api/ticket/money", {
+    //   params: { id: userId.value },
+    // })
+    // .then((response) => {
+    //   money.value = response.data;
+    // })
+    // .catch((error) => {
+    //   console.error('Error avaible money:', error);
+    // });
+})
+
+function pay() {
+  if (money.value - cost.value >= 0) {
+    isSuccess.value = true;
+  } else {
+    isSuccess.value = false;
+  }
+}
+
 </script>
 
 <template>
@@ -20,8 +80,8 @@ const tickets = [{ id: "P1C1S10801231010" }, { id: "2" }, { id: "3" }];
       <div class="search-wraper">
         <label class="label">Ticket ID</label>
         <select v-model="ticketId">
-          <option v-for="ticket in tickets" :key="ticket.id" :value="ticket.id">
-            {{ ticket.id }}
+          <option v-for="ticket in tickets" :key="ticket.id" :value="ticket.ticket">
+            {{ ticket.ticket }}
           </option>
         </select>
       </div>
@@ -30,8 +90,11 @@ const tickets = [{ id: "P1C1S10801231010" }, { id: "2" }, { id: "3" }];
 
       <div class="search-wraper">
         <label class="label">Ticket ID</label>
-        <input type="file" @change="handleFileChange" accept=".png" />
+        <input type="file" @change="handleFileChange" accept=".png">
       </div>
+      <qrcode-drop-zone class="drag" @detect="onDetect">
+        Drop your QR code here
+      </qrcode-drop-zone>
 
       <button @click="stage++" :disabled="ticketId === null">
         Check ticket
@@ -53,7 +116,9 @@ const tickets = [{ id: "P1C1S10801231010" }, { id: "2" }, { id: "3" }];
       </div>
 
       <button class="home" @click="stage--">Back</button>
-      <button @click="stage++">Pay</button>
+      <button @click="pay">
+        <div @click="stage++">Pay</div>
+      </button>
     </div>
 
     <div v-else-if="stage === 2 && isSuccess" class="background">
@@ -95,6 +160,11 @@ const tickets = [{ id: "P1C1S10801231010" }, { id: "2" }, { id: "3" }];
 </style>
 
 <style scoped>
+.drag {
+  background-color: aqua;
+  padding: 10%;
+}
+
 .background {
   background-color: white;
   width: 30%;

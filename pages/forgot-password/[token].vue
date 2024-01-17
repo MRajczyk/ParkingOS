@@ -1,4 +1,5 @@
 <script setup>
+import { checkPassword } from "/utils/utils";
 definePageMeta({
   auth: {
     unauthenticatedOnly: true,
@@ -15,12 +16,6 @@ const passwordError = ref("");
 const tokenError = ref("");
 const resetSuccess = ref("");
 const resetError = ref("");
-
-function checkPassword(str) {
-  var re =
-    /^(?=.*[0-9])(?=.*[!"#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~])[a-zA-Z0-9!"#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~*]{8,}$/;
-  return re.test(str);
-}
 
 function resetPassword() {
   tokenError.value = "";
@@ -119,6 +114,17 @@ function resetPassword() {
         {{ resetSuccess }}
       </span>
       <button type="submit" class="register-form-button">Reset password</button>
+      <NuxtLink
+        to="/signin"
+        class="register-form-button"
+        style="
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          text-decoration: none;
+        "
+        >Back
+      </NuxtLink>
     </form>
   </div>
 </template>

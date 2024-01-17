@@ -1,9 +1,13 @@
 <script setup>
+definePageMeta({ middleware: "auth" });
 import TopBar from "/components/TopBar.vue";
+
+const { data: session, status, signOut } = useAuth();
 </script>
 <template>
   <TopBar>
-    <div class="home-container">
+    <!-- user home screen -->
+    <div class="home-container" v-if="session.user.role === 'USER'">
       <a class="menu-link" href="/finder/search">
         <div class="menu-link-image-container">
           <img src="/images/parkingArea.png" class="menu-link-image" />
@@ -16,11 +20,32 @@ import TopBar from "/components/TopBar.vue";
         </div>
         <span class="menu-link-text">MANAGE PAYMENTS</span>
       </a>
-      <a class="menu-link" href="/account">
+      <a class="menu-link" href="/account/user-data">
         <div class="menu-link-image-container">
           <img src="/images/accounting.png" class="menu-link-image" />
         </div>
         <span class="menu-link-text">CHECK YOUR ACCOUNT</span>
+      </a>
+    </div>
+    <!-- admin home screen -->
+    <div class="home-container" v-if="session.user.role === 'ADMIN'">
+      <a class="menu-link" href="/admin/temp-maker">
+        <div class="menu-link-image-container">
+          <img src="/images/users.png" class="menu-link-image" />
+        </div>
+        <span class="menu-link-text">MANAGE USERS</span>
+      </a>
+      <a class="menu-link" href="/admin/temp-maker">
+        <div class="menu-link-image-container">
+          <img src="/images/parkingArea.png" class="menu-link-image" />
+        </div>
+        <span class="menu-link-text">MANAGE PARKINGS</span>
+      </a>
+      <a class="menu-link" href="/admin/statistics">
+        <div class="menu-link-image-container">
+          <img src="/images/statistics.png" class="menu-link-image" />
+        </div>
+        <span class="menu-link-text">STATISTICS</span>
       </a>
     </div>
   </TopBar>

@@ -4,19 +4,27 @@ import { useRoute } from "vue-router";
 // definePageMeta({ middleware: "auth" });
 
 const route = useRoute();
-const { status, data } = useAuth();
 
 const city = route.query.city;
 const hours = route.query.hours;
 const car = route.query.car;
 
-const parkings = [
-  { id: 1, name: "Parking 1", address: "Łódź, Główna 1", price: 10 },
-  { id: 2, name: "Parking 2", address: "Łódź, Główna 2", price: 40 },
-  { id: 3, name: "Parking 3", address: "Łódź, Główna 3", price: 10 },
-  { id: 4, name: "Parking 4", address: "Łódź, Główna 4", price: 40 },
-  { id: 5, name: "Parking 5", address: "Łódź, Główna 5", price: 50 },
-];
+const parkings = ref([]);
+
+onMounted(async () => {
+    try {
+        const response = await fetch('/api/search/getParkings?city=' + city);
+        const data = await response.json();
+        parkings.value = data;
+    } catch (error) {
+        console.error('Error fetching parkings:', error);
+    }
+});
+
+function getPrice(id) {
+  return 0;
+}
+
 </script>
 
 <template>
@@ -24,29 +32,18 @@ const parkings = [
     <div class="background">
       <h1>Car parks found</h1>
 
-      <div class="car-parks-wraper">
-        <div
-          class="car-parks"
-          v-for="parking in parkings"
-          :key="parking.id"
-          :value="parking.id"
-        >
-          <div class="parking">
-            Name: {{ parking.name }} <br />
-            Address: {{ parking.address }} <br />
-            Price: {{ parking.price }} PLN
-          </div>
-          <NuxtLink
-            :to="{
-              path: '/ticket',
-              query: { parkingId: parking.id, car: car },
-            }"
-            class="link"
-          >
-            <button class="enter">Enter</button>
-          </NuxtLink>
+    <div class="car-parks-wraper">
+      <div class="car-parks" v-for="parking in parkings" :key="parking.id" :value="parking.id">
+        <div class="parking">
+          Name: {{ parking.name }} <br>
+          Address: {{ parking.city }}, {{ parking.address }} <br>
+          Price: {{ getPrice(parking.id) }} PLN
         </div>
+        <NuxtLink :to="{ path: '/ticket', query: { parkingId: parking.id, car: car }}" class="link">
+          <button class="enter">Enter</button>
+        </NuxtLink>
       </div>
+    </div>
 
       <NuxtLink to="/finder/search">
         <button>Back</button>
