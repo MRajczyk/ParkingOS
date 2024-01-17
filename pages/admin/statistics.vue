@@ -2,6 +2,10 @@
 import TopBar from "/components/TopBar.vue";
 import { ref, onMounted } from 'vue';
 
+definePageMeta({ middleware: "auth" });
+
+ 
+
 const isModalVisible = ref(false);
 const modalContent = ref('');
 
@@ -48,7 +52,6 @@ const handleRightButtonClick = (type) => {
 };
 
 const parkingInfo = ref({
-  creationDate: '2022-01-15',
   maxCapacity: 100,
   revenueGenerated: '$100,000',
   carsParkedToDate: 50,
