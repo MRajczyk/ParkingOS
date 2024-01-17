@@ -1,115 +1,123 @@
 <script setup>
 import TopBar from "/components/TopBar.vue";
 import axios from "axios";
-definePageMeta({ middleware: "auth" });
+import { checkPassword } from "/utils/utils";
 
 const { status, data } = useAuth();
 
-const amount = ref("");
-const startingAmount = ref("");
-const isAmountError = ref(false);
-const operationSuccess = ref("");
-const operationError = ref("");
+const name = ref("");
+const surname = ref("");
 
 onMounted(() => {
   axios
-    .get("http://localhost:3000/api/funds/" + data.value.user.id)
+    .get("http://localhost:3000/api/profiles/" + data.value.user.id)
     .then((response) => {
-      startingAmount.value = response.data.data;
+      name.value = response.data.data.name;
+      surname.value = response.data.data.surname;
     })
     .catch((error) => {
       alert(error);
     });
 });
 
-function addFunds() {
-  isAmountError.value = false;
-  operationSuccess.value = "";
-  operationError.value = "";
+const password = ref("");
+const isPasswordError = ref(false);
 
-  if (amount.value.length === 0 || amount.value <= 0) {
-    isAmountError.value = true;
+const isNameError = ref(false);
+const isSurnameError = ref(false);
+
+const putSuccess = ref("");
+const putError = ref("");
+
+function putUserData() {
+  isPasswordError.value = false;
+  isSurnameError.value = false;
+  isNameError.value = false;
+  putSuccess.value = "";
+  putError.value = "";
+
+  if (name.value.length === 0) {
+    isNameError.value = true;
+  }
+  if (surname.value.length === 0) {
+    isSurnameError.value = true;
+  }
+  if (password.value.length === 0) {
+    isPasswordError.value = true;
+  }
+
+  if (isNameError.value || isSurnameError.value || isPasswordError.value) {
     return;
   }
 
   axios
-    .post("http://localhost:3000/api/funds", {
+    .put("http://localhost:3000/api/profiles/personal-data", {
       id: data.value.user.id,
-      amount: amount.value,
+      name: name.value,
+      surname: surname.value,
+      password: password.value,
     })
     .then((response) => {
-      operationSuccess.value = response.data.statusMessage;
-      startingAmount.value = response.data.newBalance;
-      amount.value = "";
+      putSuccess.value = response.data.statusMessage;
     })
     .catch((error) => {
-      operationError.value = error.response.data.statusMessage;
+      putError.value = error.response.data.statusMessage;
     });
 }
 </script>
 
 <template>
-  <TopBar>
-    <div class="profile">
-      <div class="profile-nav-buttons">
-        <NuxtLink to="/account/user-data" class="profile-nav-button"
-          >User data
-        </NuxtLink>
-        <NuxtLink
-          to="/account/balance"
-          class="profile-nav-button"
-          style="background-color: var(--primary)"
-          >Balance
-        </NuxtLink>
-        <NuxtLink to="/account/cars" class="profile-nav-button">Cars </NuxtLink>
-      </div>
-      <div class="profile-form-container">
-        <form
-          class="profile-form"
-          v-on:submit.prevent="onsubmit"
-          method="POST"
-          @submit="addFunds()"
-        >
-          <label class="profile-label">Current balance</label>
-          <span
-            type="text"
-            name="name"
-            placeholder="Name"
-            class="profile-input"
-            style="display: flex; align-items: center; justify-content: start"
-          >
-            {{ startingAmount }}
-          </span>
-          <label class="profile-label">Amount to deposit</label>
-          <input
-            type="number"
-            name="amount"
-            placeholder="Amount"
-            class="profile-input"
-            v-model="amount"
-          />
-          <span class="info-span" style="color: red" v-if="isAmountError">
-            Enter valid amount
-          </span>
-          <span
-            class="info-span"
-            style="color: red"
-            v-if="operationError.length > 0"
-          >
-            {{ operationError }}
-          </span>
-          <span
-            class="info-span"
-            style="color: green; align-self: center"
-            v-if="operationSuccess.length > 0"
-          >
-            {{ operationSuccess }}
-          </span>
-          <button type="submit" class="profile-form-button">Deposit</button>
-        </form>
-      </div>
-    </div>
-  </TopBar>
+  <form
+    class="profile-form"
+    v-on:submit.prevent="onsubmit"
+    method="POST"
+    @submit="putUserData()"
+  >
+    <label class="profile-label">Name</label>
+    <input
+      type="text"
+      name="name"
+      placeholder="Name"
+      class="profile-input"
+      v-model="name"
+    />
+    <span class="info-span" style="color: red" v-if="isNameError">
+      Enter valid name
+    </span>
+    <label class="profile-label">Surname</label>
+    <input
+      type="text"
+      placeholder="Surname"
+      name="surname"
+      class="profile-input"
+      v-model="surname"
+    />
+    <span class="info-span" style="color: red" v-if="isSurnameError">
+      Enter valid surname
+    </span>
+    <label class="profile-label">Current Password</label>
+    <input
+      type="password"
+      placeholder="Current Password"
+      name="password"
+      class="profile-input"
+      v-model="password"
+    />
+    <span class="info-span" style="color: red" v-if="isPasswordError">
+      Password can't be blank
+    </span>
+    <span class="info-span" style="color: red" v-if="putError.length > 0">
+      {{ putError }}
+    </span>
+    <span
+      class="info-span"
+      style="color: green; align-self: center"
+      v-if="putSuccess.length > 0"
+    >
+      {{ putSuccess }}
+    </span>
+    <button type="submit" class="profile-form-button">Update</button>
+  </form>
 </template>
 
 <style scoped>
@@ -193,13 +201,13 @@ function addFunds() {
 }
 
 .profile-form-button {
+  margin-top: 20px;
   width: 220px;
   height: 50px;
   background-color: var(--primary-lighter);
   color: #fff;
   border: 0;
   border-radius: 25px;
-  margin-top: 20px;
   font-weight: 600;
   font-size: 24px;
   cursor: pointer;

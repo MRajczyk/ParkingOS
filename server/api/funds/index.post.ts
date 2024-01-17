@@ -10,17 +10,17 @@ export default eventHandler(async (event) => {
 
   const body = await readBody(event);
   // @ts-ignore
-  if (!Number.isNaN(body.id) && session.user?.id !== body.id) {
+  if (Number.isNaN(body.id) || session.user?.id !== body.id) {
     throw createError({
       statusMessage: "Invalid session",
-      statusCode: 418,
+      statusCode: 404,
     });
   }
 
   if (!body.amount || body.amount <= 0) {
     throw createError({
       statusMessage: "Invalid deposit amount",
-      statusCode: 418,
+      statusCode: 404,
     });
   }
 

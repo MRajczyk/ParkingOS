@@ -228,6 +228,9 @@ a.logout:hover,
   .burger-options {
     display: none;
   }
+  .burger-option {
+    display: none;
+  }
   .burger {
     display: none;
   }

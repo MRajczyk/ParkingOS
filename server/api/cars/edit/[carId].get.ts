@@ -2,15 +2,14 @@ import { getServerSession } from "#auth";
 import { PrismaClient } from "@prisma/client";
 
 export default defineEventHandler(async (event) => {
-  const { id } = getRouterParams(event);
+  const { carId } = getRouterParams(event);
   const prisma: PrismaClient = event.context.prisma;
   const session = await getServerSession(event);
   if (!session) {
     throw createError({ statusMessage: "Unauthenticated", statusCode: 403 });
   }
 
-  // @ts-ignore
-  if (Number.isNaN(id) || session.user?.id !== id) {
+  if (Number.isNaN(carId)) {
     throw createError({
       statusMessage: "Invalid session",
       statusCode: 404,
@@ -18,17 +17,22 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const foundUser = await prisma.user.findFirst({
+    const car = await prisma.car.findFirst({
       where: {
-        id: Number.parseInt(id),
+        id: Number.parseInt(carId),
       },
     });
-    if (foundUser) {
-      return { statusCode: 200, data: foundUser.balance };
+    if (
+      car &&
+      // @ts-ignore
+      car.userId === Number.parseInt(session.user?.id) &&
+      !car.markedForDeletion
+    ) {
+      return { statusCode: 200, data: car };
     }
     return {
       statusCode: 404,
-      statusMessage: "User not found",
+      statusMessage: "Failed to fetch car data",
     };
   } catch (e) {
     //@ts-expect-error

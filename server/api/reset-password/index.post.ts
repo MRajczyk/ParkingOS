@@ -2,12 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { hash } from "bcrypt";
 import moment from "moment";
 import { sha512 } from "js-sha512";
-
-function checkPassword(str: string) {
-  var re =
-    /^(?=.*[0-9])(?=.*[!"#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~])[a-zA-Z0-9!"#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~*]{8,}$/;
-  return re.test(str);
-}
+import { checkPassword } from "../../../utils/utils";
 
 export default eventHandler(async (event) => {
   const SALT_ROUNDS = 10;
