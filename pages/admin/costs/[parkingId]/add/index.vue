@@ -3,38 +3,39 @@ import TopBar from "/components/TopBar.vue";
 import axios from "axios";
 definePageMeta({ middleware: "auth" });
 
-const { data } = useAuth();
+const route = useRoute();
+const parkingId = route.params.parkingId;
 
-const name = ref("");
-const isNameError = ref(false);
-const licensePlateNumber = ref("");
-const isLicensePlateNumberError = ref(false);
+const costName = ref("");
+const isCostNameError = ref(false);
+const costAmount = ref("");
+const isCostAmountError = ref(false);
 
 const postSuccess = ref("");
 const postError = ref("");
 
-function addNewCar() {
+function addNewCost() {
   postSuccess.value = "";
   postError.value = "";
-  isNameError.value = false;
-  isLicensePlateNumberError.value = false;
+  isCostNameError.value = false;
+  isCostAmountError.value = false;
 
-  if (name.value.length === 0) {
-    isNameError.value = true;
+  if (costName.value.length === 0) {
+    isCostNameError.value = true;
   }
-  if (licensePlateNumber.value.length < 3) {
-    isLicensePlateNumberError.value = true;
+  if (costAmount < 0) {
+    isCostAmountError.value = true;
     return;
   }
   axios
-    .post(`http://localhost:3000/api/cars`, {
-      userId: data.value.user.id,
-      name: name.value,
-      licensePlateNumber: licensePlateNumber.value,
+    .post(`http://localhost:3000/api/admin/costs`, {
+      parkingId: parkingId,
+      costName: costName.value,
+      costValue: costAmount.value,
     })
     .then((response) => {
-      name.value = "";
-      licensePlateNumber.value = "";
+      costName.value = "";
+      costAmount.value = "";
       postSuccess.value = response.data.statusMessage;
     })
     .catch((error) => {
@@ -45,42 +46,39 @@ function addNewCar() {
 
 <template>
   <TopBar>
-    <div class="add-car-content">
+    <div class="add-cost-content">
       <form
         v-on:submit.prevent="onsubmit"
-        class="add-car-form"
+        class="add-cost-form"
         method="POST"
-        @submit="addNewCar()"
+        @submit="addNewCost()"
       >
-        <h3 class="add-car-heading">Add car</h3>
+        <h3 class="add-cost-heading">Add cost</h3>
         <div class="setting-wrapper">
-          <label class="label">Car name</label>
+          <label class="label">Cost name</label>
           <input
             form="none"
             type="text"
-            name="name"
-            v-model="name"
-            class="add-car-input"
+            name="cost-name"
+            v-model="costName"
+            class="add-cost-input"
           />
-          <span class="info-span" style="color: red" v-if="isNameError">
-            Incorrect car name
+          <span class="info-span" style="color: red" v-if="isCostNameError">
+            Incorrect cost name
           </span>
         </div>
         <div class="setting-wrapper">
-          <label class="label">License plate number</label>
+          <label class="label">Cost amount</label>
           <input
             form="none"
-            type="text"
-            name="licensePlateNumber"
-            v-model="licensePlateNumber"
-            class="add-car-input"
+            type="number"
+            step="0.5"
+            name="cost-amount"
+            v-model="costAmount"
+            class="add-cost-input"
           />
-          <span
-            class="info-span"
-            style="color: red"
-            v-if="isLicensePlateNumberError"
-          >
-            Incorrect license plate number
+          <span class="info-span" style="color: red" v-if="isCostAmountError">
+            Incorrect cost amount
           </span>
         </div>
         <span class="info-span" style="color: red" v-if="postError.length > 0">
@@ -93,9 +91,13 @@ function addNewCar() {
         >
           {{ postSuccess }}
         </span>
-        <div class="add-car-navigation-buttons-container">
-          <button type="submit" class="add-car-form-button">Add</button>
-          <NuxtLink type="submit" to="/account/cars" class="add-car-form-button"
+
+        <div class="add-cost-navigation-buttons-container">
+          <button type="submit" class="add-cost-form-button">Add</button>
+          <NuxtLink
+            type="submit"
+            :to="`/admin/costs/${parkingId}`"
+            class="add-cost-form-button"
             >Back</NuxtLink
           >
         </div>
@@ -105,7 +107,7 @@ function addNewCar() {
 </template>
 
 <style scoped>
-.add-car-navigation-buttons-container {
+.add-cost-navigation-buttons-container {
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -114,7 +116,7 @@ function addNewCar() {
   justify-content: center;
 }
 
-.add-car-heading {
+.add-cost-heading {
   color: var(--primary-lighter);
   font-size: 40px;
 }
@@ -125,7 +127,7 @@ function addNewCar() {
   margin-top: 3px;
 }
 
-.add-car-input {
+.add-cost-input {
   display: block;
   width: calc(100% - 12px);
   height: 36px;
@@ -136,7 +138,7 @@ function addNewCar() {
   background-color: transparent;
 }
 
-.add-car-content {
+.add-cost-content {
   display: flex;
   width: 100%;
   height: 100%;
@@ -147,7 +149,7 @@ function addNewCar() {
   background-color: var(--bg-light);
 }
 
-.add-car-form {
+.add-cost-form {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -161,17 +163,17 @@ function addNewCar() {
 }
 
 @media screen and (min-width: 700px) {
-  .add-car-form {
+  .add-cost-form {
     padding: 40px;
     width: 360px;
   }
 
-  .add-car-navigation-buttons-container {
+  .add-cost-navigation-buttons-container {
     flex-direction: row;
   }
 }
 
-.add-car-form-button {
+.add-cost-form-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
