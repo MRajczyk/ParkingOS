@@ -8,15 +8,17 @@ const { status, data } = useAuth();
 const name = ref("");
 const surname = ref("");
 
-axios
-  .get("http://localhost:3000/api/profiles/" + data.value.user.id)
-  .then((response) => {
-    name.value = response.data.data.name;
-    surname.value = response.data.data.surname;
-  })
-  .catch((error) => {
-    alert(error);
-  });
+onMounted(() => {
+  axios
+    .get("http://localhost:3000/api/profiles/" + data.value.user.id)
+    .then((response) => {
+      name.value = response.data.data.name;
+      surname.value = response.data.data.surname;
+    })
+    .catch((error) => {
+      alert(error);
+    });
+});
 
 const password = ref("");
 const isPasswordError = ref(false);

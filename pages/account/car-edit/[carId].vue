@@ -12,15 +12,17 @@ const isNameError = ref(false);
 const licensePlateNumber = ref("");
 const isLicensePlateNumberError = ref(false);
 
-axios
-  .get("http://localhost:3000/api/cars/edit/" + carId)
-  .then((response) => {
-    name.value = response.data.data.name;
-    licensePlateNumber.value = response.data.data.registrationNumber;
-  })
-  .catch((error) => {
-    alert(error);
-  });
+onMounted(() => {
+  axios
+    .get("http://localhost:3000/api/cars/edit/" + carId)
+    .then((response) => {
+      name.value = response.data.data.name;
+      licensePlateNumber.value = response.data.data.registrationNumber;
+    })
+    .catch((error) => {
+      alert(error);
+    });
+});
 
 const putSuccess = ref("");
 const putError = ref("");
