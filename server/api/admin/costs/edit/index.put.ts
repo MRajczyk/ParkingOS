@@ -1,10 +1,10 @@
 import { getServerSession } from "#auth";
 import { PrismaClient } from "@prisma/client";
+import { Role } from "@prisma/client";
 
 export default eventHandler(async (event) => {
   const prisma: PrismaClient = event.context.prisma;
   const session = await getServerSession(event);
-
   if (!session) {
     throw createError({ statusMessage: "Unauthenticated", statusCode: 403 });
   }
@@ -18,7 +18,11 @@ export default eventHandler(async (event) => {
 
   const body = await readBody(event);
   // @ts-ignore
-  if (Number.isNaN(body.costId) || Number.isNaN(body.parkingId)) {
+  if (
+    Number.isNaN(body.costId) ||
+    Number.isNaN(body.parkingId) ||
+    Number.isNaN(body.costValue)
+  ) {
     throw createError({
       statusMessage: "Invalid cost or parking id",
       statusCode: 404,
@@ -39,10 +43,13 @@ export default eventHandler(async (event) => {
 
   try {
     await prisma.monthlyCost.update({
-      where: { id: body.costId, parkingId: body.parkingId },
+      where: {
+        id: Number.parseInt(body.costId),
+        parkingId: Number.parseInt(body.parkingId),
+      },
       data: {
         costName: body.costName,
-        costValue: body.costValue,
+        costValue: Number.parseFloat(body.costValue),
       },
     });
 

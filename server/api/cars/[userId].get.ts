@@ -27,18 +27,10 @@ export default defineEventHandler(async (event) => {
     if (userCars) {
       return { statusCode: 200, data: userCars };
     }
-    throw createError({
-      statusCode: 404,
-      statusMessage: "Invalid userId",
-    });
+    return {
+      statusMessage: "No cars found",
+    };
   } catch (e) {
-    //@ts-expect-error
-    if (e.message && e.message === "Invalid userId") {
-      throw createError({
-        statusCode: 404,
-        statusMessage: "Invalid userId",
-      });
-    }
     //@ts-expect-error
     console.log(e.message);
     throw createError({

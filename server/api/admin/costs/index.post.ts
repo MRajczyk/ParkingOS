@@ -1,5 +1,6 @@
 import { getServerSession } from "#auth";
 import { PrismaClient } from "@prisma/client";
+import { Role } from "@prisma/client";
 
 export default eventHandler(async (event) => {
   const prisma: PrismaClient = event.context.prisma;

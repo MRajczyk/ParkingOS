@@ -1,5 +1,6 @@
 import { getServerSession } from "#auth";
 import { PrismaClient } from "@prisma/client";
+import { Role } from "@prisma/client";
 
 export default defineEventHandler(async (event) => {
   const { parkingId } = getRouterParams(event);
@@ -34,10 +35,9 @@ export default defineEventHandler(async (event) => {
     if (parkingMonthlyCosts) {
       return { statusCode: 200, data: parkingMonthlyCosts };
     }
-    throw createError({
-      statusCode: 404,
-      statusMessage: "Invalid parking Id",
-    });
+    return {
+      statusMessage: "No costs were found",
+    };
   } catch (e) {
     //@ts-expect-error
     if (e.message && e.message === "Invalid parking Id") {
