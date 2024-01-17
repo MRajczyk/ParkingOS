@@ -11,14 +11,16 @@ const isAmountError = ref(false);
 const operationSuccess = ref("");
 const operationError = ref("");
 
-axios
-  .get("http://localhost:3000/api/funds/" + data.value.user.id)
-  .then((response) => {
-    startingAmount.value = response.data.data;
-  })
-  .catch((error) => {
-    alert(error);
-  });
+onMounted(() => {
+  axios
+    .get("http://localhost:3000/api/funds/" + data.value.user.id)
+    .then((response) => {
+      startingAmount.value = response.data.data;
+    })
+    .catch((error) => {
+      alert(error);
+    });
+});
 
 function addFunds() {
   isAmountError.value = false;

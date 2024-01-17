@@ -30,9 +30,12 @@ export default defineEventHandler(async (event) => {
     }
     // @ts-ignore
     if (car.userId === Number.parseInt(session.user?.id)) {
-      await prisma.car.delete({
+      await prisma.car.update({
         where: {
           id: Number.parseInt(carId),
+        },
+        data: {
+          markedForDeletion: true,
         },
       });
     }

@@ -25,7 +25,29 @@ export default eventHandler(async (event) => {
   ) {
     throw createError({
       statusMessage: "Invalid name or license plate number",
-      statusCode: 418,
+      statusCode: 404,
+    });
+  }
+
+  try {
+    const carToCheckRegistrationNumberAvailability = await prisma.car.findFirst(
+      {
+        where: {
+          registrationNumber: body.licensePlateNumber.toUpperCase(),
+          markedForDeletion: false,
+        },
+      }
+    );
+    if (carToCheckRegistrationNumberAvailability) {
+      throw createError({
+        statusMessage: "Car with given registration number already exists",
+        statusCode: 400,
+      });
+    }
+  } catch (e) {
+    throw createError({
+      statusMessage: "Car with given registration number already exists",
+      statusCode: 400,
     });
   }
 
@@ -34,7 +56,7 @@ export default eventHandler(async (event) => {
       data: {
         userId: Number.parseInt(body.userId),
         name: body.name,
-        registrationNumber: body.licensePlateNumber,
+        registrationNumber: body.licensePlateNumber.toUpperCase(),
         isParked: false,
       },
     });
