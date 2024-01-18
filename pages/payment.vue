@@ -14,30 +14,23 @@ let ticket = ref(null);
 let cost = ref(0);
 let isLoading = ref(true);
 
-// async onDetect (async(promise)) {
-//     try {
-//       const {
-//         imageData,    // raw image data of image/frame
-//         content,      // decoded String or null
-//         location      // QR code coordinates or null
-//       } = await promise
+async function onDetect(codes) {
+  try {
+    if (typeof tickets.value.find(ticket => ticket.ticket === codes[0].rawValue) === 'undefined') {
+      throw { error: "can't find ticket" };
+    }
 
-//       if (content === null) {
-//          // decoded nothing
-//       } else {
-//          // ...
-//       }
-//     } catch (error) {
-//       if (error.name === 'DropImageFetchError') {
-//         // drag-and-dropped URL (probably just an <img> element) from different
-//         // domain without CORS header caused same-origin-policy violation
-//       } else if (error.name === 'DropImageDecodeError') {
-//         // drag-and-dropped file is not of type image and can't be decoded
-//       } else {
-//         // idk, open an issue ¯\_(ツ)_/¯
-//       }
-//     }
-//   }
+    ticketId.value = codes[0].rawValue;
+    console.log(ticketId.value);
+  }
+  catch (error) {
+    if (error.error == "can't find ticket") {
+      alert("It's not your ticket!");
+    } else {
+      alert("Failed to load ticket info. Choose ticket from list.");
+    }
+  }
+}
 
 onMounted(async () => {
   axios
@@ -126,7 +119,6 @@ function pay() {
       isSuccess.value = true;
       isLoading.value = false;
 
-      // odczytywanie qr kodu, sprawdzenie czy uzupelniony jest drop z ticketid/plik
       const ticket = tickets.value.find(ticket => ticket.ticket === ticketId.value);
 
       axios
@@ -166,7 +158,7 @@ function pay() {
           console.log(error.response.data.statusMessage);
         });
 
-        stage.value++;
+      stage.value++;
     })
     .catch((error) => {
       isSuccess.value = false;
@@ -192,13 +184,9 @@ function pay() {
 
       <p class="or">Or</p>
 
-      <div class="search-wraper">
-        <label class="label">Ticket ID</label>
-        <input type="file" @change="handleFileChange" accept=".png">
-      </div>
-      <!-- <qrcode-drop-zone class="drag" @detect="onDetect">
+      <qrcode-drop-zone class="drag" @detect="onDetect">
         Drop your QR code here
-      </qrcode-drop-zone> -->
+      </qrcode-drop-zone>
 
       <button @click="getCost" :disabled="ticketId === null">
         Check ticket
@@ -264,11 +252,6 @@ function pay() {
 </style>
 
 <style scoped>
-.drag {
-  background-color: aqua;
-  padding: 10%;
-}
-
 .background {
   background-color: white;
   width: 30%;
@@ -334,6 +317,13 @@ button:hover {
 button:disabled {
   background-color: var(--shadow);
   cursor: auto;
+}
+
+.drag {
+  border-radius: 16px;
+  border: 0;
+  background-color: var(--bg-light);
+  padding: 10%;
 }
 
 .home {
