@@ -10,7 +10,7 @@ const userId = ref(data.value.user.id);
 
 const parkingId = route.query.parkingId;
 const parkingName = ref(null);
-const spot = ref(null);
+const space = ref(null);
 const car = route.query.car;
 const isBanned = ref(null);
 const isLoading = ref(true);
@@ -50,7 +50,6 @@ onMounted(async () => {
     })
     .then((response) => {
       isBanned.value = response.data;
-      isLoading.value = false;
     })
     .catch((error) => {
       console.error('Error fetching parking info:', error);
@@ -68,13 +67,13 @@ onMounted(async () => {
     });
 
   axios
-    .get("/api/ticket/spot", {
+    .get("/api/ticket/space", {
       params: { id: parkingId },
     })
     .then((response) => {
-      spot.value = response.data.id;
+      space.value = response.data.id;
       const date = getFormattedDate();
-      ticketId.value = 'P' + parkingId + 'C' + car + 'S' + spot.value + date;
+      ticketId.value = 'P' + parkingId + 'C' + car + 'S' + space.value + date;
 
       axios
         .post("/api/ticket/createReservation", {
@@ -82,8 +81,34 @@ onMounted(async () => {
           date: date,
           parkingId: parkingId,
           car: car,
-          spot: spot.value,
-          userId: userId.value,
+          spot: space.value,
+          userId: +userId.value,
+        })
+        .then((response) => {
+          console.log(response.data.statusMessage);
+          isLoading.value = false;
+        })
+        .catch((error) => {
+          console.log(error.response.data.statusMessage);
+        });
+
+      axios
+        .put("/api/ticket/carState", {
+          id: car,
+          isParked: "true",
+        })
+        .then((response) => {
+          console.log(response.data.statusMessage);
+        })
+        .catch((error) => {
+          console.log(error.response.data.statusMessage);
+        });
+
+
+      axios
+        .put("/api/ticket/spaceState", {
+          id: space.value,
+          ocuppied: "true",
         })
         .then((response) => {
           console.log(response.data.statusMessage);
@@ -95,21 +120,6 @@ onMounted(async () => {
     .catch((error) => {
       console.error('Error fetching spots:', error);
     });
-
-  axios
-    .put("/api/ticket/carState", {
-      id: car,
-      isParked: "true",
-    })
-    .then((response) => {
-      console.log(response.data.statusMessage);
-    })
-    .catch((error) => {
-      console.log(error.response.data.statusMessage);
-    });
-
-
-
 });
 
 </script>
@@ -129,7 +139,7 @@ onMounted(async () => {
         </div>
 
         <p>Parking: {{ parkingName }}</p>
-        <p>Parking spot: {{ spot }}</p>
+        <p>Parking spot: {{ space }}</p>
 
         <div class="buttons-div">
           <NuxtLink to="/">

@@ -1,8 +1,21 @@
 import { PrismaClient } from "@prisma/client";
+import { getServerSession } from "#auth";
 
 export default defineEventHandler(async (event) => {
     const prisma: PrismaClient = event.context.prisma;
+    const session = await getServerSession(event);
+    if (!session) {
+        console.log(0);
+        throw createError({ statusMessage: "Unauthenticated", statusCode: 403 });
+    }
+
     const body = await readBody(event);
+
+    //@ts-ignore
+    if (body.userId === session.user?.id) {
+        console.log(body.userId);
+        return { statusCode: 400 };
+    }
 
     const date = body.date;
     const year = parseInt(date.substring(0, 2), 10) + 2000;
@@ -12,6 +25,7 @@ export default defineEventHandler(async (event) => {
     const minutes = (date.substring(8, 10));
     const entranceDate = new Date(year, month, day, hours, minutes)
 
+    console.log(2);
     try {
         const exists = await prisma.parkingSession.findFirst({
             where: {
@@ -21,13 +35,27 @@ export default defineEventHandler(async (event) => {
                 leaveDate: null
             }
         })
+        console.log(3);
 
-        if(exists) {
-            console.log("Can't create session.")
-            throw { result: "Can't create session." };
+        if (exists) {
+            console.log('exists');
+            throw { result: "Session already exists." };
         }
 
-        const session = await prisma.parkingSession.create({
+        const validate = await prisma.car.findFirst({
+            where: {
+                id: +body.car,
+                userId: +body.userId,
+            }
+        })
+        console.log(4);
+
+        if (!validate) {
+            console.log('validate');
+            throw { result: "This user doesn't own this car." };
+        }
+
+        const session1 = await prisma.parkingSession.create({
             data: {
                 ticket: body.ticket,
                 entranceDate: entranceDate,
@@ -39,7 +67,9 @@ export default defineEventHandler(async (event) => {
             },
         });
 
-        return session;
+        console.log(session1);
+
+        return session1;
     } catch (error) {
         throw error;
     }

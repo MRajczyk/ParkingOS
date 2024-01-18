@@ -1,54 +1,90 @@
 <script setup>
 import TopBar from "/components/TopBar.vue";
 import { useRoute } from "vue-router";
-// definePageMeta({ middleware: "auth" });
+import axios from "axios";
 
 const route = useRoute();
+const { data } = useAuth();
+const userId = ref(data.value.user.id);
 
 const city = route.query.city;
 const hours = route.query.hours;
 const car = route.query.car;
 
 const parkings = ref([]);
+let isLoading = ref(true);
 
 onMounted(async () => {
-    try {
-        const response = await fetch('/api/search/getParkings?city=' + city);
-        const data = await response.json();
-        parkings.value = data;
-    } catch (error) {
-        console.error('Error fetching parkings:', error);
-    }
+  try {
+    const response = await fetch('/api/search/parkings?city=' + city + '&hours=' + hours);
+    const res = await response.json();
+    parkings.value = res;
+    isLoading.value = false;
+  } catch (error) {
+    console.error('Error fetching parkings:', error);
+  }
 });
 
-function getPrice(id) {
-  return 0;
+function getPrice(chargePlan) {
+  const currHour = new Date().getHours();
+  let price = 0;
+
+  for (let ctr = 0; ctr < hours; ctr++) {
+    const hour = (currHour + ctr) % 24;
+
+    if (hour >= chargePlan.nightStart || hour < chargePlan.nightEnd) {
+      if (ctr === 0) {
+        price += chargePlan.nightHour1Tariff;
+      } else if (ctr === 1) {
+        price += chargePlan.nightHour2Tariff;
+      } else if (ctr === 2) {
+        price += chargePlan.nightHour3Tariff;
+      } else {
+        price += chargePlan.nightHour4Tariff;
+      }
+    } else {
+      if (ctr === 0) {
+        price += chargePlan.dayHour1Tariff;
+      } else if (ctr === 1) {
+        price += chargePlan.dayHour2Tariff;
+      } else if (ctr === 2) {
+        price += chargePlan.dayHour3Tariff;
+      } else {
+        price += chargePlan.dayHour4Tariff;
+      }
+    }
+  }
+
+  return price;
 }
+
 
 </script>
 
 <template>
   <TopBar>
-    <div class="background">
-      <h1>Car parks found</h1>
+    <div v-if="!isLoading" class="background">
+      <h1 v-if="parkings.length > 0">Car parks found</h1>
+      <h1 v-else>There are no available car parks in this city</h1>
 
-    <div class="car-parks-wraper">
-      <div class="car-parks" v-for="parking in parkings" :key="parking.id" :value="parking.id">
-        <div class="parking">
-          Name: {{ parking.name }} <br>
-          Address: {{ parking.city }}, {{ parking.address }} <br>
-          Price: {{ getPrice(parking.id) }} PLN
+      <div class="car-parks-wraper">
+        <div class="car-parks" v-for="parking in parkings" :key="parking.id" :value="parking.id">
+          <div class="parking">
+            Name: {{ parking.name }} <br>
+            Address: {{ parking.city }}, {{ parking.address }} <br>
+            Estimated price: {{ getPrice(parking.chargePlan) }} PLN
+          </div>
+          <NuxtLink :to="{ path: '/ticket', query: { parkingId: parking.id, car: car } }" class="link">
+            <button class="enter">Enter</button>
+          </NuxtLink>
         </div>
-        <NuxtLink :to="{ path: '/ticket', query: { parkingId: parking.id, car: car }}" class="link">
-          <button class="enter">Enter</button>
-        </NuxtLink>
       </div>
-    </div>
 
       <NuxtLink to="/finder/search">
         <button>Back</button>
       </NuxtLink>
     </div>
+    <div v-else></div>
   </TopBar>
 </template>
 
