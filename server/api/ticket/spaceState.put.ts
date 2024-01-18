@@ -12,22 +12,24 @@ export default defineEventHandler(async (event) => {
     let state: boolean;
 
     try {
-        state = JSON.parse(body.isParked);
+        state = JSON.parse(body.ocuppied);
     } catch (error) {
         throw error;
     }
 
+    console.log(body);
+
     try {
-        const car = await prisma.car.update({
+        const space = await prisma.parkingSpace.update({
             where: {
                 id: +body.id,
             },
             data: {
-                isParked: state,
+                ocuppied: state,
             },
         });
 
-        return car;
+        return space;
     } catch (error) {
         throw error;
     }
