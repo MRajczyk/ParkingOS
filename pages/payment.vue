@@ -6,12 +6,13 @@ import axios from "axios";
 const { data } = useAuth();
 const userId = ref(data.value.user.id);
 
-const stage = ref(0);
+let stage = ref(0);
 const isSuccess = ref(false);
-const money = ref(0);
-const cost = ref(21.31);
 const ticketId = ref(null);
 const tickets = ref([]);
+let ticket = ref(null);
+let cost = ref(0);
+let isLoading = ref(true);
 
 // async onDetect (async(promise)) {
 //     try {
@@ -49,25 +50,128 @@ onMounted(async () => {
     .catch((error) => {
       console.error('Error fetching pending tickets:', error);
     });
-
-    // axios
-    // .get("/api/ticket/money", {
-    //   params: { id: userId.value },
-    // })
-    // .then((response) => {
-    //   money.value = response.data;
-    // })
-    // .catch((error) => {
-    //   console.error('Error avaible money:', error);
-    // });
 })
 
+function getCost() {
+  let chargePlan = ref(null);
+  ticket = tickets.value.find(ticket => ticket.ticket === ticketId.value);
+
+  axios
+    .get("/api/ticket/tariff", {
+      params: { parkingId: ticket.parkingId },
+    })
+    .then((response) => {
+      chargePlan.value = response.data;
+
+      axios
+        .get("/api/ticket/parkingSession", {
+          params: { id: ticketId.value },
+        })
+        .then((response2) => {
+          const entranceDate = new Date(response2.data.entranceDate);
+          const currentDate = new Date();
+
+          const timeDifference = currentDate - entranceDate;
+
+          const hours = Math.floor(timeDifference / (1000 * 60 * 60));
+
+          for (let ctr = 0; ctr < hours; ctr++) {
+            const hour = (entranceDate.getHours() + ctr) % 24;
+
+            if (hour >= chargePlan.value.nightStart || hour < chargePlan.value.nightEnd) {
+              if (ctr === 0) {
+                cost.value += chargePlan.value.nightHour1Tariff;
+              } else if (ctr === 1) {
+                cost.value += chargePlan.value.nightHour2Tariff;
+              } else if (ctr === 2) {
+                cost.value += chargePlan.value.nightHour3Tariff;
+              } else {
+                cost.value += chargePlan.value.nightHour4Tariff;
+              }
+            } else {
+              if (ctr === 0) {
+                cost.value += chargePlan.value.dayHour1Tariff;
+              } else if (ctr === 1) {
+                cost.value += chargePlan.value.dayHour2Tariff;
+              } else if (ctr === 2) {
+                cost.value += chargePlan.value.dayHour3Tariff;
+              } else {
+                cost.value += chargePlan.value.dayHour4Tariff;
+              }
+            }
+          }
+
+          stage.value++;
+        })
+        .catch((error) => {
+          console.error('Error fetching pending tickets:', error);
+        });
+
+    })
+    .catch((error) => {
+      console.error('Error fetching charge plan:', error);
+      return null;
+    });
+}
+
+
 function pay() {
-  if (money.value - cost.value >= 0) {
-    isSuccess.value = true;
-  } else {
-    isSuccess.value = false;
-  }
+  isLoading.value = true;
+  axios
+    .post("/api/ticket/pay", {
+      id: data.value.user.id,
+      amount: cost.value,
+    })
+    .then((response) => {
+      isSuccess.value = true;
+      isLoading.value = false;
+
+      // odczytywanie qr kodu, sprawdzenie czy uzupelniony jest drop z ticketid/plik
+      const ticket = tickets.value.find(ticket => ticket.ticket === ticketId.value);
+
+      axios
+        .put("/api/ticket/closeReservation", {
+          ticketId: ticket.id,
+          cost: cost.value,
+          userId: +data.value.user.id,
+        })
+        .then((response) => {
+          console.log(response.data.statusMessage);
+        })
+        .catch((error) => {
+          console.log(error.response.data.statusMessage);
+        });
+      axios
+        .put("/api/ticket/carState", {
+          id: ticket.carId,
+          isParked: "false",
+        })
+        .then((response) => {
+          console.log(response.data.statusMessage);
+        })
+        .catch((error) => {
+          console.log(error.response.data.statusMessage);
+        });
+
+
+      axios
+        .put("/api/ticket/spaceState", {
+          id: ticket.spot,
+          ocuppied: "false",
+        })
+        .then((response) => {
+          console.log(response.data.statusMessage);
+        })
+        .catch((error) => {
+          console.log(error.response.data.statusMessage);
+        });
+
+        stage.value++;
+    })
+    .catch((error) => {
+      isSuccess.value = false;
+      console.log(error);
+    });
 }
 
 </script>
@@ -92,11 +196,11 @@ function pay() {
         <label class="label">Ticket ID</label>
         <input type="file" @change="handleFileChange" accept=".png">
       </div>
-      <qrcode-drop-zone class="drag" @detect="onDetect">
+      <!-- <qrcode-drop-zone class="drag" @detect="onDetect">
         Drop your QR code here
-      </qrcode-drop-zone>
+      </qrcode-drop-zone> -->
 
-      <button @click="stage++" :disabled="ticketId === null">
+      <button @click="getCost" :disabled="ticketId === null">
         Check ticket
       </button>
     </div>
@@ -117,11 +221,11 @@ function pay() {
 
       <button class="home" @click="stage--">Back</button>
       <button @click="pay">
-        <div @click="stage++">Pay</div>
+        Pay
       </button>
     </div>
 
-    <div v-else-if="stage === 2 && isSuccess" class="background">
+    <div v-else-if="stage === 2 && isSuccess && !isLoading" class="background">
       <h1>Payment successful</h1>
       <img src="/images/success.png" class="failure" />
       <div class="payment-info">
@@ -144,7 +248,7 @@ function pay() {
       <NuxtLink to="/">
         <button class="home">Home</button>
       </NuxtLink>
-      <NuxtLink to="/">
+      <NuxtLink to="/account/balance">
         <button>Add funds</button>
       </NuxtLink>
     </div>
