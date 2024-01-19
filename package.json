@@ -32,6 +32,7 @@
     "qrcode.vue": "^3.4.1",
     "uuid": "^9.0.1",
     "vue-qrcode-reader": "^5.5.1",
+    "vue-toggles": "^2.1.0",
     "vuedraggable": "^2.24.3"
   },
   "prisma": {

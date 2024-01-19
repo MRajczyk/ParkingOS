@@ -73,12 +73,11 @@ function hideBurger() {
         <i class="fa fa-bars"></i>
       </a>
       <div class="topbar-buttons" style="padding-left: 16px">
-        <NuxtLink to="/admin/temp-maker" class="profile-link">Maker</NuxtLink>
+        <NuxtLink to="/admin/maker" class="profile-link">Maker</NuxtLink>
         <span class="split" style="font-weight: 200">|</span>
-        <NuxtLink to="/admin/temp-maker" class="profile-link">Users</NuxtLink>
+        <NuxtLink to="/admin/users" class="profile-link">Users</NuxtLink>
         <span class="split" style="font-weight: 200">|</span>
-        <NuxtLink to="/admin/temp-maker" class="profile-link"
-          >Live View</NuxtLink
+        <NuxtLink to="/admin/liveview" class="profile-link">Live View</NuxtLink
         >
       </div>
       <NuxtLink to="/" class="topbar-title"> ParkingOS </NuxtLink>
