@@ -82,45 +82,47 @@ function statistics(id) {
 </script>
 
 <template>
-  <TopBar>
-    <div class="bckg">
-      <h1>Users</h1>
-      <input type="text" id="search" v-model="searchQuery" @input="filterUsers" placeholder="Search" />
-      <div class="header">
-        <div style="width: 12%;padding-left: 1.5%;">Id</div>
-        <div style="width: 48%;padding-left: 1.5%;">E-mail</div>
-        <div style="width: 14%;text-align: right;">Funds</div>
-        <div style="width: 9.5%;text-align: right;padding-right: 2.5%;">Cars</div>
-        <div style="width: 14%;text-align: center;">Block</div>
-      </div>
-      <div v-for="user in filteredUsers" class="background">
-        <div style="width: 12%;padding: 1.5%;">{{ user.id }}</div>
-        <div style="width: 48%;padding: 1.5%;">{{ user.email }}</div>
-        <div style="width: 14%;text-align: right;padding: 1.5% 2%;">{{ user.balance.toFixed(2) }} PLN</div>
-        <div style="width: 12%;text-align: center;">
-          <img src="/images/car.png" class="car" @click="showCars(user.id)">
+  <div style="background-color: var(--bg-light);height: 100%;">
+    <TopBar>
+      <div class="bckg">
+        <h1>Users</h1>
+        <input type="text" id="search" v-model="searchQuery" @input="filterUsers" placeholder="Search" />
+        <div class="header">
+          <div style="width: 12%;padding-left: 1.5%;">Id</div>
+          <div style="width: 48%;padding-left: 1.5%;">E-mail</div>
+          <div style="width: 14%;text-align: right;">Funds</div>
+          <div style="width: 9.5%;text-align: right;padding-right: 2.5%;">Cars</div>
+          <div style="width: 14%;text-align: center;">Block</div>
         </div>
-        <div style="width: 14%;">
-          <VueToggles v-model="user.isBanned" :width="50" checkedBg="var(--primary-lighter)"
-            @click="updateUser(user.id, user.isBanned)" class="switch" />
-        </div>
-      </div>
-    </div>
-    <div v-if="isModalVisible" class="modal">
-      <div class="cars">
-        <div style="align-items: right; justify-content: right; display: flex;">
-          <button @click="isModalVisible = false" style="padding: 0 1%; background-color: white;">X</button>
-        </div>
-        <h2>Cars</h2>
-        <div class="list">
-          <div v-for="car in cars" class="element">
-            <div style="margin: auto auto auto 0;">{{ car.registrationNumber }}</div>
-            <img src="/images/bar-chart.png" @click="statistics(car.id)" class="statistics">
+        <div v-for="user in filteredUsers" class="background">
+          <div style="width: 12%;padding: 1.5%;">{{ user.id }}</div>
+          <div style="width: 48%;padding: 1.5%;">{{ user.email }}</div>
+          <div style="width: 14%;text-align: right;padding: 1.5% 2%;">{{ user.balance.toFixed(2) }} PLN</div>
+          <div style="width: 12%;text-align: center;">
+            <img src="/images/car.png" class="car" @click="showCars(user.id)">
+          </div>
+          <div style="width: 14%;">
+            <VueToggles v-model="user.isBanned" :width="50" checkedBg="var(--primary-lighter)"
+              @click="updateUser(user.id, user.isBanned)" class="switch" />
           </div>
         </div>
       </div>
-    </div>
-  </TopBar>
+      <div v-if="isModalVisible" class="modal">
+        <div class="cars">
+          <div style="align-items: right; justify-content: right; display: flex;">
+            <button @click="isModalVisible = false" style="padding: 0 1%; background-color: white;">X</button>
+          </div>
+          <h2>Cars</h2>
+          <div class="list">
+            <div v-for="car in cars" class="element">
+              <div style="margin: auto auto auto 0;">{{ car.registrationNumber }}</div>
+              <img src="/images/bar-chart.png" @click="statistics(car.id)" class="statistics">
+            </div>
+          </div>
+        </div>
+      </div>
+    </TopBar>
+  </div>
 </template>
 
 <style scoped>

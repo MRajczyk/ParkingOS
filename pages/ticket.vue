@@ -129,39 +129,41 @@ onMounted(async () => {
 </script>
 
 <template>
-  <TopBar>
-    <div v-if="isLoading"></div>
-    <div v-else>
-      <div v-if="!isBanned" class="background">
-        <h1>Entrance ticket</h1>
+  <div style="background-color: var(--bg-light);height: 100%;">
+    <TopBar>
+      <div v-if="isLoading"></div>
+      <div v-else>
+        <div v-if="!isBanned" class="background">
+          <h1>Entrance ticket</h1>
 
-        <qrcode-vue :value="ticketId" :size="200" id="qr"></qrcode-vue>
+          <qrcode-vue :value="ticketId" :size="200" id="qr"></qrcode-vue>
 
-        <div class="ticket-id">
-          <p>ID: {{ ticketId }}</p>
-          <img src="/images/copy.png" class="copy" @click="copy">
+          <div class="ticket-id">
+            <p>ID: {{ ticketId }}</p>
+            <img src="/images/copy.png" class="copy" @click="copy">
+          </div>
+
+          <p>Parking: {{ parkingName }}</p>
+          <p>Parking spot: {{ space }}</p>
+
+          <div class="buttons-div">
+            <NuxtLink to="/">
+              <button class="home">Home</button>
+            </NuxtLink>
+            <button @click="download">Download QR</button>
+          </div>
         </div>
-
-        <p>Parking: {{ parkingName }}</p>
-        <p>Parking spot: {{ space }}</p>
-
-        <div class="buttons-div">
+        <div v-else class="background">
+          <h1>BANNED</h1>
+          <img src="/images/failure.png" class="failure">
+          <h2>Contact admin or regulate pending costs</h2>
           <NuxtLink to="/">
-            <button class="home">Home</button>
+            <button>Home</button>
           </NuxtLink>
-          <button @click="download">Download QR</button>
         </div>
       </div>
-      <div v-else class="background">
-        <h1>BANNED</h1>
-        <img src="/images/failure.png" class="failure">
-        <h2>Contact admin or regulate pending costs</h2>
-        <NuxtLink to="/">
-          <button>Home</button>
-        </NuxtLink>
-      </div>
-    </div>
-  </TopBar>
+    </TopBar>
+  </div>
 </template>
 
 <style>

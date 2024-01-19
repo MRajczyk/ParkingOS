@@ -3,7 +3,7 @@ import TopBar from "/components/TopBar.vue";
 </script>
 
 <template>
-  <div style="background-color: var(--bg-light);">
+  <div style="background-color: var(--bg-light);height: 100%;">
     <TopBar>
       <div class="bckg">
         <h1>Maker</h1>
