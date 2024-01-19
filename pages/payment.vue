@@ -68,7 +68,7 @@ function getCost() {
 
           const hours = Math.floor(timeDifference / (1000 * 60 * 60));
 
-          for (let ctr = 0; ctr < hours; ctr++) {
+          for (let ctr = 0; ctr <= hours; ctr++) {
             const hour = (entranceDate.getHours() + ctr) % 24;
 
             if (hour >= chargePlan.value.nightStart || hour < chargePlan.value.nightEnd) {
@@ -162,6 +162,7 @@ function pay() {
     })
     .catch((error) => {
       isSuccess.value = false;
+      stage.value++;
       console.log(error);
     });
 }
