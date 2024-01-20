@@ -15,7 +15,7 @@ const cars = ref([]);
 
 onMounted(async () => {
   axios
-    .get("/api/users/users")
+    .get("/api/admin/users/users")
     .then((response) => {
       users.value = response.data;
     })
@@ -26,7 +26,7 @@ onMounted(async () => {
 
 function updateUser(id, isBanned) {
   axios
-    .put("/api/users/ban", {
+    .put("/api/admin/users/ban", {
       id: id,
       isBanned: isBanned,
     })
@@ -56,7 +56,7 @@ const filterUsers = () => {
 
 function showCars(id) {
   axios
-    .get("/api/users/cars", {
+    .get("/api/admin/users/cars", {
       params: {
         userId: id,
       }
