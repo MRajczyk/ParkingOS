@@ -18,6 +18,7 @@ onMounted(async () => {
     .get("/api/admin/users/users")
     .then((response) => {
       users.value = response.data;
+      filteredUsers.value = response.data;
     })
     .catch((error) => {
       console.error('Error fetching users:', error);

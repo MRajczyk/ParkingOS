@@ -1,7 +1,62 @@
 <script setup>
 import TopBar from "/components/TopBar.vue";
 import { ref } from "vue";
+import axios from "axios";
 
+const parkings = ref([]);
+const filteredParkings = ref([]);
+const searchQuery = ref('');
+
+onMounted(async () => {
+  axios
+    .get("/api/admin/parking/parkings")
+    .then((response) => {
+      parkings.value = response.data;
+      filteredParkings.value = response.data;
+    })
+    .catch((error) => {
+      console.error('Error fetching users:', error);
+    });
+});
+
+const filterParkings = () => {
+  filteredParkings.value = parkings.value.filter((parking) =>
+    parking.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+}
+
+function deleteParking(id) {
+  axios
+    .delete("/api/admin/parking/delete/", {
+      data: {
+        parkingId: +id,
+      },
+    })
+    .then((response) => {
+
+      const indexInParkings = parkings.value.findIndex(p => p.id === +id);
+      const indexInFilteredParkings = filteredParkings.value.findIndex(p => p.id === +id);
+
+      if (indexInParkings !== -1) {
+        parkings.value.splice(indexInParkings, 1);
+      }
+
+      if (indexInFilteredParkings !== -1) {
+        filteredParkings.value.splice(indexInFilteredParkings, 1);
+      }
+
+      alert("Parking deleted");
+    })
+    .catch((error) => {
+      if (error.response && error.response.data && error.response.data.message && error.response.data.message === 'Unable to delete all spaces.') {
+        alert("You cannot delete the parking because some parking spaces have cars parked on them. The unoccupied spaces have been successfully deleted. Please wait for all spaces to become vacant and try again.");
+      } else {
+        alert("Deletion failed");
+      }
+      console.log(error);
+    });
+
+}
 
 </script>
 
@@ -10,14 +65,47 @@ import { ref } from "vue";
     <TopBar>
       <div class="background">
         <h1>Car parks</h1>
+        <input type="text" id="search" v-model="searchQuery" @input="filterParkings" placeholder="Search" />
 
-        
+        <div class="container">
+          <div v-for="parking in filteredParkings" class="parking-wrapper">
+            <div class="part1">
+              <div class="info">
+                Name: {{ parking.name }}
+                <br>
+                Address: {{ parking.city }}, {{ parking.address }}
+              </div>
+              <div class="edit-delete">
+                <img src="/images/recycle-bin.png" @click="deleteParking(parking.id)" style="width: 30%">
+                <NuxtLink :to="{ path: '/admin/parkings/edit', query: { id: parking.id } }">
+                  <img src="/images/edit.png" style="width: 30%;margin-left: 10%;">
+                </NuxtLink>
+              </div>
+            </div>
+            <div class="part2">
+              <NuxtLink :to="{ path: '/admin/liveview', query: { parkingId: parking.id } }">
+                <button class="actions">LiveView</button>
+              </NuxtLink>
+              <NuxtLink :to="{ path:'/admin/costs/' + parking.id }">
+                <button class="actions">Costs</button>
+              </NuxtLink>
+              <!-- <NuxtLink :to="{ path: '/admin/statistics', query: { parkingId: parking.id } }"> -->
+                <button class="actions">Statistics</button>
+              <!-- </NuxtLink> -->
+              <!-- <NuxtLink :to="{ path: '/admin/summary', query: { parkingId: parking.id } }"> -->
+                <button class="actions">Summary</button>
+              <!-- </NuxtLink> -->
+            </div>
+          </div>
+        </div>
 
         <div class="buttons">
           <NuxtLink to="/">
             <button class="back">Back</button>
           </NuxtLink>
-          <button @click="create">Create</button>
+          <NuxtLink to="/admin/parkings/maker">
+            <button>Add new</button>
+          </NuxtLink>
         </div>
       </div>
     </TopBar>
@@ -25,7 +113,6 @@ import { ref } from "vue";
 </template>
 
 <style scoped>
-
 .background {
   background-color: white;
   width: 40%;
@@ -43,12 +130,42 @@ h1 {
   margin-top: 5%;
 }
 
-input {
-  padding: 3%;
-  margin-bottom: 8%;
+#search {
+  padding: 2%;
+  margin: 5% auto;
   border-radius: 16px;
-  width: 80%;
+  width: 70%;
   border: 1px solid var(--shadow);
+}
+
+.parking-wrapper {
+  padding: 3%;
+  margin: 0 auto 3%;
+  width: 90%;
+  border-radius: 16px;
+  border: 1px solid var(--shadow);
+}
+
+.part1 {
+  display: flex;
+}
+
+.info {
+  width: 80%;
+  text-align: left;
+}
+
+.edit-delete {
+  width: 20%;
+}
+
+.actions {
+  margin: 3% 3% 0;
+  width: 17%;
+  background-color: #A6BE8D;
+  color: var(--primary-lighter);
+  font-size: medium;
+  font-weight: 600;
 }
 
 button {
@@ -63,6 +180,7 @@ button {
   border: 0;
 }
 
+img:hover,
 button:hover {
   cursor: pointer;
 }
@@ -70,5 +188,21 @@ button:hover {
 .back {
   color: var(--primary-lighter);
   background-color: var(--bg-light);
+}
+
+.container {
+  overflow-y: scroll;
+  max-height: 320px;
+}
+
+.container::-webkit-scrollbar {
+  width: 10px;
+  margin-left: 10px;
+}
+
+.container::-webkit-scrollbar-thumb {
+  background-color: var(--primary-lighter);
+  border-radius: 20px;
+  border: 6px solid transparent;
 }
 </style>
