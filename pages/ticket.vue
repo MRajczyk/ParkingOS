@@ -50,114 +50,120 @@ onMounted(async () => {
     })
     .then((response) => {
       isBanned.value = response.data;
+
+      if (isBanned.value == false) {
+        axios
+          .get("/api/ticket/parkingInfo", {
+            params: { id: parkingId },
+          })
+          .then((response) => {
+            parkingName.value = response.data.name;
+          })
+          .catch((error) => {
+            console.error('Error fetching parking info:', error);
+          });
+
+        axios
+          .get("/api/ticket/space", {
+            params: { id: parkingId },
+          })
+          .then((response) => {
+            space.value = response.data.id;
+            const date = getFormattedDate();
+            ticketId.value = 'P' + parkingId + 'C' + car + 'S' + space.value + date;
+
+            axios
+              .post("/api/ticket/createReservation", {
+                ticket: ticketId.value,
+                date: date,
+                parkingId: parkingId,
+                car: car,
+                spot: space.value,
+                userId: +userId.value,
+              })
+              .then((response) => {
+                console.log(response.data.statusMessage);
+                isLoading.value = false;
+              })
+              .catch((error) => {
+                console.log(error.response.data.statusMessage);
+              });
+
+            axios
+              .put("/api/ticket/carState", {
+                id: car,
+                isParked: "true",
+              })
+              .then((response) => {
+                console.log(response.data.statusMessage);
+              })
+              .catch((error) => {
+                console.log(error.response.data.statusMessage);
+              });
+
+
+            axios
+              .put("/api/ticket/spaceState", {
+                id: space.value,
+                ocuppied: "true",
+              })
+              .then((response) => {
+                console.log(response.data.statusMessage);
+              })
+              .catch((error) => {
+                console.log(error.response.data.statusMessage);
+              });
+          })
+          .catch((error) => {
+            console.error('Error fetching spots:', error);
+          });
+      } else {
+      isLoading.value = false;
+      }
     })
     .catch((error) => {
       console.error('Error fetching parking info:', error);
-    });
-
-  axios
-    .get("/api/ticket/parkingInfo", {
-      params: { id: parkingId },
-    })
-    .then((response) => {
-      parkingName.value = response.data.name;
-    })
-    .catch((error) => {
-      console.error('Error fetching parking info:', error);
-    });
-
-  axios
-    .get("/api/ticket/space", {
-      params: { id: parkingId },
-    })
-    .then((response) => {
-      space.value = response.data.id;
-      const date = getFormattedDate();
-      ticketId.value = 'P' + parkingId + 'C' + car + 'S' + space.value + date;
-
-      axios
-        .post("/api/ticket/createReservation", {
-          ticket: ticketId.value,
-          date: date,
-          parkingId: parkingId,
-          car: car,
-          spot: space.value,
-          userId: +userId.value,
-        })
-        .then((response) => {
-          console.log(response.data.statusMessage);
-          isLoading.value = false;
-        })
-        .catch((error) => {
-          console.log(error.response.data.statusMessage);
-        });
-
-      axios
-        .put("/api/ticket/carState", {
-          id: car,
-          isParked: "true",
-        })
-        .then((response) => {
-          console.log(response.data.statusMessage);
-        })
-        .catch((error) => {
-          console.log(error.response.data.statusMessage);
-        });
-
-
-      axios
-        .put("/api/ticket/spaceState", {
-          id: space.value,
-          ocuppied: "true",
-        })
-        .then((response) => {
-          console.log(response.data.statusMessage);
-        })
-        .catch((error) => {
-          console.log(error.response.data.statusMessage);
-        });
-    })
-    .catch((error) => {
-      console.error('Error fetching spots:', error);
     });
 });
 
 </script>
 
 <template>
-  <TopBar>
-    <div v-if="isLoading"></div>
-    <div v-else>
-      <div v-if="!isBanned" class="background">
-        <h1>Entrance ticket</h1>
+  <div style="background-color: var(--bg-light);height: 100%;">
+    <TopBar>
+      <div v-if="isLoading"></div>
+      <div v-else>
+        <div v-if="!isBanned" class="background">
+          <h1>Entrance ticket</h1>
 
-        <qrcode-vue :value="ticketId" :size="200" id="qr"></qrcode-vue>
+          <qrcode-vue :value="ticketId" :size="200" id="qr"></qrcode-vue>
 
-        <div class="ticket-id">
-          <p>ID: {{ ticketId }}</p>
-          <img src="/images/copy.png" class="copy" @click="copy">
+          <div class="ticket-id">
+            <p>ID: {{ ticketId }}</p>
+            <img src="/images/copy.png" class="copy" @click="copy">
+          </div>
+
+          <p>Parking: {{ parkingName }}</p>
+          <p>Parking spot: {{ space }}</p>
+
+          <div class="buttons-div">
+            <NuxtLink to="/">
+              <button class="home">Home</button>
+            </NuxtLink>
+            <button @click="download">Download QR</button>
+          </div>
         </div>
-
-        <p>Parking: {{ parkingName }}</p>
-        <p>Parking spot: {{ space }}</p>
-
-        <div class="buttons-div">
+        <div v-else class="background">
+          <h1>BANNED</h1>
+          <img src="/images/failure.png" class="failure">
+          <h2>Contact admin or regulate pending costs</h2>
           <NuxtLink to="/">
-            <button class="home">Home</button>
+            <button>Home</button>
           </NuxtLink>
-          <button @click="download">Download QR</button>
         </div>
       </div>
-      <div v-else class="background">
-        <h1>BANNED</h1>
-        <img src="/images/failure.png" class="failure">
-        <h2>Contact admin or regulate pending costs</h2>
-        <NuxtLink to="/">
-          <button>Home</button>
-        </NuxtLink>
-      </div>
-    </div>
-  </TopBar>
+    </TopBar>
+  </div>
 </template>
 
 <style>

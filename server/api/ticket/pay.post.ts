@@ -18,7 +18,7 @@ export default eventHandler(async (event) => {
   }
 
   console.log(body.amount);
-  if (body.amount || body.amount < 0) {
+  if (!body.amount || body.amount < 0) {
     throw createError({
       statusMessage: "Invalid deposit amount",
       statusCode: 418,

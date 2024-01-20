@@ -68,7 +68,7 @@ function getCost() {
 
           const hours = Math.floor(timeDifference / (1000 * 60 * 60));
 
-          for (let ctr = 0; ctr < hours; ctr++) {
+          for (let ctr = 0; ctr <= hours; ctr++) {
             const hour = (entranceDate.getHours() + ctr) % 24;
 
             if (hour >= chargePlan.value.nightStart || hour < chargePlan.value.nightEnd) {
@@ -162,6 +162,7 @@ function pay() {
     })
     .catch((error) => {
       isSuccess.value = false;
+      stage.value++;
       console.log(error);
     });
 }
@@ -169,78 +170,80 @@ function pay() {
 </script>
 
 <template>
-  <TopBar>
-    <div v-if="stage === 0" class="background">
-      <h1>Payment</h1>
+  <div style="background-color: var(--bg-light);height: 100%;">
+    <TopBar>
+      <div v-if="stage === 0" class="background">
+        <h1>Payment</h1>
 
-      <div class="search-wraper">
-        <label class="label">Ticket ID</label>
-        <select v-model="ticketId">
-          <option v-for="ticket in tickets" :key="ticket.id" :value="ticket.ticket">
-            {{ ticket.ticket }}
-          </option>
-        </select>
+        <div class="search-wraper">
+          <label class="label">Ticket ID</label>
+          <select v-model="ticketId">
+            <option v-for="ticket in tickets" :key="ticket.id" :value="ticket.ticket">
+              {{ ticket.ticket }}
+            </option>
+          </select>
+        </div>
+
+        <p class="or">Or</p>
+
+        <qrcode-drop-zone class="drag" @detect="onDetect">
+          Drop your QR code here
+        </qrcode-drop-zone>
+
+        <button @click="getCost" :disabled="ticketId === null">
+          Check ticket
+        </button>
       </div>
 
-      <p class="or">Or</p>
+      <div v-else-if="stage === 1" class="background">
+        <h1>Payment</h1>
 
-      <qrcode-drop-zone class="drag" @detect="onDetect">
-        Drop your QR code here
-      </qrcode-drop-zone>
+        <div class="search-wraper">
+          <label class="label">Ticket ID</label>
+          <br />
+          <div class="ticket-id">{{ ticketId }}</div>
+        </div>
 
-      <button @click="getCost" :disabled="ticketId === null">
-        Check ticket
-      </button>
-    </div>
+        <div class="amount-wraper">
+          <h1 class="cost">Amount due:</h1>
+          <h1 class="cost">{{ cost }} PLN</h1>
+        </div>
 
-    <div v-else-if="stage === 1" class="background">
-      <h1>Payment</h1>
-
-      <div class="search-wraper">
-        <label class="label">Ticket ID</label>
-        <br />
-        <div class="ticket-id">{{ ticketId }}</div>
+        <button class="home" @click="stage--">Back</button>
+        <button @click="pay">
+          Pay
+        </button>
       </div>
 
-      <div class="amount-wraper">
-        <h1 class="cost">Amount due:</h1>
-        <h1 class="cost">{{ cost }} PLN</h1>
+      <div v-else-if="stage === 2 && isSuccess && !isLoading" class="background">
+        <h1>Payment successful</h1>
+        <img src="/images/success.png" class="failure" />
+        <div class="payment-info">
+          <p>Ticket id:</p>
+          <p class="value">{{ ticketId }}</p>
+        </div>
+        <div class="payment-info">
+          <h2 class="h2-split">Amount paid:</h2>
+          <h2 class="value">{{ cost }} PLN</h2>
+        </div>
+        <NuxtLink to="/">
+          <button>Home</button>
+        </NuxtLink>
       </div>
 
-      <button class="home" @click="stage--">Back</button>
-      <button @click="pay">
-        Pay
-      </button>
-    </div>
-
-    <div v-else-if="stage === 2 && isSuccess && !isLoading" class="background">
-      <h1>Payment successful</h1>
-      <img src="/images/success.png" class="failure" />
-      <div class="payment-info">
-        <p>Ticket id:</p>
-        <p class="value">{{ ticketId }}</p>
+      <div v-else-if="stage === 2 && !isSuccess" class="background">
+        <h1>Insufficient funds</h1>
+        <img src="/images/failure.png" class="failure" />
+        <h2>You don’t have enough funds in your account. Add funds or resign.</h2>
+        <NuxtLink to="/">
+          <button class="home">Home</button>
+        </NuxtLink>
+        <NuxtLink to="/account/balance">
+          <button>Add funds</button>
+        </NuxtLink>
       </div>
-      <div class="payment-info">
-        <h2 class="h2-split">Amount paid:</h2>
-        <h2 class="value">{{ cost }} PLN</h2>
-      </div>
-      <NuxtLink to="/">
-        <button>Home</button>
-      </NuxtLink>
-    </div>
-
-    <div v-else-if="stage === 2 && !isSuccess" class="background">
-      <h1>Insufficient funds</h1>
-      <img src="/images/failure.png" class="failure" />
-      <h2>You don’t have enough funds in your account. Add funds or resign.</h2>
-      <NuxtLink to="/">
-        <button class="home">Home</button>
-      </NuxtLink>
-      <NuxtLink to="/account/balance">
-        <button>Add funds</button>
-      </NuxtLink>
-    </div>
-  </TopBar>
+    </TopBar>
+  </div>
 </template>
 
 <style>

@@ -29,13 +29,13 @@ const { data: session, status, signOut } = useAuth();
     </div>
     <!-- admin home screen -->
     <div class="home-container" v-if="session.user.role === 'ADMIN'">
-      <a class="menu-link" href="/admin/temp-maker">
+      <a class="menu-link" href="/admin/users">
         <div class="menu-link-image-container">
           <img src="/images/users.png" class="menu-link-image" />
         </div>
         <span class="menu-link-text">MANAGE USERS</span>
       </a>
-      <a class="menu-link" href="/admin/summary">
+      <a class="menu-link" href="/admin/parkings">
         <div class="menu-link-image-container">
           <img src="/images/parkingArea.png" class="menu-link-image" />
         </div>
