@@ -29,9 +29,6 @@ const night2 = ref(null);
 const night3 = ref(null);
 const night4 = ref(null);
 
-// let floorsBeforeSave;
-// let spacesBeforeSave;
-
 onMounted(async () => {
     axios
         .get("/api/admin/parking/edit/" + parkingId)
@@ -42,9 +39,7 @@ onMounted(async () => {
             city.value = response.data.city;
             address.value = response.data.address;
             floors.value = response.data.floors;
-            // floorsBeforeSave = response.data.floors;
             spaces.value = response.data.parkingPlacesPerFloor;
-            // spacesBeforeSave = response.data.parkingPlacesPerFloor;
             start.value = response.data.chargePlan.nightStart;
             end.value = response.data.chargePlan.nightEnd;
             day1.value = response.data.chargePlan.dayHour1Tariff;

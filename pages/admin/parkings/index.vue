@@ -15,7 +15,7 @@ onMounted(async () => {
       filteredParkings.value = response.data;
     })
     .catch((error) => {
-      console.error('Error fetching users:', error);
+      console.error('Error fetching parkings:', error);
     });
 });
 

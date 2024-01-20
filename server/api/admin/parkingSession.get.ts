@@ -7,16 +7,16 @@ export default defineEventHandler(async (event) => {
     if (!session) {
         throw createError({ statusMessage: "Unauthenticated", statusCode: 403 });
     }
+    const id = getQuery(event).parkingId as number;
+    const spot = getQuery(event).spot as number;
 
-    try {
-        const parkings = await prisma.parking.findMany({
-            orderBy: {
-                city: 'asc',
-            }
-        });
+    const parkingSession = await prisma.parkingSession.findFirst({
+        where: {
+            parkingId: +id,
+            spot: +spot,
+            leaveDate: null,
+        },
+    });
 
-        return parkings;
-    } catch (error) {
-        throw error;
-    }
+    return parkingSession;
 });
