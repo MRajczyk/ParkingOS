@@ -83,7 +83,7 @@ function hideBurger() {
       </div>
       <NuxtLink to="/" class="topbar-title"> ParkingOS </NuxtLink>
       <div class="topbar-buttons" style="padding-right: 16px">
-        <NuxtLink to="/admin/statistics/stat" class="profile-link"
+        <NuxtLink to="/admin/statistics/0" class="profile-link"
           >Statistics</NuxtLink
         >
         <span class="split" style="font-weight: 200">|</span>
@@ -104,7 +104,7 @@ function hideBurger() {
       <NuxtLink to="/admin/temp-maker" class="burger-option"
         >Live view</NuxtLink
       >
-      <NuxtLink to="/admin/statistics/stat" class="burger-option"
+      <NuxtLink to="/admin/statistics/0" class="burger-option"
         >Statistics</NuxtLink
       >
       <NuxtLink to="/admin/summary" class="burger-option">Summary</NuxtLink>

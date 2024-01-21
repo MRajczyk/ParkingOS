@@ -5,7 +5,7 @@ import TopBar from "/components/TopBar.vue";
  definePageMeta({ middleware: "auth" });
 
 const route = useRoute();
-const parkingId = route.params.carId;
+const parkingId = Number(route.params.parkingId);  
  
 const isModalVisible = ref(false);
 const modalContent = ref('');
@@ -232,16 +232,35 @@ const fetchParkings = async () => {
 
 
 
-const selectParking = async (id, name) => {
+const selectParking = async (id) => {
+  let selectedParkingData;
+
+if (parkingId !== undefined   && parkings.value.some(parking => parking.id === parkingId) && param.value) {
+  selectedParking.value = parkingId;
+  selectedParkingData = parkings.value.find(parking => parking.id === parkingId);
+  param.value = false;
+  console.log('ada');
+}
+
+  else
+  {
+    console.log(typeof parkingId);
+
   selectedParking.value = id;
-  selectedParkingName.value = name;
+    selectedParkingData = parkings.value.find(parking => parking.id === id);
+ 
+ 
+
+  }
+ 
+  selectedParkingName.value = selectedParkingData.name;
   customButtonsCarList.value.splice(0, customButtonsCarList.value.length);
   customButtonsList.value.splice(0, customButtonsList.value.length);
   sumForSpace.value=null;
 
   sumForCar.value=null;
   try {
-    const response = await fetch(`/api/statistics/${id}`);
+    const response = await fetch(`/api/statistics/${selectedParking.value}`);
     const data = await response.json();
     updateParkingInfo(data.data);
     await fetchParkingSpaceDetails();
@@ -314,7 +333,7 @@ onMounted(async () => {
           :key="parking.id"
           class="left-button"
           :class="{ active: selectedParking === parking.id }"
-          @click="selectParking(parking.id, parking.name)"
+          @click="selectParking(parking.id)"
         >
           {{ parking.name }}
         </button>
