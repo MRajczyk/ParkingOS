@@ -232,9 +232,10 @@ function getCost() {
 
             <div class="buttons">
               <button class="back" @click="stage--">Back</button>
-              <!-- <NuxtLink to="/admin/statistics"> -->
-              <button>Statistics</button>
-              <!-- </NuxtLink> -->
+              <NuxtLink :to="{ path: '/admin/statistics/', query: { parkingId: parkingId } }">
+  <button>Statistics</button>
+</NuxtLink>
+
             </div>
           </div>
         </div>

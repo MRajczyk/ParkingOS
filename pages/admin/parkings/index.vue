@@ -89,9 +89,9 @@ function deleteParking(id) {
               <NuxtLink :to="{ path:'/admin/costs/' + parking.id }">
                 <button class="actions">Costs</button>
               </NuxtLink>
-              <!-- <NuxtLink :to="{ path: '/admin/statistics', query: { parkingId: parking.id } }"> -->
+              <NuxtLink :to="{ path: '/admin/statistics', query: { parkingId: parking.id } }">
                 <button class="actions">Statistics</button>
-              <!-- </NuxtLink> -->
+              </NuxtLink>
               <!-- <NuxtLink :to="{ path: '/admin/summary', query: { parkingId: parking.id } }"> -->
                 <button class="actions">Summary</button>
               <!-- </NuxtLink> -->

@@ -19,13 +19,12 @@ const parking = await prisma.parking.findUnique({
   },
   include: {
     monthlyCosts: true,
-    parkingPlaces: true, // Jeśli potrzebujesz szczegółów parkingPlaces, dostosuj zapytanie
+    parkingPlaces: true,  
     chargePlan: true,
   },
 });
 
-// Zapytanie dla sesji parkowania
-const parkingSessions = await prisma.parkingSession.findMany({
+ const parkingSessions = await prisma.parkingSession.findMany({
   where: {
     parkingId: Number(id),
   },
@@ -48,8 +47,7 @@ const parkingSessions = await prisma.parkingSession.findMany({
       return totalCost + monthlyCost.costValue;
     }, 0);
 
-    // Zwróć dane w odpowiedzi
-    return {
+     return {
       statusCode: 200,
       data: {
         maxCapacity,

@@ -29,9 +29,9 @@
     "next-auth": "4.21.1",
     "nodemailer": "^6.9.8",
     "nuxt-rate-limit": "^1.1.0",
-     "simplebar": "^6.2.5",
-     "qrcode.vue": "^3.4.1",
-     "uuid": "^9.0.1",
+    "qrcode.vue": "^3.4.1",
+    "simplebar": "^6.2.5",
+    "uuid": "^9.0.1",
     "vue-qrcode-reader": "^5.5.1",
     "vue-toggles": "^2.1.0",
     "vuedraggable": "^2.24.3"
