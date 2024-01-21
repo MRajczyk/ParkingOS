@@ -58,53 +58,43 @@ onMounted(async () => {
 </script>
 
 <template>
-  <TopBar>
-    <div class="background">
-      <h1>Parking finder</h1>
+  <div style="background-color: var(--bg-light);height: 100%;">
+    <TopBar>
+      <div class="background">
+        <h1>Parking finder</h1>
 
-      <div class="search-wraper">
-        <label class="label">City</label>
-        <br />
-        <select
-          v-model="selectedCity"
-          :class="{ error: selectedCity === null && searchClicked }"
-        >
-          <option v-for="city in cities" :key="city" :value="city">
-            {{ city }}
-          </option>
-        </select>
+        <div class="search-wraper">
+          <label class="label">City</label>
+          <br />
+          <select v-model="selectedCity" :class="{ error: selectedCity === null && searchClicked }">
+            <option v-for="city in cities" :key="city" :value="city">
+              {{ city }}
+            </option>
+          </select>
+        </div>
+
+        <div class="search-wraper">
+          <label class="label">Estimated hours amount</label>
+          <br />
+          <input type="number" name="hours" min="1" step="1" v-model="hours"
+            :class="{ error: hours === null && searchClicked }" />
+        </div>
+
+        <div class="search-wraper">
+          <label class="label">Vehicle</label>
+          <select v-model="selectedCar" :class="{ error: selectedCar === null && searchClicked }">
+            <option v-for="car in cars" :key="car.id" :value="car.id">
+              {{ car.name }} - {{ car.registrationNumber }}
+            </option>
+          </select>
+        </div>
+
+        <button type="submit" @click="search">Search</button>
+
+        <div class="info" v-if="searchClicked">Please fill in all fields!</div>
       </div>
-
-      <div class="search-wraper">
-        <label class="label">Estimated hours amount</label>
-        <br />
-        <input
-          type="number"
-          name="hours"
-          min="1"
-          step="1"
-          v-model="hours"
-          :class="{ error: hours === null && searchClicked }"
-        />
-      </div>
-
-      <div class="search-wraper">
-        <label class="label">Vehicle</label>
-        <select
-          v-model="selectedCar"
-          :class="{ error: selectedCar === null && searchClicked }"
-        >
-          <option v-for="car in cars" :key="car.id" :value="car.id">
-            {{ car.name }} - {{ car.registrationNumber }}
-          </option>
-        </select>
-      </div>
-
-      <button type="submit" @click="search">Search</button>
-
-      <div class="info" v-if="searchClicked">Please fill in all fields!</div>
-    </div>
-  </TopBar>
+    </TopBar>
+  </div>
 </template>
 
 <style>
