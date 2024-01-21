@@ -41,7 +41,7 @@ const { data: session, status, signOut } = useAuth();
         </div>
         <span class="menu-link-text">MANAGE PARKINGS</span>
       </a>
-      <a class="menu-link" href="/admin/statistics/stat">
+      <a class="menu-link" href="/admin/statistics">
         <div class="menu-link-image-container">
           <img src="/images/statistics.png" class="menu-link-image" />
         </div>

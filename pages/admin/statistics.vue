@@ -5,7 +5,7 @@ import TopBar from "/components/TopBar.vue";
  definePageMeta({ middleware: "auth" });
 
 const route = useRoute();
-const parkingId = Number(route.params.parkingId);  
+const parkingId = Number(route.query.parkingId);  
  
 const isModalVisible = ref(false);
 const modalContent = ref('');
