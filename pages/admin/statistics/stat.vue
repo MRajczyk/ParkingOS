@@ -2,14 +2,20 @@
 import TopBar from "/components/TopBar.vue";
  import { ref, onMounted } from 'vue';
 
-definePageMeta({ middleware: "auth" });
+ definePageMeta({ middleware: "auth" });
 
+const route = useRoute();
+const parkingId = route.params.carId;
+ 
 const isModalVisible = ref(false);
 const modalContent = ref('');
+
 const parkings = ref([]);
 const filteredParkings = ref([]);
 const selectedParking = ref(null);
 const selectedParkingName = ref('');
+const param= ref(true);
+
 const searchQuery = ref('');
 const rightSelected = ref('Parking');
 const isLoading = ref(true);
@@ -20,99 +26,22 @@ const isLoading = ref(true);
   sumOfMonthlyCosts: '$0',
 });
 const spaceOptions = ref([]);  
-const selectedSpaceOption = ref(''); 
-const number = ref('');
+const selectedSpaceOption = ref(null); 
+const sumForSpace = ref('');
 const customButtonsList = ref([]);
+
+const carOptions = ref([]);  
+const selectedCarOption = ref(null); 
+const sumForCar = ref('');
+const customButtonsCarList = ref([]);
+
 const openModal = (content) => {
   isModalVisible.value = true;
   modalContent.value = content;
 };
 const handleRightButtonClick = (selected) => {
   rightSelected.value = selected;
-};
-
-const fetchParkingSpaceDetails = async (parkingSpaceId) => {
-  try {
-    spaceOptions.value.splice(0, spaceOptions.value.length);
-     const response = await fetch(`/api/parkings/spaces/${parkingSpaceId}`);
-    const data = await response.json();
-
-   
-     data.data.parkingSpaceIds.forEach((spaceId) => {
-        spaceOptions.value.push({
-          id: spaceId,
-        });
-      });
-
-      selectedSpaceOption.value = spaceOptions.value[0];
-
-    console.log('Updated Space Options:', spaceOptions.value);
-  } catch (error) {
-    console.error('Error fetching parking space details:', error);
-  }
-};
-
-
-const fetchParkingSessions = async () => {
-  try {
-    const response = await fetch(`/api/parkings/spacestats/${selectedSpaceOption.value.id}`);
-    const data = await response.json();
-    const parkingSessions = data.resultData;
-      customButtonsList.value = parkingSessions.map((session) => {
-       const dateWithoutTime = new Date(session.entranceDate).toLocaleDateString('en-CA');
-      const dateWithoutTime2 = new Date(session.leaveDate).toLocaleDateString('en-CA');
-
-      return {
-        id: session.id,
-        date: dateWithoutTime,
-        leaveDate: dateWithoutTime2,
-        registrationNumber: session.registrationNumber,
-        name: session.name,
-        amount: session.totalCost,
-      };
-    });
-    const totalAmount = customButtonsList.value.reduce((sum, item) => sum + item.amount, 0);
-
- number.value = `${totalAmount.toFixed(2)}`;
-    console.log('Updated customButtonsList:', customButtonsList.value);
-  } catch (error) {
-    console.error('Error fetching parking sessions:', error);
-  }
-};
-
-
-
-
-
-const handleCustomButtonClick = (item) => {
-  const content = `
-    <p>Date: ${item.date}</p>
-    <p>Name: ${item.name}</p>
-    <p>Amount: ${item.amount} PLN</p>
-  `;
-  openModal(content);
-};
-
-const closeModal = () => {
-  isModalVisible.value = false;
-  modalContent.value = '';
-};
-
-const fetchParkings = async () => {
-  try {
-    const response = await fetch('/api/parkings/all');
-    const data = await response.json();
-    parkings.value = data.data;
-    filterParkings();
-
-    if (parkings.value.length > 0) {
-       selectParking(parkings.value[0].id, parkings.value[0].name);
-    }
-  } catch (error) {
-    console.error(error);
-  } finally {
-    isLoading.value = false;
-  }
+  closeModal();
 };
 
 const filterParkings = () => {
@@ -130,33 +59,236 @@ const filterParkings = () => {
   };
 };
 
+
+const fetchParkingSpaceDetails = async ( ) => {
+  try {
+    spaceOptions.value.splice(0, spaceOptions.value.length);
+     const response = await fetch(`/api/statistics/spaces/${selectedParking.value}`);
+    const data = await response.json();
+
+   
+     data.data.parkingSpaceIds.forEach((spaceId) => {
+        spaceOptions.value.push({
+          id: spaceId,
+        });
+      });
+      if (spaceOptions.value.length > 0) {
+     selectedSpaceOption.value = spaceOptions.value[0];
+     }
+    console.log('Updated Space Options:', spaceOptions.value);
+  } catch (error) {
+    console.error('Error fetching parking space details:', error);
+  }
+};
+
+
+const fetchCarList = async ( ) => {
+  try {
+    carOptions.value.splice(0, carOptions.value.length);
+     const response = await fetch(`/api/statistics/carlist/${selectedParking.value}`);
+    const data = await response.json();
+
+   
+     data.resultData.forEach((car) => {
+        carOptions.value.push({
+          id: car.id,
+          registrationNumber: car.registrationNumber,
+        });
+      });
+      //pozniej sprawdzaj czy lista dluzsza niz 0 i uwzgledniac parametr
+
+      if (carOptions.value.length > 0) {
+      selectedCarOption.value = carOptions.value[0];
+      }
+   } catch (error) {
+    console.error('Error fetching Car list:', error);
+  }
+};
+
+
+const fetchParkingCarDetails = async () => {
+  try {
+
+    customButtonsCarList.value.splice(0, customButtonsCarList.value.length);
+    if (!selectedParking.value || !selectedCarOption.value) {
+      return;}
+     const response = await fetch(`/api/statistics/cars/${selectedParking.value}/${selectedCarOption.value.id}`);
+    const data = await response.json();
+
+   
+     data.filteredResultData.forEach((car) => {
+    
+        const date = new Date(car.entranceDate);
+
+const formattedDate =`${date.toISOString().split("T")[0]} ${date.toTimeString().split(" ")[0]}`;
+const date2 = new Date(car.leaveDate);
+
+const formattedDate2 =`${date2.toISOString().split("T")[0]} ${date2.toTimeString().split(" ")[0]}`;
+        customButtonsCarList.value.push({
+        spot: car.spot,
+        id: car.id,
+        date: formattedDate,
+        leaveDate: formattedDate2,
+        registrationNumber: car.registrationNumber,
+        name: car.name,
+        amount: car.totalCost,
+      });
+
+
+      });
+      const totalAmount = customButtonsCarList.value.reduce((sum, item) => sum + item.amount, 0);
+sumForCar.value = `${totalAmount.toFixed(2)}`;
+
+   } catch (error) {
+    console.error('Error fetching parking car details:', error);
+  }
+};
+
+const fetchParkingSessions = async () => {
+  try {
+    
+    customButtonsList.value.splice(0, customButtonsList.value.length);
+    if (!selectedParking.value || !selectedSpaceOption.value) {
+      return;}
+    const response = await fetch(`/api/statistics/spacestats/${selectedSpaceOption.value.id}`);
+    const data = await response.json();
+    const parkingSessions = data.sortData;
+      customButtonsList.value = parkingSessions.map((session) => {
+      
+        const date = new Date(session.entranceDate);
+
+const formattedDate =`${date.toISOString().split("T")[0]} ${date.toTimeString().split(" ")[0]}`;
+const date2 = new Date(session.leaveDate);
+
+const formattedDate2 =`${date2.toISOString().split("T")[0]} ${date2.toTimeString().split(" ")[0]}`;
+      return {
+        spot: selectedSpaceOption.value.id,
+        id: session.id,
+        date: formattedDate,
+        leaveDate: formattedDate2,
+        registrationNumber: session.registrationNumber,
+        name: session.name,
+        amount: session.totalCost,
+      };
+    });
+    const totalAmount = customButtonsList.value.reduce((sum, item) => sum + item.amount, 0);
+
+    sumForSpace.value = `${totalAmount.toFixed(2)}`;
+    console.log('Updated customButtonsList:', customButtonsList.value);
+  } catch (error) {
+    console.error('Error fetching parking sessions:', error);
+  }
+};
+
+ 
+const handleCarButtonClick = (item) => {
+  const content = `
+    <p>Space: ${item.spot}</p>
+    <p>Date: ${item.date}</p>
+    <p>LeaveDate: ${item.leaveDate} </p>
+    <p>RegistrationNumber: ${item.registrationNumber}</p>
+    <p>Name: ${item.name}</p>
+    <p>Amount: ${item.amount} PLN</p>
+  `;
+  openModal(content);
+};
+
+const handleCustomButtonClick = (item) => {
+  const content = `
+  <p>Space: ${item.spot}</p>
+    <p>Date: ${item.date}</p>
+    <p>LeaveDate: ${item.leaveDate} </p>
+    <p>RegistrationNumber: ${item.registrationNumber}</p>
+    <p>Name: ${item.name}</p>
+     <p>Amount: ${item.amount} PLN</p>
+  `;
+     
+
+  
+  openModal(content);
+};
+handleCarButtonClick
+const closeModal = () => {
+  isModalVisible.value = false;
+  modalContent.value = '';
+};
+
+const fetchParkings = async () => {
+  try {
+    const response = await fetch('/api/statistics/all');
+    const data = await response.json();
+    parkings.value = data.data;
+    filterParkings();
+
+    if (parkings.value.length > 0) {
+       selectParking(parkings.value[0].id, parkings.value[0].name);
+    }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+
+
 const selectParking = async (id, name) => {
   selectedParking.value = id;
   selectedParkingName.value = name;
+  customButtonsCarList.value.splice(0, customButtonsCarList.value.length);
+  customButtonsList.value.splice(0, customButtonsList.value.length);
+  sumForSpace.value=null;
 
+  sumForCar.value=null;
   try {
-    const response = await fetch(`/api/parkings/${id}`);
+    const response = await fetch(`/api/statistics/${id}`);
     const data = await response.json();
     updateParkingInfo(data.data);
-    await fetchParkingSpaceDetails(id);
-    fetchParkingSessions();
+    await fetchParkingSpaceDetails();
+     await fetchCarList();
+ 
 
   } catch (error) {
     console.error(error);
   }
 };
+ 
 const watchSelectedSpaceOption = () => {
   watch(selectedSpaceOption, (newOption, oldOption) => {
-    // Tutaj umieść kod, który ma być wykonany po zmianie selectedSpaceOption
-    console.log('Selected Space Option changed:', newOption);
+    closeModal();
+
+     console.log('Selected Space Option changed:', newOption);
     
-    // Dodaj inne funkcje lub wywołania, które mają być wykonane po zmianie
-    fetchParkingSessions();
+     fetchParkingSessions();
   });
 };
-onMounted(() => {
-  fetchParkings();
-  watchSelectedSpaceOption(); // Wywołaj funkcję do obserwacji zmiany selectedSpaceOption
+const watchSelectedCarOption = () => {
+  watch(selectedCarOption, (newOption, oldOption) => {
+    closeModal();
+
+     console.log('Selected Car Option changed:', newOption);
+    
+     fetchParkingCarDetails();
+  });
+};
+const watchselectedParking = () => {
+  watch(selectedParking, (newOption, oldOption) => {
+     console.log('Selected Parking Option changed:', newOption);
+     closeModal();
+
+    //  fetchParkingSpaceDetails();
+    //   fetchParkingSessions();
+    //   fetchCarList();
+    //   fetchParkingCarDetails();
+      });
+};
+onMounted(async () => {
+  closeModal();
+  await watchselectedParking();
+  await watchSelectedSpaceOption();  
+  await watchSelectedCarOption();
+  await fetchParkings();
+
 });
 </script>
 
@@ -230,7 +362,7 @@ onMounted(() => {
               </select>
             </div>
             <div class="revenue-container">
-              <p>Revenue sum: <strong>{{ number }} PLN</strong></p>
+              <p>Revenue sum: <strong>{{ sumForSpace }} PLN</strong></p>
             </div>
             <div class="custom-buttons-container" ref="rightButtonsList">
   <button
@@ -239,9 +371,37 @@ onMounted(() => {
     class="custom-button"
     @click="handleCustomButtonClick(item)"
   >
-    <div>
-      <span class="custom-button-date">{{ item.date }}</span>
+    <div>  
+      <span class="custom-button-date">{{ new Date( item.date).toLocaleDateString('en-CA')}}</span>
       <span class="custom-button-label">{{ item.name }}</span>
+    </div>
+    <span class="custom-button-amount">{{ item.amount }} PLN</span>
+  </button>
+</div>
+
+ 
+          </div>
+          <div v-if="rightSelected === 'Car'" class="space-content">
+            <div class="space-options-container">
+              <select v-model="selectedCarOption">
+                <option v-for="option in carOptions" :key="option.id" :value="option">
+                 {{ option.registrationNumber }}
+                </option>
+              </select>
+            </div>
+            <div class="revenue-container">
+              <p>Revenue sum: <strong>{{ sumForCar }} PLN</strong></p>
+            </div>
+            <div class="custom-buttons-container" ref="rightButtonsList">
+  <button
+    v-for="item in customButtonsCarList"
+    :key="item.id"
+    class="custom-button"
+    @click="handleCarButtonClick(item)"
+  >
+    <div>  
+      <span class="custom-button-date">{{ new Date( item.date).toLocaleDateString('en-CA')}}</span>
+      <span class="custom-button-label">Space {{ item.spot }}</span>
     </div>
     <span class="custom-button-amount">{{ item.amount }} PLN</span>
   </button>
@@ -564,8 +724,8 @@ select {
   margin: auto;
   padding: 30px;
   border: 1px solid #888;
-  width: 80%;
-  max-width: 800px;
+  width: 100%;
+  max-width: 1000px;
   color: #000;
   position: relative;
 }

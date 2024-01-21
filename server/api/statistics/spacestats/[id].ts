@@ -42,6 +42,7 @@ export default defineEventHandler(async (event) => {
             totalCost: session.finalCost,
             name: car.name,
             registrationNumber: car.registrationNumber,
+            spot: session.spot,
           };
       
           resultData.push(newData);
@@ -50,10 +51,19 @@ export default defineEventHandler(async (event) => {
       
        
 
-    // Combine the data and return in the response
-    return {
+      const sortData = resultData.sort((a, b) => {
+        // Parse the dates and compare them
+        const dateA = new Date(a.entranceDate);
+        const dateB = new Date(b.entranceDate);
+      
+        return dateB.getTime() - dateA.getTime();
+      });
+      
+
+
+      return {
       statusCode: 200,
-      resultData,
+      sortData,
     };
   } catch (error) {
     console.error(error);
