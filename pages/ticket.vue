@@ -1,7 +1,7 @@
 <script setup>
 import TopBar from "/components/TopBar.vue";
-import { useRoute } from 'vue-router';
-import QrcodeVue from 'qrcode.vue'
+import { useRoute } from "vue-router";
+import QrcodeVue from "qrcode.vue";
 import axios from "axios";
 
 const route = useRoute();
@@ -37,9 +37,9 @@ function copy() {
 }
 
 function download() {
-  const link = document.createElement('a');
-  link.download = ticketId.value + '.png';
-  link.href = document.getElementById('qr').toDataURL();
+  const link = document.createElement("a");
+  link.download = ticketId.value + ".png";
+  link.href = document.getElementById("qr").toDataURL();
   link.click();
 }
 
@@ -60,7 +60,7 @@ onMounted(async () => {
             parkingName.value = response.data.name;
           })
           .catch((error) => {
-            console.error('Error fetching parking info:', error);
+            console.error("Error fetching parking info:", error);
           });
 
         axios
@@ -70,7 +70,8 @@ onMounted(async () => {
           .then((response) => {
             space.value = response.data.id;
             const date = getFormattedDate();
-            ticketId.value = 'P' + parkingId + 'C' + car + 'S' + space.value + date;
+            ticketId.value =
+              "P" + parkingId + "C" + car + "S" + space.value + date;
 
             axios
               .post("/api/ticket/createReservation", {
@@ -90,7 +91,7 @@ onMounted(async () => {
               });
 
             axios
-              .put("/api/ticket/carState", {
+              .patch("/api/ticket/carState", {
                 id: car,
                 isParked: "true",
               })
@@ -101,9 +102,8 @@ onMounted(async () => {
                 console.log(error.response.data.statusMessage);
               });
 
-
             axios
-              .put("/api/ticket/spaceState", {
+              .patch("/api/ticket/spaceState", {
                 id: space.value,
                 ocuppied: "true",
               })
@@ -115,21 +115,20 @@ onMounted(async () => {
               });
           })
           .catch((error) => {
-            console.error('Error fetching spots:', error);
+            console.error("Error fetching spots:", error);
           });
       } else {
-      isLoading.value = false;
+        isLoading.value = false;
       }
     })
     .catch((error) => {
-      console.error('Error fetching parking info:', error);
+      console.error("Error fetching parking info:", error);
     });
 });
-
 </script>
 
 <template>
-  <div style="background-color: var(--bg-light);height: 100%;">
+  <div style="background-color: var(--bg-light); height: 100%">
     <TopBar>
       <div v-if="isLoading"></div>
       <div v-else>
@@ -140,7 +139,7 @@ onMounted(async () => {
 
           <div class="ticket-id">
             <p>ID: {{ ticketId }}</p>
-            <img src="/images/copy.png" class="copy" @click="copy">
+            <img src="/images/copy.png" class="copy" @click="copy" />
           </div>
 
           <p>Parking: {{ parkingName }}</p>
@@ -155,7 +154,7 @@ onMounted(async () => {
         </div>
         <div v-else class="background">
           <h1>BANNED</h1>
-          <img src="/images/failure.png" class="failure">
+          <img src="/images/failure.png" class="failure" />
           <h2>Contact admin or regulate pending costs</h2>
           <NuxtLink to="/">
             <button>Home</button>

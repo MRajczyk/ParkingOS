@@ -43,7 +43,7 @@ function updateCost() {
     return;
   }
   axios
-    .put(`http://localhost:3000/api/admin/costs/edit`, {
+    .patch(`http://localhost:3000/api/admin/costs/edit`, {
       parkingId: parkingId,
       costId: costId,
       costName: costName.value,
