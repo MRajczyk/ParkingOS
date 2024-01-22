@@ -103,64 +103,51 @@ function getCost() {
           },
         })
         .then((response2) => {
-          const entranceDate = new Date(response2.data.entranceDate);
-          const currentDate = new Date();
+          console.log(response2);
 
-          const timeDifference = currentDate - entranceDate;
+          if (response2.data[0]) {
+            const entranceDate = new Date(response2.data[0].entranceDate);
+            const currentDate = new Date();
 
-          const hours = Math.floor(timeDifference / (1000 * 60 * 60));
+            const timeDifference = currentDate - entranceDate;
 
-          for (let ctr = 0; ctr <= hours; ctr++) {
-            const hour = (entranceDate.getHours() + ctr) % 24;
+            const hours = Math.floor(timeDifference / (1000 * 60 * 60));
 
-            if (hour >= chargePlan.value.nightStart || hour < chargePlan.value.nightEnd) {
-              if (ctr === 0) {
-                cost.value += chargePlan.value.nightHour1Tariff;
-              } else if (ctr === 1) {
-                cost.value += chargePlan.value.nightHour2Tariff;
-              } else if (ctr === 2) {
-                cost.value += chargePlan.value.nightHour3Tariff;
+            for (let ctr = 0; ctr <= hours; ctr++) {
+              const hour = (entranceDate.getHours() + ctr) % 24;
+
+              if (hour >= chargePlan.value.nightStart || hour < chargePlan.value.nightEnd) {
+                if (ctr === 0) {
+                  cost.value += chargePlan.value.nightHour1Tariff;
+                } else if (ctr === 1) {
+                  cost.value += chargePlan.value.nightHour2Tariff;
+                } else if (ctr === 2) {
+                  cost.value += chargePlan.value.nightHour3Tariff;
+                } else {
+                  cost.value += chargePlan.value.nightHour4Tariff;
+                }
               } else {
-                cost.value += chargePlan.value.nightHour4Tariff;
-              }
-            } else {
-              if (ctr === 0) {
-                cost.value += chargePlan.value.dayHour1Tariff;
-              } else if (ctr === 1) {
-                cost.value += chargePlan.value.dayHour2Tariff;
-              } else if (ctr === 2) {
-                cost.value += chargePlan.value.dayHour3Tariff;
-              } else {
-                cost.value += chargePlan.value.dayHour4Tariff;
-              }
-            }
-          }
-
-          for (let ctr = 0; ctr <= 23; ctr++) {
-            const hour = 0;
-
-            if (hour >= chargePlan.value.nightStart || hour < chargePlan.value.nightEnd) {
-              if (ctr === 0) {
-                dailyEarning.value += chargePlan.value.nightHour1Tariff;
-              } else if (ctr === 1) {
-                dailyEarning.value += chargePlan.value.nightHour2Tariff;
-              } else if (ctr === 2) {
-                dailyEarning.value += chargePlan.value.nightHour3Tariff;
-              } else {
-                dailyEarning.value += chargePlan.value.nightHour4Tariff;
-              }
-            } else {
-              if (ctr === 0) {
-                dailyEarning.value += chargePlan.value.dayHour1Tariff;
-              } else if (ctr === 1) {
-                dailyEarning.value += chargePlan.value.dayHour2Tariff;
-              } else if (ctr === 2) {
-                dailyEarning.value += chargePlan.value.dayHour3Tariff;
-              } else {
-                dailyEarning.value += chargePlan.value.dayHour4Tariff;
+                if (ctr === 0) {
+                  cost.value += chargePlan.value.dayHour1Tariff;
+                } else if (ctr === 1) {
+                  cost.value += chargePlan.value.dayHour2Tariff;
+                } else if (ctr === 2) {
+                  cost.value += chargePlan.value.dayHour3Tariff;
+                } else {
+                  cost.value += chargePlan.value.dayHour4Tariff;
+                }
               }
             }
+          } else {
+            cost.value = 0;
           }
+
+          if (response2.data[1]._sum.finalCost) {
+            dailyEarning.value = response2.data[1]._sum.finalCost;
+          } else {
+            dailyEarning.value = 0;
+          }
+          
         })
         .catch((error) => {
           console.error('Error fetching pending tickets:', error);
@@ -232,10 +219,9 @@ function getCost() {
 
             <div class="buttons">
               <button class="back" @click="stage--">Back</button>
-              <NuxtLink :to="{ path: '/admin/statistics/', query: { parkingId: parkingId } }">
-  <button>Statistics</button>
-</NuxtLink>
-
+              <NuxtLink :to="{ path: '/admin/statistics/', query: { parkingId: parkingId, spaceId: spaceId } }">
+                <button>Statistics</button>
+              </NuxtLink>
             </div>
           </div>
         </div>

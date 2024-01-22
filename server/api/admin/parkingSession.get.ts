@@ -18,5 +18,24 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    return parkingSession;
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 59);
+
+    const totalDay = await prisma.parkingSession.aggregate({
+        _sum: {
+            finalCost: true,
+        },
+        where: {
+            parkingId: +id,
+            spot: +spot,
+            leaveDate: {
+                gte: todayStart,
+                lt: todayEnd,
+            },
+        }
+    })
+
+    return [ parkingSession, totalDay ];
 });
