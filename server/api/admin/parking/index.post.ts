@@ -8,6 +8,14 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusMessage: "Unauthenticated", statusCode: 403 });
     }
 
+    //@ts-expect-error
+    if (session.user?.role !== Role.ADMIN) {
+        throw createError({
+            statusMessage: "You are not an admin.",
+            statusCode: 403,
+        });
+    }
+
     const body = await readBody(event);
 
     try {
@@ -47,7 +55,7 @@ export default defineEventHandler(async (event) => {
             });
         }
 
-        return [ parking, chargePlan, parkingSpaces ];
+        return [parking, chargePlan, parkingSpaces];
     } catch (error) {
         throw error;
     }

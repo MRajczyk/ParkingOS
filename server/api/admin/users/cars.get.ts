@@ -8,6 +8,14 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusMessage: "Unauthenticated", statusCode: 403 });
     }
 
+    //@ts-expect-error
+    if (session.user?.role !== Role.ADMIN) {
+        throw createError({
+            statusMessage: "You are not an admin.",
+            statusCode: 403,
+        });
+    }
+
     const userId = getQuery(event).userId as number;
 
     const cars = await prisma.car.findMany({
