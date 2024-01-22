@@ -5,7 +5,6 @@ export default defineEventHandler(async (event) => {
     const prisma: PrismaClient = event.context.prisma;
     const session = await getServerSession(event);
     if (!session) {
-        console.log(0);
         throw createError({ statusMessage: "Unauthenticated", statusCode: 403 });
     }
 
@@ -13,7 +12,6 @@ export default defineEventHandler(async (event) => {
 
     //@ts-ignore
     if (body.userId === session.user?.id) {
-        console.log(body.userId);
         return { statusCode: 400 };
     }
 
@@ -25,7 +23,6 @@ export default defineEventHandler(async (event) => {
     const minutes = (date.substring(8, 10));
     const entranceDate = new Date(year, month, day, hours, minutes)
 
-    console.log(2);
     try {
         const exists = await prisma.parkingSession.findFirst({
             where: {
@@ -35,10 +32,8 @@ export default defineEventHandler(async (event) => {
                 leaveDate: null
             }
         })
-        console.log(3);
 
         if (exists) {
-            console.log('exists');
             throw { result: "Session already exists." };
         }
 
@@ -51,7 +46,6 @@ export default defineEventHandler(async (event) => {
         console.log(4);
 
         if (!validate) {
-            console.log('validate');
             throw { result: "This user doesn't own this car." };
         }
 
@@ -66,8 +60,6 @@ export default defineEventHandler(async (event) => {
                 userId: +body.userId,
             },
         });
-
-        console.log(session1);
 
         return session1;
     } catch (error) {

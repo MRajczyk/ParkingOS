@@ -33,7 +33,7 @@ function removeCar(carId) {
     })
     .catch((error) => {
       console.log(error);
-      alert(error.response.statusMessage);
+      alert(error.response.statusText);
     });
 }
 

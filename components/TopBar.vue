@@ -73,12 +73,11 @@ function hideBurger() {
         <i class="fa fa-bars"></i>
       </a>
       <div class="topbar-buttons" style="padding-left: 16px">
-        <NuxtLink to="/admin/temp-maker" class="profile-link">Maker</NuxtLink>
+        <NuxtLink to="/admin/parkings/maker" class="profile-link">Maker</NuxtLink>
         <span class="split" style="font-weight: 200">|</span>
-        <NuxtLink to="/admin/temp-maker" class="profile-link">Users</NuxtLink>
+        <NuxtLink to="/admin/users" class="profile-link">Users</NuxtLink>
         <span class="split" style="font-weight: 200">|</span>
-        <NuxtLink to="/admin/temp-maker" class="profile-link"
-          >Live View</NuxtLink
+        <NuxtLink to="/admin/liveview" class="profile-link">Live View</NuxtLink
         >
       </div>
       <NuxtLink to="/" class="topbar-title"> ParkingOS </NuxtLink>
@@ -87,7 +86,7 @@ function hideBurger() {
           >Statistics</NuxtLink
         >
         <span class="split" style="font-weight: 200">|</span>
-        <NuxtLink to="/admin/temp-maker" class="profile-link">Summary</NuxtLink>
+        <NuxtLink to="/admin/summary" class="profile-link">Summary</NuxtLink>
         <span class="split" style="font-weight: 200">|</span>
         <button
           @click="signOut({ callbackUrl: '/signin' })"
@@ -107,7 +106,7 @@ function hideBurger() {
       <NuxtLink to="/admin/statistics" class="burger-option"
         >Statistics</NuxtLink
       >
-      <NuxtLink to="/admin/temp-maker" class="burger-option">Summary</NuxtLink>
+      <NuxtLink to="/admin/summary" class="burger-option">Summary</NuxtLink>
       <button
         @click="signOut({ callbackUrl: '/signin' })"
         class="burger-option"

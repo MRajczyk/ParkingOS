@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { Role } from "@prisma/client";
 
 export default defineEventHandler(async (event) => {
-  const { parkingId } = getRouterParams(event);
+  const { id } = getRouterParams(event);
   const prisma: PrismaClient = event.context.prisma;
   const session = await getServerSession(event);
 
@@ -18,34 +18,32 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // @ts-ignore
-  if (Number.isNaN(parkingId)) {
+  if (Number.isNaN(id)) {
     throw createError({
-      statusMessage: "Invalid parking id",
+      statusMessage: "Invalid session",
       statusCode: 404,
     });
   }
 
   try {
-    const parkingMonthlyCosts = await prisma.monthlyCost.findMany({
+    const parking = await prisma.parking.findFirst({
       where: {
-        parkingId: Number.parseInt(parkingId),
+        id: Number.parseInt(id),
       },
+      include: {
+        chargePlan: true,
+      }
     });
-    if (parkingMonthlyCosts) {
-      return { statusCode: 200, data: parkingMonthlyCosts };
+
+    // @ts-ignore
+    if (parking) {
+      return parking;
     }
     return {
-      statusMessage: "No costs were found",
+      statusCode: 404,
+      statusMessage: "Invalid Id",
     };
   } catch (e) {
-    //@ts-expect-error
-    if (e.message && e.message === "Invalid parking Id") {
-      throw createError({
-        statusCode: 404,
-        statusMessage: "Invalid parking Id",
-      });
-    }
     //@ts-expect-error
     console.log(e.message);
     throw createError({

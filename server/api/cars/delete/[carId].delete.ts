@@ -22,10 +22,16 @@ export default defineEventHandler(async (event) => {
         id: Number.parseInt(carId),
       },
     });
-    if (!car || car.isParked) {
+    if (!car) {
       throw createError({
         statusMessage: "Error deleting data",
         statusCode: 400,
+      });
+    }
+    if (car.isParked) {
+      throw createError({
+        statusMessage: "Cannot delete parked car",
+        statusCode: 404,
       });
     }
     // @ts-ignore
@@ -48,6 +54,13 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 404,
         statusMessage: "You are not the owner.",
+      });
+    }
+    //@ts-expect-error
+    if (e.statusMessage && e.statusMessage === "Cannot delete parked car") {
+      throw createError({
+        statusCode: 404,
+        statusMessage: "Cannot delete parked car",
       });
     }
     //@ts-expect-error

@@ -2,11 +2,8 @@
 import TopBar from "/components/TopBar.vue";
  import { ref, onMounted } from 'vue';
 
- definePageMeta({ middleware: "auth" });
+definePageMeta({ middleware: "auth" });
 
-const route = useRoute();
-const parkingId = Number(route.query.parkingId);  
- 
 const isModalVisible = ref(false);
 const modalContent = ref('');
 
@@ -14,7 +11,6 @@ const parkings = ref([]);
 const filteredParkings = ref([]);
 const selectedParking = ref(null);
 const selectedParkingName = ref('');
-const param= ref(true);
 
 const searchQuery = ref('');
 const rightSelected = ref('Parking');
@@ -232,35 +228,16 @@ const fetchParkings = async () => {
 
 
 
-const selectParking = async (id) => {
-  let selectedParkingData;
-
-if (parkingId !== undefined   && parkings.value.some(parking => parking.id === parkingId) && param.value) {
-  selectedParking.value = parkingId;
-  selectedParkingData = parkings.value.find(parking => parking.id === parkingId);
-  param.value = false;
-  console.log('ada');
-}
-
-  else
-  {
-    console.log(typeof parkingId);
-
+const selectParking = async (id, name) => {
   selectedParking.value = id;
-    selectedParkingData = parkings.value.find(parking => parking.id === id);
- 
- 
-
-  }
- 
-  selectedParkingName.value = selectedParkingData.name;
+  selectedParkingName.value = name;
   customButtonsCarList.value.splice(0, customButtonsCarList.value.length);
   customButtonsList.value.splice(0, customButtonsList.value.length);
   sumForSpace.value=null;
 
   sumForCar.value=null;
   try {
-    const response = await fetch(`/api/statistics/${selectedParking.value}`);
+    const response = await fetch(`/api/statistics/${id}`);
     const data = await response.json();
     updateParkingInfo(data.data);
     await fetchParkingSpaceDetails();
@@ -303,11 +280,10 @@ const watchselectedParking = () => {
 };
 onMounted(async () => {
   closeModal();
+  await fetchParkings();
   await watchselectedParking();
   await watchSelectedSpaceOption();  
   await watchSelectedCarOption();
-  await fetchParkings();
-
 });
 </script>
 
@@ -333,7 +309,7 @@ onMounted(async () => {
           :key="parking.id"
           class="left-button"
           :class="{ active: selectedParking === parking.id }"
-          @click="selectParking(parking.id)"
+          @click="selectParking(parking.id, parking.name)"
         >
           {{ parking.name }}
         </button>

@@ -62,30 +62,32 @@ function getPrice(chargePlan) {
 </script>
 
 <template>
-  <TopBar>
-    <div v-if="!isLoading" class="background">
-      <h1 v-if="parkings.length > 0">Car parks found</h1>
-      <h1 v-else>There are no available car parks in this city</h1>
+  <div style="background-color: var(--bg-light);height: 100%;">
+    <TopBar>
+      <div v-if="!isLoading" class="background">
+        <h1 v-if="parkings.length > 0">Car parks found</h1>
+        <h1 v-else>There are no available car parks in this city</h1>
 
-      <div class="car-parks-wraper">
-        <div class="car-parks" v-for="parking in parkings" :key="parking.id" :value="parking.id">
-          <div class="parking">
-            Name: {{ parking.name }} <br>
-            Address: {{ parking.city }}, {{ parking.address }} <br>
-            Estimated price: {{ getPrice(parking.chargePlan) }} PLN
+        <div class="car-parks-wraper">
+          <div class="car-parks" v-for="parking in parkings" :key="parking.id" :value="parking.id">
+            <div class="parking">
+              Name: {{ parking.name }} <br>
+              Address: {{ parking.city }}, {{ parking.address }} <br>
+              Estimated price: {{ getPrice(parking.chargePlan) }} PLN
+            </div>
+            <NuxtLink :to="{ path: '/ticket', query: { parkingId: parking.id, car: car } }" class="link">
+              <button class="enter">Enter</button>
+            </NuxtLink>
           </div>
-          <NuxtLink :to="{ path: '/ticket', query: { parkingId: parking.id, car: car } }" class="link">
-            <button class="enter">Enter</button>
-          </NuxtLink>
         </div>
-      </div>
 
-      <NuxtLink to="/finder/search">
-        <button>Back</button>
-      </NuxtLink>
-    </div>
-    <div v-else></div>
-  </TopBar>
+        <NuxtLink to="/finder/search">
+          <button>Back</button>
+        </NuxtLink>
+      </div>
+      <div v-else></div>
+    </TopBar>
+  </div>
 </template>
 
 <style>
