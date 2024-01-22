@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Role } from "@prisma/client";
 import { getServerSession } from "#auth";
 
 export default defineEventHandler(async (event) => {
