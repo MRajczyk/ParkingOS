@@ -60,7 +60,7 @@ function getCost() {
       chargePlan.value = response.data;
 
       axios
-        .get("/api/ticket/parkingSession", {
+        .get("/api/ticket/parking-session", {
           params: { id: ticketId.value },
         })
         .then((response2) => {
@@ -128,7 +128,7 @@ function pay() {
       );
 
       axios
-        .patch("/api/ticket/closeReservation", {
+        .patch("/api/ticket/close-reservation", {
           ticketId: ticket.id,
           cost: cost.value,
           userId: +data.value.user.id,
@@ -140,7 +140,7 @@ function pay() {
           console.log(error.response.data.statusMessage);
         });
       axios
-        .patch("/api/ticket/carState", {
+        .patch("/api/ticket/car-state", {
           id: ticket.carId,
           isParked: "false",
         })
@@ -152,7 +152,7 @@ function pay() {
         });
 
       axios
-        .patch("/api/ticket/spaceState", {
+        .patch("/api/ticket/space-state", {
           id: ticket.spot,
           ocuppied: "false",
         })

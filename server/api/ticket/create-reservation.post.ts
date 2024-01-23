@@ -27,7 +27,6 @@ export default defineEventHandler(async (event) => {
         const exists = await prisma.parkingSession.findFirst({
             where: {
                 parkingId: +body.parkingId,
-                spot: body.spot,
                 carId: +body.car,
                 leaveDate: null
             }
