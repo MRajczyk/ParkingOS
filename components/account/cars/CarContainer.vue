@@ -32,7 +32,7 @@ function hideModal() {
       >
         Delete
       </button>
-      <button class="modal-button" @click="hideModal">Back</button>
+      <button class="modal-button" @click="hideModal()">Back</button>
     </div>
   </div>
   <div class="car-container">

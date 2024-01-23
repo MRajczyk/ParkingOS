@@ -222,7 +222,7 @@ function validate(tariff) {
                         </div>
                     </div>
                     <div class="buttons">
-                        <NuxtLink to="/">
+                        <NuxtLink to="/admin/parkings">
                             <button class="back">Back</button>
                         </NuxtLink>
                         <button @click="save">Save</button>
