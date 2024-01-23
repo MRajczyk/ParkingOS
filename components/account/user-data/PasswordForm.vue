@@ -11,14 +11,14 @@ const newPassword = ref("");
 const confirmNewPassword = ref("");
 const newPasswordError = ref("");
 
-const putSuccess = ref("");
-const putError = ref("");
+const patchSuccess = ref("");
+const patchError = ref("");
 
 function putNewPassword() {
   currentPasswordError.value = "";
   newPasswordError.value = "";
-  putSuccess.value = "";
-  putError.value = "";
+  patchSuccess.value = "";
+  patchError.value = "";
 
   if (currentPassword.value.length === 0) {
     currentPasswordError.value = "Current password can't be blank";
@@ -45,16 +45,16 @@ function putNewPassword() {
   }
 
   axios
-    .put("http://localhost:3000/api/profiles/password", {
+    .patch("http://localhost:3000/api/profiles/password", {
       id: data.value.user.id,
       currentPassword: currentPassword.value,
       newPassword: newPassword.value,
     })
     .then((response) => {
-      putSuccess.value = response.data.statusMessage;
+      patchSuccess.value = response.data.statusMessage;
     })
     .catch((error) => {
-      putError.value = error.response.data.statusMessage;
+      patchError.value = error.response.data.statusMessage;
     });
 }
 </script>
@@ -111,15 +111,15 @@ function putNewPassword() {
     >
       {{ currentPasswordError }}
     </span>
-    <span class="info-span" style="color: red" v-if="putError.length > 0">
-      {{ putError }}
+    <span class="info-span" style="color: red" v-if="patchError.length > 0">
+      {{ patchError }}
     </span>
     <span
       class="info-span"
       style="color: green; align-self: center"
-      v-if="putSuccess.length > 0"
+      v-if="patchSuccess.length > 0"
     >
-      {{ putSuccess }}
+      {{ patchSuccess }}
     </span>
     <button type="submit" class="profile-form-button">Update</button>
   </form>

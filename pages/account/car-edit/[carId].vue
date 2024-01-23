@@ -41,7 +41,7 @@ function update() {
     return;
   }
   axios
-    .put(`http://localhost:3000/api/cars/edit`, {
+    .patch(`http://localhost:3000/api/cars/edit`, {
       userId: data.value.user.id,
       name: name.value,
       carId: carId,

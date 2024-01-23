@@ -27,7 +27,7 @@ onMounted(async () => {
 
 function updateUser(id, isBanned) {
   axios
-    .put("/api/admin/users/ban", {
+    .patch("/api/admin/users/ban", {
       id: id,
       isBanned: isBanned,
     })
