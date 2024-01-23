@@ -19,6 +19,7 @@ const spaceId = ref(0);
 const ocuppied = ref(false);
 const cost = ref(0);
 const dailyEarning = ref(0);
+const available = ref(true);
 
 const filterParkings = () => {
   filteredParkings.value = parkings.value.filter((parking) =>
@@ -70,18 +71,20 @@ function selectParking(parking) {
       }
     })
     .then((response) => {
-      spaces.value = response.data
+      console.log(response);
+      spaces.value = response.data;
     })
     .catch((error) => {
       console.error('Error fetching spaces:', error);
     });
 }
 
-function stageUp(num, id, occupied) {
+function stageUp(num, id, occupied, ava) {
   stage.value++;
   number.value = num;
   spaceId.value = id;
   ocuppied.value = occupied;
+  available.value = ava;
   getCost();
 }
 
@@ -197,7 +200,7 @@ function getCost() {
                   <div v-if="(i - 1) * 10 + j <= selectedParking.parkingPlacesPerFloor" class="space"
                     :class="{ occupied: spaces[((selectedFloor - 1) * selectedParking.parkingPlacesPerFloor) + ((i - 1) * 10 + j - 1)].ocuppied }"
                     :title="'Space ocuppied: ' + spaces[((selectedFloor - 1) * selectedParking.parkingPlacesPerFloor) + ((i - 1) * 10 + j - 1)].ocuppied"
-                    @click="stageUp((i - 1) * 10 + j, spaces[((selectedFloor - 1) * selectedParking.parkingPlacesPerFloor) + ((i - 1) * 10 + j - 1)].id, spaces[((selectedFloor - 1) * selectedParking.parkingPlacesPerFloor) + ((i - 1) * 10 + j - 1)].ocuppied)">
+                    @click="stageUp((i - 1) * 10 + j, spaces[((selectedFloor - 1) * selectedParking.parkingPlacesPerFloor) + ((i - 1) * 10 + j - 1)].id, spaces[((selectedFloor - 1) * selectedParking.parkingPlacesPerFloor) + ((i - 1) * 10 + j - 1)].ocuppied, spaces[((selectedFloor - 1) * selectedParking.parkingPlacesPerFloor) + ((i - 1) * 10 + j - 1)].available)">
                     {{ (i - 1) * 10 + j }}
                   </div>
                 </div>
@@ -212,6 +215,7 @@ function getCost() {
               </div>
               <div class="info">
                 <div>Ocuppied: {{ ocuppied }}</div>
+                <div>Available: {{ available }}</div>
                 <div v-if="ocuppied">Current earnings: {{ cost }} PLN</div>
                 <div>Daily earnings: {{ dailyEarning }} PLN</div>
               </div>

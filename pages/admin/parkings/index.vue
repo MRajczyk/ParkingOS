@@ -56,7 +56,7 @@ function deleteParking(id) {
         error.response.data.message === "Unable to delete all spaces."
       ) {
         alert(
-          "You cannot delete the parking because some parking spaces have cars parked on them. The unoccupied spaces have been successfully deleted. Please wait for all spaces to become vacant and try again."
+          "You cannot delete the parking because some parking spaces have cars parked on them. The unoccupied spaces have been marked as not available. Please wait for all spaces to become vacant and try again."
         );
       } else {
         alert("Deletion failed");

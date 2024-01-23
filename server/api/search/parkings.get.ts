@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
       parkingPlaces: {
         some: {
           ocuppied: false,
+          available: true,
         },
       },
     },

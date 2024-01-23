@@ -60,6 +60,7 @@ model Parking {
 model ParkingSpace {
     id                 Int @id @default(autoincrement())
     ocuppied           Boolean
+    available          Boolean @default(true)
     parkingId          Int
     parking            Parking @relation(fields: [parkingId], references: [id])
 }

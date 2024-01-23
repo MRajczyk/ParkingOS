@@ -13,6 +13,7 @@ export default defineEventHandler(async (event) => {
   const spaces = await prisma.parkingSpace.findMany({
     where: {
       parkingId: +parkingId,
+      available: true,
     },
     orderBy: {
       id: 'asc',
@@ -23,6 +24,7 @@ export default defineEventHandler(async (event) => {
     where: {
       parkingId: +parkingId,
       ocuppied: false,
+      available: true,
     },
     orderBy: {
       id: 'asc',
