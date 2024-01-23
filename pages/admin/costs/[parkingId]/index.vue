@@ -62,9 +62,14 @@ watch(
   <TopBar>
     <div class="costs">
       <div class="costs-container">
-        <NuxtLink :to="`/admin/costs/${parkingId}/add`" class="add-cost-button"
-          >Add cost</NuxtLink
-        >
+        <div class="costs-buttons-container">
+          <NuxtLink to="/admin/parkings" class="add-cost-button">Back</NuxtLink>
+          <NuxtLink
+            :to="`/admin/costs/${parkingId}/add`"
+            class="add-cost-button"
+            >Add cost</NuxtLink
+          >
+        </div>
         <input
           name="filterInput"
           v-model="filterInput"
@@ -86,6 +91,12 @@ watch(
 </template>
 
 <style scoped>
+.costs-buttons-container {
+  display: flex;
+  margin-top: 100px;
+  flex-direction: column;
+  gap: 6px;
+}
 .costs-container {
   display: flex;
   flex-direction: column;
@@ -124,7 +135,7 @@ watch(
 
 .cost-search-input {
   display: block;
-  width: 170px;
+  width: 206px;
   min-height: 36px;
   border-radius: 12px;
   border-width: 1px;
@@ -138,7 +149,11 @@ watch(
 }
 @media screen and (min-width: 700px) {
   .cost-search-input {
-    width: 410px;
+    width: 434px;
+  }
+
+  .costs-buttons-container {
+    flex-direction: row;
   }
 }
 
@@ -157,7 +172,6 @@ watch(
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 100px;
   width: 220px;
   min-height: 50px;
   background-color: var(--primary-lighter);
