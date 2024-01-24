@@ -20,8 +20,7 @@ export default defineEventHandler(async (event) => {
         
       });
 const parkingSpaceIds = parkingSpaces.map(space => space.id)
-    // Zwróć dane w odpowiedzi
-    return {
+     return {
         statusCode: 200,
         data: {
           parkingSpaceIds,

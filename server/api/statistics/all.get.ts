@@ -1,5 +1,4 @@
-// server/api/parkings/all.get.ts
-import { PrismaClient } from "@prisma/client";
+ import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "#auth";
 
 export default defineEventHandler(async (event) => {

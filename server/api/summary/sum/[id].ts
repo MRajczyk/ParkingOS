@@ -12,31 +12,26 @@ export default defineEventHandler(async (event) => {
   const { id } = getRouterParams(event);
 
   try {
-     const allCars = await prisma.car.findMany();
-
-     const parkingSessions = await prisma.parkingSession.findMany({
+    const sumOfMonthlyCosts = await prisma.monthlyCost.aggregate({
       where: {
         parkingId: Number(id),
       },
+      _sum: {
+        costValue: true,
+      },
     });
 
-     const uniqueCarIds = [...new Set(parkingSessions.map((session) => session.carId))];
-
-     const selectedCars = allCars.filter((car) => uniqueCarIds.includes(car.id));
-
-     const resultData = selectedCars.map((car) => ({
-      id: car.id,
-      registrationNumber: car.registrationNumber,
-    }));
-
-     return {
+ 
+    return {
       statusCode: 200,
-      resultData,
+   
+        sum: sumOfMonthlyCosts._sum.costValue || 0,
+      
     };
   } catch (error) {
     console.error(error);
     throw createError({
-      statusMessage: "Error fetching car details",
+      statusMessage: "Error fetching parking details",
       statusCode: 500,
     });
   } finally {

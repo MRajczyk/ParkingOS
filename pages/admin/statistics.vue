@@ -95,8 +95,7 @@ const fetchCarList = async ( ) => {
           registrationNumber: car.registrationNumber,
         });
       });
-      //pozniej sprawdzaj czy lista dluzsza niz 0 i uwzgledniac parametr
-
+ 
       if (carOptions.value.length > 0) {
       selectedCarOption.value = carOptions.value[0];
       }
@@ -239,13 +238,11 @@ if (parkingId !== undefined   && parkings.value.some(parking => parking.id === p
   selectedParking.value = parkingId;
   selectedParkingData = parkings.value.find(parking => parking.id === parkingId);
   param.value = false;
-  console.log('ada');
-}
+ }
 
   else
   {
-    console.log(typeof parkingId);
-
+ 
   selectedParking.value = id;
     selectedParkingData = parkings.value.find(parking => parking.id === id);
  
@@ -294,11 +291,7 @@ const watchselectedParking = () => {
   watch(selectedParking, (newOption, oldOption) => {
      console.log('Selected Parking Option changed:', newOption);
      closeModal();
-
-    //  fetchParkingSpaceDetails();
-    //   fetchParkingSessions();
-    //   fetchCarList();
-    //   fetchParkingCarDetails();
+ 
       });
 };
 onMounted(async () => {
@@ -367,11 +360,11 @@ onMounted(async () => {
         </div>
         <div class="content-container">
           <div v-if="rightSelected === 'Parking'" class="parking-info">
-             <p>Max. capacity: {{ parkingInfo.maxCapacity }}</p>
-            <p>Revenue generated: {{ parkingInfo.revenueGenerated }}</p>
-            <p>Cars parked to date: {{ parkingInfo.carsParkedToDate }}</p>
-            <p>Sum of monthly costs: {{ parkingInfo.sumOfMonthlyCosts }}</p>
-          </div>
+    <p><span class="label">Max. capacity</span> <span class="variable">{{ parkingInfo.maxCapacity }}</span></p>
+    <p><span class="label">Revenue generated</span> <span class="variable">{{ parkingInfo.revenueGenerated }} PLN</span></p>
+    <p><span class="label">Cars parked to date</span> <span class="variable">{{ parkingInfo.carsParkedToDate }}</span></p>
+    <p><span class="label">Sum of monthly costs</span> <span class="variable">{{ parkingInfo.sumOfMonthlyCosts }} PLN</span></p>
+  </div>
           <div v-if="rightSelected === 'Space'" class="space-content">
             <div class="space-options-container">
               <select v-model="selectedSpaceOption">
@@ -605,15 +598,40 @@ input {
   width: 100%;
   max-height: 100%;
 }
-
 .parking-info {
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
+
+  padding: 100px 40px;
   font-size: 30px;
   line-height: 2;
-  width: 95%;
-  align-items: left;
-  margin-top: 40px;
-  margin-left: 5%;
+  width: 30%;
   max-height: 100%;
+  background-color: white;
+
+  margin-top: 80px; /* Adjust if necessary */
+
+  margin-left: 30%; /* Adjust if necessary */
+  margin-right: 40%; /* Adjust if necessary */
+  border-radius: 25px; /* Add rounded corners */
+  overflow: hidden; /* Prevent content from overflowing */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.parking-info p {
+  margin-bottom: 20px; /* Adjust spacing between paragraphs */
+  display: flex;
+  justify-content: space-between; /* Align content to the right */
+  align-items: baseline;
+}
+
+.parking-info .label {
+  text-align: left;
+}
+
+.parking-info .variable {
+  text-align: right;
 }
 
 .space-content {

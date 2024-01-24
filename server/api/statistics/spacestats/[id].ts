@@ -52,8 +52,7 @@ export default defineEventHandler(async (event) => {
        
 
       const sortData = resultData.sort((a, b) => {
-        // Parse the dates and compare them
-        const dateA = new Date(a.entranceDate);
+         const dateA = new Date(a.entranceDate);
         const dateB = new Date(b.entranceDate);
       
         return dateB.getTime() - dateA.getTime();

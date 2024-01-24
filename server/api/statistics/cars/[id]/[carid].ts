@@ -12,15 +12,13 @@ export default defineEventHandler(async (event) => {
   const { id , carid } = getRouterParams(event);
 
   try {
-    // Pobierz wszystkie auta
-    const cars = await prisma.car.findMany({
+     const cars = await prisma.car.findMany({
       where: {
         id: Number(carid),
       },
     });
 
-    // Pobierz wszystkie sesje parkowania dla danego parkingu
-    const parkingSessions = await prisma.parkingSession.findMany({
+     const parkingSessions = await prisma.parkingSession.findMany({
       where: {
         parkingId: Number(id),
         carId:  Number(carid),
@@ -51,16 +49,14 @@ export default defineEventHandler(async (event) => {
 
 
     const sortData = resultData.sort((a, b) => {
-      // Parse the dates and compare them
-      const dateA = new Date(a.entranceDate);
+       const dateA = new Date(a.entranceDate);
       const dateB = new Date(b.entranceDate);
     
       return dateB.getTime() - dateA.getTime();
     });
         const filteredResultData = sortData.filter((data) => data !== null);
 
-    // Zwróć dane w odpowiedzi
-    return {
+     return {
       statusCode: 200,
       filteredResultData,
     };
