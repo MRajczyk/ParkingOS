@@ -1,7 +1,8 @@
 <script setup>
 import TopBar from "/components/TopBar.vue";
  import { ref, onMounted, watch } from 'vue';
- 
+ import MyChart from '/components/MyChart.vue';
+
   definePageMeta({ middlesware: "auth" });
  
  
@@ -14,7 +15,6 @@ import TopBar from "/components/TopBar.vue";
 const route = useRoute();
 const parkingId = Number(route.query.parkingId);
  
-
  
  
 const parkings = ref([]);
@@ -26,6 +26,7 @@ const param= ref(true);
 const selectedYear = ref(null);
 const selectedMonth = ref(null);
 const selectedPeriod = ref(null);
+const chartFlag= ref(1);
 
 const yearFlag= ref(1);
 const monthFlag= ref(1);
@@ -71,11 +72,23 @@ const sumOfMonthlyCosts = ref(0);
 const chartData = ref([]);
 const monthsRevenue = ref([]);
 
-
-
-const updateChart = () => {
  
-};
+const chartOptions = ref({
+  responsive: true,
+  maintainAspectRatio: false,
+  scales: {
+    x: {
+      beginAtZero: true,
+    },
+    y: {
+      beginAtZero: true,
+    },
+  },
+});
+
+ 
+ 
+
 
 
 
@@ -249,8 +262,7 @@ precisionrevenu.value = [];
     labels.value.push(monthsshort.value[i].name);
     precisionrevenu.value.push(monthsRevenue.value[i]);
   } 
-   updateChart();
-
+ 
 
 
 }};
@@ -301,8 +313,7 @@ const watchselectedperiod = async () => {
       if (selectedParking.value !== null) {
 
         generateValues();
-        updateChart();
-
+ 
       }
     },
     { deep: true }
@@ -311,48 +322,12 @@ const watchselectedperiod = async () => {
 
  
 onMounted(async () => {
-  await nextTick();
- 
- 
-
-   await watchselectedyear();
-   
-  await watchselectedmonth();
-  await watchselectedperiod();
- await fetchParkings();
- var ctx = document.getElementById('myChart').getContext('2d');
-
-// Sample data for a bar chart
-var data = {
-    labels: ['January', 'February', 'March', 'April', 'May'],
-    datasets: [{
-        label: 'Sample Data',
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        borderColor: 'rgba(75, 192, 192, 1)',
-        borderWidth: 1,
-        data: [65, 59, 80, 81, 56]
-    }]
-};
-
-// Configuration options for the chart
-var options = {
-    scales: {
-        y: {
-            beginAtZero: true
-        }
-    }
-};
-
-// Create a bar chart
-var myChart = new Chart(ctx, {
-    type: 'bar',
-    data: data,
-    options: options
-});
- 
-});
-
- 
+    await nextTick();
+     await watchselectedyear();
+    await watchselectedmonth();
+    await watchselectedperiod();
+    await fetchParkings();
+  });
 
 
 
@@ -416,9 +391,11 @@ var myChart = new Chart(ctx, {
               </select>
             </div>
           </div>
+          <MyChart />
 
-          <canvas ref="myChart" id="myChart"></canvas>
-
+     
+     
+     
         </div>
       </div>
     </div>
