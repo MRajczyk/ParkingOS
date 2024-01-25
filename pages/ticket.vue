@@ -1,7 +1,7 @@
 <script setup>
 import TopBar from "/components/TopBar.vue";
-import { useRoute } from 'vue-router';
-import QrcodeVue from 'qrcode.vue'
+import { useRoute } from "vue-router";
+import QrcodeVue from "qrcode.vue";
 import axios from "axios";
 
 const route = useRoute();
@@ -11,6 +11,8 @@ const userId = ref(data.value.user.id);
 const parkingId = route.query.parkingId;
 const parkingName = ref(null);
 const space = ref(null);
+const floor = ref(1);
+const spaceCalculated = ref(1);
 const car = route.query.car;
 const isBanned = ref(null);
 const isLoading = ref(true);
@@ -37,30 +39,34 @@ function copy() {
 }
 
 function download() {
-  const link = document.createElement('a');
-  link.download = ticketId.value + '.png';
-  link.href = document.getElementById('qr').toDataURL();
+  const link = document.createElement("a");
+  link.download = ticketId.value + ".png";
+  link.href = document.getElementById("qr").toDataURL();
   link.click();
 }
 
 onMounted(async () => {
   axios
-    .get("/api/ticket/userState", {
+    .get("/api/ticket/user-state", {
       params: { id: userId.value },
     })
     .then((response) => {
       isBanned.value = response.data;
 
       if (isBanned.value == false) {
+        const floors = ref(1);
+        const parkingPlacesPerFloor = ref(1);
         axios
-          .get("/api/ticket/parkingInfo", {
+          .get("/api/ticket/parking-info", {
             params: { id: parkingId },
           })
           .then((response) => {
             parkingName.value = response.data.name;
+            floors.value = response.data.floors;
+            parkingPlacesPerFloor.value = response.data.parkingPlacesPerFloor;
           })
           .catch((error) => {
-            console.error('Error fetching parking info:', error);
+            console.error("Error fetching parking info:", error);
           });
 
         axios
@@ -68,12 +74,23 @@ onMounted(async () => {
             params: { id: parkingId },
           })
           .then((response) => {
-            space.value = response.data.id;
+            console.log(response)
+            space.value = response.data[0].id;
+
+            for (let i = 0; i < floors.value; i++) {
+              if (response.data[1] >= floor.value * parkingPlacesPerFloor.value) {
+                floor.value = floor.value + 1;
+              } else {
+                spaceCalculated.value = response.data[1] - (floor.value - 1) * parkingPlacesPerFloor.value + 1;
+              }
+            }
+
             const date = getFormattedDate();
-            ticketId.value = 'P' + parkingId + 'C' + car + 'S' + space.value + date;
+            ticketId.value =
+              "P" + parkingId + "C" + car + "S" + space.value + date;
 
             axios
-              .post("/api/ticket/createReservation", {
+              .post("/api/ticket/create-reservation", {
                 ticket: ticketId.value,
                 date: date,
                 parkingId: parkingId,
@@ -83,53 +100,52 @@ onMounted(async () => {
               })
               .then((response) => {
                 console.log(response.data.statusMessage);
+
+                axios
+                  .patch("/api/ticket/car-state", {
+                    id: car,
+                    isParked: "true",
+                  })
+                  .then((response) => {
+                    console.log(response.data.statusMessage);
+                  })
+                  .catch((error) => {
+                    console.log(error.response.data.statusMessage);
+                  });
+
+                axios
+                  .patch("/api/ticket/space-state", {
+                    id: space.value,
+                    ocuppied: "true",
+                  })
+                  .then((response) => {
+                    console.log(response.data.statusMessage);
+                  })
+                  .catch((error) => {
+                    console.log(error.response.data.statusMessage);
+                  });
+
                 isLoading.value = false;
-              })
-              .catch((error) => {
-                console.log(error.response.data.statusMessage);
-              });
-
-            axios
-              .put("/api/ticket/carState", {
-                id: car,
-                isParked: "true",
-              })
-              .then((response) => {
-                console.log(response.data.statusMessage);
-              })
-              .catch((error) => {
-                console.log(error.response.data.statusMessage);
-              });
-
-
-            axios
-              .put("/api/ticket/spaceState", {
-                id: space.value,
-                ocuppied: "true",
-              })
-              .then((response) => {
-                console.log(response.data.statusMessage);
               })
               .catch((error) => {
                 console.log(error.response.data.statusMessage);
               });
           })
           .catch((error) => {
-            console.error('Error fetching spots:', error);
+            console.error("Error fetching spots:", error);
           });
       } else {
-      isLoading.value = false;
+        isLoading.value = false;
       }
     })
     .catch((error) => {
-      console.error('Error fetching parking info:', error);
+      console.error("Error fetching parking info:", error);
     });
 });
-
 </script>
 
 <template>
-  <div style="background-color: var(--bg-light);height: 100%;">
+  <div style="background-color: var(--bg-light); height: 100%">
     <TopBar>
       <div v-if="isLoading"></div>
       <div v-else>
@@ -140,11 +156,12 @@ onMounted(async () => {
 
           <div class="ticket-id">
             <p>ID: {{ ticketId }}</p>
-            <img src="/images/copy.png" class="copy" @click="copy">
+            <img src="/images/copy.png" class="copy" @click="copy" />
           </div>
 
           <p>Parking: {{ parkingName }}</p>
-          <p>Parking spot: {{ space }}</p>
+          <p>Floor: {{ floor }}</p>
+          <p>Space: {{ spaceCalculated }}</p>
 
           <div class="buttons-div">
             <NuxtLink to="/">
@@ -155,7 +172,7 @@ onMounted(async () => {
         </div>
         <div v-else class="background">
           <h1>BANNED</h1>
-          <img src="/images/failure.png" class="failure">
+          <img src="/images/failure.png" class="failure" />
           <h2>Contact admin or regulate pending costs</h2>
           <NuxtLink to="/">
             <button>Home</button>

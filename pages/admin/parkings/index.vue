@@ -5,7 +5,7 @@ import axios from "axios";
 
 const parkings = ref([]);
 const filteredParkings = ref([]);
-const searchQuery = ref('');
+const searchQuery = ref("");
 
 onMounted(async () => {
   axios
@@ -15,7 +15,7 @@ onMounted(async () => {
       filteredParkings.value = response.data;
     })
     .catch((error) => {
-      console.error('Error fetching parkings:', error);
+      console.error("Error fetching parkings:", error);
     });
 });
 
@@ -23,7 +23,7 @@ const filterParkings = () => {
   filteredParkings.value = parkings.value.filter((parking) =>
     parking.name.toLowerCase().includes(searchQuery.value.toLowerCase())
   );
-}
+};
 
 function deleteParking(id) {
   axios
@@ -33,9 +33,10 @@ function deleteParking(id) {
       },
     })
     .then((response) => {
-
-      const indexInParkings = parkings.value.findIndex(p => p.id === +id);
-      const indexInFilteredParkings = filteredParkings.value.findIndex(p => p.id === +id);
+      const indexInParkings = parkings.value.findIndex((p) => p.id === +id);
+      const indexInFilteredParkings = filteredParkings.value.findIndex(
+        (p) => p.id === +id
+      );
 
       if (indexInParkings !== -1) {
         parkings.value.splice(indexInParkings, 1);
@@ -48,48 +49,121 @@ function deleteParking(id) {
       alert("Parking deleted");
     })
     .catch((error) => {
-      if (error.response && error.response.data && error.response.data.message && error.response.data.message === 'Unable to delete all spaces.') {
-        alert("You cannot delete the parking because some parking spaces have cars parked on them. The unoccupied spaces have been successfully deleted. Please wait for all spaces to become vacant and try again.");
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message &&
+        error.response.data.message === "Unable to delete all spaces."
+      ) {
+        alert(
+          "You cannot delete the parking because some parking spaces have cars parked on them. The unoccupied spaces have been marked as not available. Please wait for all spaces to become vacant and try again."
+        );
       } else {
         alert("Deletion failed");
       }
       console.log(error);
     });
-
 }
 
+const showModalFlag = ref(false);
+const idForModal = ref(null);
+
+function discardCallback() {
+  if (idForModal.value) {
+    deleteParking(idForModal.value);
+  }
+}
+
+function showModal(id) {
+  idForModal.value = id;
+  showModalFlag.value = true;
+}
+
+function hideModal() {
+  idForModal.value = null;
+  showModalFlag.value = false;
+}
 </script>
 
 <template>
-  <div style="background-color: var(--bg-light);height: 100%;">
+  <div style="background-color: var(--bg-light); height: 100%">
     <TopBar>
+      <div class="modal" v-if="showModalFlag" @click="hideModal()">
+        <div class="modal-content">
+          <p>Do you really wanna delete this parking?</p>
+          <p style="color: red"><b>This action cannot be reversed.</b></p>
+          <button
+            class="modal-button"
+            @click="discardCallback()"
+            style="background-color: red; margin-top: 10px"
+          >
+            Delete
+          </button>
+          <button
+            class="modal-button"
+            style="margin-top: 4px"
+            @click="hideModal()"
+          >
+            Back
+          </button>
+        </div>
+      </div>
       <div class="background">
         <h1>Car parks</h1>
-        <input type="text" id="search" v-model="searchQuery" @input="filterParkings" placeholder="Search" />
+        <input
+          type="text"
+          id="search"
+          v-model="searchQuery"
+          @input="filterParkings"
+          placeholder="Search"
+        />
 
         <div class="container">
           <div v-for="parking in filteredParkings" class="parking-wrapper">
             <div class="part1">
               <div class="info">
                 Name: {{ parking.name }}
-                <br>
+                <br />
                 Address: {{ parking.city }}, {{ parking.address }}
               </div>
               <div class="edit-delete">
-                <img src="/images/recycle-bin.png" @click="deleteParking(parking.id)" style="width: 30%">
-                <NuxtLink :to="{ path: '/admin/parkings/edit', query: { id: parking.id } }">
-                  <img src="/images/edit.png" style="width: 30%;margin-left: 10%;">
+                <img
+                  src="/images/recycle-bin.png"
+                  @click="showModal(parking.id)"
+                  style="width: 30%"
+                />
+                <!-- totu -->
+                <NuxtLink
+                  :to="{
+                    path: '/admin/parkings/edit',
+                    query: { id: parking.id },
+                  }"
+                >
+                  <img
+                    src="/images/edit.png"
+                    style="width: 30%; margin-left: 10%"
+                  />
                 </NuxtLink>
               </div>
             </div>
             <div class="part2">
-              <NuxtLink :to="{ path: '/admin/liveview', query: { parkingId: parking.id } }">
+              <NuxtLink
+                :to="{
+                  path: '/admin/liveview',
+                  query: { parkingId: parking.id },
+                }"
+              >
                 <button class="actions">LiveView</button>
               </NuxtLink>
-              <NuxtLink :to="{ path:'/admin/costs/' + parking.id }">
+              <NuxtLink :to="{ path: '/admin/costs/' + parking.id }">
                 <button class="actions">Costs</button>
               </NuxtLink>
-              <NuxtLink :to="{ path: '/admin/statistics', query: { parkingId: parking.id } }">
+              <NuxtLink
+                :to="{
+                  path: '/admin/statistics',
+                  query: { parkingId: parking.id },
+                }"
+              >
                 <button class="actions">Statistics</button>
               </NuxtLink>
               <NuxtLink :to="{ path: '/admin/summary', query: { parkingId: parking.id } }">
@@ -113,6 +187,52 @@ function deleteParking(id) {
 </template>
 
 <style scoped>
+.modal {
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  padding: 20px;
+  background-color: white;
+  width: 300px;
+  gap: 4px;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  font-size: 20px;
+}
+
+.modal-content > p {
+  color: var(--primary-lighter);
+}
+
+.modal-button {
+  border-radius: 20px;
+  text-decoration: none;
+  text-align: center;
+  width: 160px;
+  padding: 10px 0px;
+  color: white;
+  font-size: 20px;
+  background-color: var(--primary);
+  cursor: pointer;
+  margin: 0;
+}
 .background {
   background-color: white;
   width: 40%;
@@ -162,7 +282,7 @@ h1 {
 .actions {
   margin: 3% 3% 0;
   width: 17%;
-  background-color: #A6BE8D;
+  background-color: #a6be8d;
   color: var(--primary-lighter);
   font-size: medium;
   font-weight: 600;

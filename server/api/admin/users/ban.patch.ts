@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Role } from "@prisma/client";
 import { getServerSession } from "#auth";
 
 export default defineEventHandler(async (event) => {
@@ -8,26 +8,27 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusMessage: "Unauthenticated", statusCode: 403 });
     }
 
-    const body = await readBody(event);
-    let state: boolean;
-
-    try {
-        state = JSON.parse(body.isParked);
-    } catch (error) {
-        throw error;
+    //@ts-expect-error
+    if (session.user?.role !== Role.ADMIN) {
+        throw createError({
+            statusMessage: "You are not an admin.",
+            statusCode: 403,
+        });
     }
 
+    const body = await readBody(event);
+
     try {
-        const car = await prisma.car.update({
+        const user = await prisma.user.update({
             where: {
                 id: +body.id,
             },
             data: {
-                isParked: state,
+                isBanned: body.isBanned,
             },
         });
 
-        return car;
+        return user;
     } catch (error) {
         throw error;
     }

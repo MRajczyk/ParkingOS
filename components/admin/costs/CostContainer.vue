@@ -70,7 +70,7 @@ function hideModal() {
           class="cost-input"
           style="display: flex; align-items: center; justify-content: start"
         >
-          {{ props.costValue }}
+          {{ props.costValue }} PLN
         </span>
       </div>
       <button

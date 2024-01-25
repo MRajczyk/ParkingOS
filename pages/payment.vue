@@ -1,6 +1,6 @@
 <script setup>
 import TopBar from "/components/TopBar.vue";
-import { QrcodeDropZone } from 'vue-qrcode-reader'
+import { QrcodeDropZone } from "vue-qrcode-reader";
 import axios from "axios";
 
 const { data } = useAuth();
@@ -16,14 +16,17 @@ let isLoading = ref(true);
 
 async function onDetect(codes) {
   try {
-    if (typeof tickets.value.find(ticket => ticket.ticket === codes[0].rawValue) === 'undefined') {
+    if (
+      typeof tickets.value.find(
+        (ticket) => ticket.ticket === codes[0].rawValue
+      ) === "undefined"
+    ) {
       throw { error: "can't find ticket" };
     }
 
     ticketId.value = codes[0].rawValue;
     console.log(ticketId.value);
-  }
-  catch (error) {
+  } catch (error) {
     if (error.error == "can't find ticket") {
       alert("It's not your ticket!");
     } else {
@@ -41,13 +44,13 @@ onMounted(async () => {
       tickets.value = response.data;
     })
     .catch((error) => {
-      console.error('Error fetching pending tickets:', error);
+      console.error("Error fetching pending tickets:", error);
     });
-})
+});
 
 function getCost() {
   let chargePlan = ref(null);
-  ticket = tickets.value.find(ticket => ticket.ticket === ticketId.value);
+  ticket = tickets.value.find((ticket) => ticket.ticket === ticketId.value);
 
   axios
     .get("/api/ticket/tariff", {
@@ -57,7 +60,7 @@ function getCost() {
       chargePlan.value = response.data;
 
       axios
-        .get("/api/ticket/parkingSession", {
+        .get("/api/ticket/parking-session", {
           params: { id: ticketId.value },
         })
         .then((response2) => {
@@ -71,7 +74,10 @@ function getCost() {
           for (let ctr = 0; ctr <= hours; ctr++) {
             const hour = (entranceDate.getHours() + ctr) % 24;
 
-            if (hour >= chargePlan.value.nightStart || hour < chargePlan.value.nightEnd) {
+            if (
+              hour >= chargePlan.value.nightStart ||
+              hour < chargePlan.value.nightEnd
+            ) {
               if (ctr === 0) {
                 cost.value += chargePlan.value.nightHour1Tariff;
               } else if (ctr === 1) {
@@ -97,16 +103,14 @@ function getCost() {
           stage.value++;
         })
         .catch((error) => {
-          console.error('Error fetching pending tickets:', error);
+          console.error("Error fetching pending tickets:", error);
         });
-
     })
     .catch((error) => {
-      console.error('Error fetching charge plan:', error);
+      console.error("Error fetching charge plan:", error);
       return null;
     });
 }
-
 
 function pay() {
   isLoading.value = true;
@@ -119,10 +123,12 @@ function pay() {
       isSuccess.value = true;
       isLoading.value = false;
 
-      const ticket = tickets.value.find(ticket => ticket.ticket === ticketId.value);
+      const ticket = tickets.value.find(
+        (ticket) => ticket.ticket === ticketId.value
+      );
 
       axios
-        .put("/api/ticket/closeReservation", {
+        .patch("/api/ticket/close-reservation", {
           ticketId: ticket.id,
           cost: cost.value,
           userId: +data.value.user.id,
@@ -134,7 +140,7 @@ function pay() {
           console.log(error.response.data.statusMessage);
         });
       axios
-        .put("/api/ticket/carState", {
+        .patch("/api/ticket/car-state", {
           id: ticket.carId,
           isParked: "false",
         })
@@ -145,9 +151,8 @@ function pay() {
           console.log(error.response.data.statusMessage);
         });
 
-
       axios
-        .put("/api/ticket/spaceState", {
+        .patch("/api/ticket/space-state", {
           id: ticket.spot,
           ocuppied: "false",
         })
@@ -166,11 +171,10 @@ function pay() {
       console.log(error);
     });
 }
-
 </script>
 
 <template>
-  <div style="background-color: var(--bg-light);height: 100%;">
+  <div style="background-color: var(--bg-light); height: 100%">
     <TopBar>
       <div v-if="stage === 0" class="background">
         <h1>Payment</h1>
@@ -178,7 +182,11 @@ function pay() {
         <div class="search-wraper">
           <label class="label">Ticket ID</label>
           <select v-model="ticketId">
-            <option v-for="ticket in tickets" :key="ticket.id" :value="ticket.ticket">
+            <option
+              v-for="ticket in tickets"
+              :key="ticket.id"
+              :value="ticket.ticket"
+            >
               {{ ticket.ticket }}
             </option>
           </select>
@@ -210,12 +218,13 @@ function pay() {
         </div>
 
         <button class="home" @click="stage--">Back</button>
-        <button @click="pay">
-          Pay
-        </button>
+        <button @click="pay">Pay</button>
       </div>
 
-      <div v-else-if="stage === 2 && isSuccess && !isLoading" class="background">
+      <div
+        v-else-if="stage === 2 && isSuccess && !isLoading"
+        class="background"
+      >
         <h1>Payment successful</h1>
         <img src="/images/success.png" class="failure" />
         <div class="payment-info">
@@ -234,7 +243,9 @@ function pay() {
       <div v-else-if="stage === 2 && !isSuccess" class="background">
         <h1>Insufficient funds</h1>
         <img src="/images/failure.png" class="failure" />
-        <h2>You don’t have enough funds in your account. Add funds or resign.</h2>
+        <h2>
+          You don’t have enough funds in your account. Add funds or resign.
+        </h2>
         <NuxtLink to="/">
           <button class="home">Home</button>
         </NuxtLink>

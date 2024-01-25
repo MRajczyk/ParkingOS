@@ -73,12 +73,11 @@ function hideBurger() {
         <i class="fa fa-bars"></i>
       </a>
       <div class="topbar-buttons" style="padding-left: 16px">
-        <NuxtLink to="/admin/parkings/maker" class="profile-link">Maker</NuxtLink>
+        <NuxtLink to="/admin/parkings" class="profile-link">Parkings</NuxtLink>
         <span class="split" style="font-weight: 200">|</span>
         <NuxtLink to="/admin/users" class="profile-link">Users</NuxtLink>
         <span class="split" style="font-weight: 200">|</span>
-        <NuxtLink to="/admin/liveview" class="profile-link">Live View</NuxtLink
-        >
+        <NuxtLink to="/admin/liveview" class="profile-link">Live View</NuxtLink>
       </div>
       <NuxtLink to="/" class="topbar-title"> ParkingOS </NuxtLink>
       <div class="topbar-buttons" style="padding-right: 16px">
@@ -98,11 +97,9 @@ function hideBurger() {
       </div>
     </div>
     <div class="burger-options" id="burger-options">
-      <NuxtLink to="/admin/temp-maker" class="burger-option">Maker</NuxtLink>
-      <NuxtLink to="/admin/temp-maker" class="burger-option">Users</NuxtLink>
-      <NuxtLink to="/admin/temp-maker" class="burger-option"
-        >Live view</NuxtLink
-      >
+      <NuxtLink to="/admin/parkings" class="burger-option">Parkings</NuxtLink>
+      <NuxtLink to="/admin/users" class="burger-option">Users</NuxtLink>
+      <NuxtLink to="/admin/liveview" class="burger-option">Live view</NuxtLink>
       <NuxtLink to="/admin/statistics" class="burger-option"
         >Statistics</NuxtLink
       >

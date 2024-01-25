@@ -43,7 +43,7 @@ function updateCost() {
     return;
   }
   axios
-    .put(`http://localhost:3000/api/admin/costs/edit`, {
+    .patch(`http://localhost:3000/api/admin/costs/edit`, {
       parkingId: parkingId,
       costId: costId,
       costName: costName.value,
@@ -82,7 +82,7 @@ function updateCost() {
           </span>
         </div>
         <div class="setting-wrapper">
-          <label class="label">Cost amount</label>
+          <label class="label">Cost amount in PLN</label>
           <input
             form="none"
             type="number"

@@ -68,7 +68,7 @@ function addNewCost() {
           </span>
         </div>
         <div class="setting-wrapper">
-          <label class="label">Cost amount</label>
+          <label class="label">Cost amount in PLN</label>
           <input
             form="none"
             type="number"
