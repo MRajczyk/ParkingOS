@@ -1,10 +1,11 @@
 <template>
   <div>
-    <div v-if="hasData" >
-      <Bar :data="chartData" />
+    <div v-if="hasData">
+      <Bar :data="chartData" :options="chartOptions" :width="chartWidth" :height="chartHeight" />
     </div>
     <div v-else>
-     </div>
+      <p>No data available.</p>
+    </div>
   </div>
 </template>
 
@@ -34,6 +35,14 @@ export default {
       type: String,
       default: '#304D30',
     },
+    chartWidth: {
+      type: Number,
+      default: 800,
+    },
+    chartHeight: {
+      type: Number,
+      default: 400,
+    },
   },
   computed: {
     hasData() {
@@ -51,10 +60,35 @@ export default {
         ]
       };
     },
+    chartOptions() {
+      return {
+        scales: {
+          x: {
+            grid: {
+              display: false, // Ukryj siatki pionowe
+            },
+          },
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function (value) {
+                return value + ' PLN';
+              },
+            },
+          },
+        },
+        plugins: {
+          legend: {
+            labels: {
+              boxWidth: 15,
+            },
+          },
+        },
+      };
+    },
   },
 };
 </script>
 
 <style scoped>
-
 </style>
