@@ -1,4 +1,4 @@
- import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "#auth";
 
 export default defineEventHandler(async (event) => {
@@ -9,19 +9,29 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusMessage: "Unauthenticated", statusCode: 403 });
   }
 
+  const { id } = getRouterParams(event);
+
   try {
+    const sumOfMonthlyCosts = await prisma.monthlyCost.aggregate({
+      where: {
+        parkingId: Number(id),
+      },
+      _sum: {
+        costValue: true,
+      },
+    });
+
  
-
-    const allParkings = await prisma.parking.findMany();
-
     return {
       statusCode: 200,
-      data: allParkings,
+   
+        sum: sumOfMonthlyCosts._sum.costValue || 0,
+      
     };
   } catch (error) {
     console.error(error);
     throw createError({
-      statusMessage: "Error fetching parking data",
+      statusMessage: "Error fetching parking details",
       statusCode: 500,
     });
   } finally {

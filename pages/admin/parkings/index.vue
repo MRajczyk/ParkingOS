@@ -166,9 +166,9 @@ function hideModal() {
               >
                 <button class="actions">Statistics</button>
               </NuxtLink>
-              <!-- <NuxtLink :to="{ path: '/admin/summary', query: { parkingId: parking.id } }"> -->
-              <button class="actions">Summary</button>
-              <!-- </NuxtLink> -->
+              <NuxtLink :to="{ path: '/admin/summary', query: { parkingId: parking.id } }">
+                <button class="actions">Summary</button>
+              </NuxtLink>
             </div>
           </div>
         </div>

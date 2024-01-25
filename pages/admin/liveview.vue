@@ -223,7 +223,7 @@ function getCost() {
 
             <div class="buttons">
               <button class="back" @click="stage--">Back</button>
-              <NuxtLink :to="{ path: '/admin/statistics/', query: { parkingId: parkingId, spaceId: spaceId } }">
+              <NuxtLink :to="{ path: '/admin/statisticsspace/', query: {spaceId: spaceId } }">
                 <button>Statistics</button>
               </NuxtLink>
             </div>

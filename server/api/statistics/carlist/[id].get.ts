@@ -12,30 +12,24 @@ export default defineEventHandler(async (event) => {
   const { id } = getRouterParams(event);
 
   try {
-    // Pobierz wszystkie auta
-    const allCars = await prisma.car.findMany();
+     const allCars = await prisma.car.findMany();
 
-    // Pobierz wszystkie samochody, które parkowały na danym parkingu
-    const parkingSessions = await prisma.parkingSession.findMany({
+     const parkingSessions = await prisma.parkingSession.findMany({
       where: {
         parkingId: Number(id),
       },
     });
 
-    // Znajdź unikalne id samochodów, które występują na liście pobranych parking session
-    const uniqueCarIds = [...new Set(parkingSessions.map((session) => session.carId))];
+     const uniqueCarIds = [...new Set(parkingSessions.map((session) => session.carId))];
 
-    // Wyfiltruj auta na podstawie znalezionych id
-    const selectedCars = allCars.filter((car) => uniqueCarIds.includes(car.id));
+     const selectedCars = allCars.filter((car) => uniqueCarIds.includes(car.id));
 
-    // Zbierz dane do zwrócenia
-    const resultData = selectedCars.map((car) => ({
+     const resultData = selectedCars.map((car) => ({
       id: car.id,
       registrationNumber: car.registrationNumber,
     }));
 
-    // Zwróć dane w odpowiedzi
-    return {
+     return {
       statusCode: 200,
       resultData,
     };

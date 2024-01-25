@@ -9,21 +9,15 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusMessage: "Unauthenticated", statusCode: 403 });
   }
 
-  const { id , carid } = getRouterParams(event);
+  const { id } = getRouterParams(event);
 
   try {
-    // Pobierz wszystkie auta
-    const cars = await prisma.car.findMany({
+   
+   const parkings = await prisma.parking.findMany();
+   
+     const parkingSessions = await prisma.parkingSession.findMany({
       where: {
-        id: Number(carid),
-      },
-    });
-
-    // Pobierz wszystkie sesje parkowania dla danego parkingu
-    const parkingSessions = await prisma.parkingSession.findMany({
-      where: {
-        parkingId: Number(id),
-        carId:  Number(carid),
+        carId:  Number(id),
         leaveDate: {
           not: null,
         },
@@ -32,17 +26,16 @@ export default defineEventHandler(async (event) => {
 
  
     const resultData = parkingSessions.map((session) => {
-      const car = cars.find((car) => car.id === session.carId);
+      const parking = parkings.find((parking) => parking.id === session.parkingId);
 
-      if (car) {
+      if (parking) {
         return {
            id: session.id,
           entranceDate: session.entranceDate,
           leaveDate: session.leaveDate,
           totalCost: session.finalCost,
-          name: car.name,
-          registrationNumber: car.registrationNumber,
-          spot: session.spot,
+          name: parking.name,
+           spot: session.spot,
         };
       } else {
         return null;
@@ -51,16 +44,14 @@ export default defineEventHandler(async (event) => {
 
 
     const sortData = resultData.sort((a, b) => {
-      // Parse the dates and compare them
-      const dateA = new Date(a.entranceDate);
+       const dateA = new Date(a.entranceDate);
       const dateB = new Date(b.entranceDate);
     
       return dateB.getTime() - dateA.getTime();
     });
         const filteredResultData = sortData.filter((data) => data !== null);
 
-    // Zwróć dane w odpowiedzi
-    return {
+     return {
       statusCode: 200,
       filteredResultData,
     };
