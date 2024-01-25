@@ -1,7 +1,7 @@
 <script setup>
 import TopBar from "/components/TopBar.vue";
  import { ref, onMounted, watch } from 'vue';
- import MyChart from '/components/MyChart.vue';
+ import DynamicChart from "/components/DynamicChart.vue";
 
   definePageMeta({ middlesware: "auth" });
  
@@ -26,7 +26,7 @@ const param= ref(true);
 const selectedYear = ref(null);
 const selectedMonth = ref(null);
 const selectedPeriod = ref(null);
-const chartFlag= ref(1);
+const chartFlag= ref(false);
 
 const yearFlag= ref(1);
 const monthFlag= ref(1);
@@ -73,19 +73,7 @@ const chartData = ref([]);
 const monthsRevenue = ref([]);
 
  
-const chartOptions = ref({
-  responsive: true,
-  maintainAspectRatio: false,
-  scales: {
-    x: {
-      beginAtZero: true,
-    },
-    y: {
-      beginAtZero: true,
-    },
-  },
-});
-
+ 
  
  
 
@@ -119,6 +107,7 @@ const fetchParkings = async () => {
 
 
 const selectParking = async (id) => {
+  chartFlag.value=false;
   let selectedParkingData;
   years.value=[];
   periods.value=[];
@@ -200,6 +189,7 @@ else
        }
        else
        {
+        chartFlag.value=false;
         if(selectedYear.value)
         selectedYear.value=null;
         else
@@ -251,6 +241,8 @@ else
 
  const generateValues = () => {
   if (selectedParking.value !== null) {
+    chartFlag.value=false;
+
   const selectedMonthIndex = Number(selectedMonth.value.id) - 1;
   const selectedPeriodValue = Number(selectedPeriod.value);
 
@@ -262,9 +254,9 @@ precisionrevenu.value = [];
     labels.value.push(monthsshort.value[i].name);
     precisionrevenu.value.push(monthsRevenue.value[i]);
   } 
+if(years.value.length>0)
+  chartFlag.value=true;
  
-
-
 }};
 
 
@@ -322,8 +314,9 @@ const watchselectedperiod = async () => {
 
  
 onMounted(async () => {
+  
     await nextTick();
-     await watchselectedyear();
+      await watchselectedyear();
     await watchselectedmonth();
     await watchselectedperiod();
     await fetchParkings();
@@ -391,7 +384,15 @@ onMounted(async () => {
               </select>
             </div>
           </div>
-          <MyChart />
+          <div>
+    <DynamicChart
+      v-if="chartFlag"
+      :chartLabels="labels"
+      :chartDataValues="precisionrevenu"
+    />
+    <div v-else>
+              </div>
+  </div>
 
      
      
@@ -559,10 +560,9 @@ select {
   max-width: 77%;
   width: 77%;
   box-sizing: border-box;
-  max-height: 60%;
+  max-height: 80%;
 
-  /* Zaktualizowane: Selektory i etykiety w jednej linii */
-  display: flex;
+   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
@@ -573,6 +573,7 @@ select {
   display: flex;
   justify-content: space-between;
   width: 100%;
+  margin-bottom: 35px;
 }
 
 /* Zaktualizowane: Styl dla każdego z trzech selektorów */
