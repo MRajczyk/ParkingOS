@@ -74,9 +74,9 @@ function showCars(id) {
 
 function statistics(id) {
   router.push({
-    path: "/admin/statistics",
+    path: "/admin/statisticscar",
     query: {
-      car: id,
+      carId: id,
     },
   });
 }

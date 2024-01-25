@@ -608,21 +608,21 @@ input {
   max-height: 100%;
   background-color: white;
 
-  margin-top: 80px; /* Adjust if necessary */
+  margin-top: 80px; 
 
-  margin-left: 30%; /* Adjust if necessary */
-  margin-right: 40%; /* Adjust if necessary */
-  border-radius: 25px; /* Add rounded corners */
-  overflow: hidden; /* Prevent content from overflowing */
+  margin-left: 30%; 
+  margin-right: 40%; 
+  border-radius: 25px;  
+  overflow: hidden;  
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
 .parking-info p {
-  margin-bottom: 20px; /* Adjust spacing between paragraphs */
+  margin-bottom: 20px;  
   display: flex;
-  justify-content: space-between; /* Align content to the right */
+  justify-content: space-between; 
   align-items: baseline;
 }
 
@@ -775,7 +775,7 @@ select {
   margin-top: -20px;
 }
 
-/* Nowe style dla danych w modalu */
+ 
 .modal-content p {
   margin: 10px 0;
   font-size: 18px;

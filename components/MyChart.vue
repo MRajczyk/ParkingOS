@@ -65,7 +65,7 @@ export default {
         scales: {
           x: {
             grid: {
-              display: false, // Ukryj siatki pionowe
+              display: false,  
             },
           },
           y: {

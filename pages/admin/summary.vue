@@ -568,30 +568,28 @@ select {
   align-items: center;
 }
 
-/* Zaktualizowane: Styl dla kontenera z selektorami */
-.selectors-container {
+ .selectors-container {
   display: flex;
   justify-content: space-between;
   width: 100%;
   margin-bottom: 35px;
 }
 
-/* Zaktualizowane: Styl dla każdego z trzech selektorów */
-.select-container {
+ .select-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 600px; /* Ustal równą szerokość dla każdego selektora */
+  width: 600px;  
 }
 
 .select-container label {
-  margin-bottom: 5px; /* Dostosuj margines między etykietą a selektorem według potrzeb */
+  margin-bottom: 5px;  
   color: #5c5c5c;
 }
 
 .select-container select {
-  margin-top: 5px; /* Dostosuj margines między selektorem a etykietą według potrzeb */
-  width: 100%; /* Zajmij całą dostępną szerokość wewnątrz kontenera */
+  margin-top: 5px;  
+  width: 100%; 
 }
 </style>
 

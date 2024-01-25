@@ -2,8 +2,7 @@
     <div>
       <MyChart v-if="hasData" :chartLabels="chartLabels" :chartDataValues="chartDataValues" />
       <div v-else>
-        <!-- Komunikat lub cokolwiek innego informującego użytkownika, że brak danych do wyświetlenia wykresu -->
-      </div>
+       </div>
     </div>
   </template>
   
