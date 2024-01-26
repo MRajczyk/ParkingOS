@@ -63,6 +63,7 @@ model ParkingSpace {
     available          Boolean @default(true)
     parkingId          Int
     parking            Parking @relation(fields: [parkingId], references: [id])
+    parkingSessions    ParkingSession[]
 }
 
 model ParkingSession {
@@ -73,6 +74,7 @@ model ParkingSession {
     finalCost       Float
     parkingId       Int
     spot            Int
+    parkingSpace    ParkingSpace @relation(fields: [spot], references: [id])
     carId           Int
     car             Car @relation(fields: [carId], references: [id])
     userId          Int

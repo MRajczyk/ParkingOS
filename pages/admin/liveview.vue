@@ -20,6 +20,7 @@ const ocuppied = ref(false);
 const cost = ref(0);
 const dailyEarning = ref(0);
 const available = ref(true);
+const email = ref("");
 
 const filterParkings = () => {
   filteredParkings.value = parkings.value.filter((parking) =>
@@ -79,12 +80,15 @@ function selectParking(parking) {
     });
 }
 
-function stageUp(num, id, occupied, ava) {
+function stageUp(num, id, occupied, ava, em) {
   stage.value++;
   number.value = num;
   spaceId.value = id;
   ocuppied.value = occupied;
   available.value = ava;
+  if(em) {
+    email.value = em[0].user.email;
+  }
   getCost();
 }
 
@@ -200,7 +204,10 @@ function getCost() {
                   <div v-if="(i - 1) * 10 + j <= selectedParking.parkingPlacesPerFloor" class="space"
                     :class="{ occupied: spaces[((selectedFloor - 1) * selectedParking.parkingPlacesPerFloor) + ((i - 1) * 10 + j - 1)].ocuppied }"
                     :title="'Space ocuppied: ' + spaces[((selectedFloor - 1) * selectedParking.parkingPlacesPerFloor) + ((i - 1) * 10 + j - 1)].ocuppied"
-                    @click="stageUp((i - 1) * 10 + j, spaces[((selectedFloor - 1) * selectedParking.parkingPlacesPerFloor) + ((i - 1) * 10 + j - 1)].id, spaces[((selectedFloor - 1) * selectedParking.parkingPlacesPerFloor) + ((i - 1) * 10 + j - 1)].ocuppied, spaces[((selectedFloor - 1) * selectedParking.parkingPlacesPerFloor) + ((i - 1) * 10 + j - 1)].available)">
+                    @click="stageUp((i - 1) * 10 + j, spaces[((selectedFloor - 1) * selectedParking.parkingPlacesPerFloor) + ((i - 1) * 10 + j - 1)].id, 
+                                    spaces[((selectedFloor - 1) * selectedParking.parkingPlacesPerFloor) + ((i - 1) * 10 + j - 1)].ocuppied, 
+                                    spaces[((selectedFloor - 1) * selectedParking.parkingPlacesPerFloor) + ((i - 1) * 10 + j - 1)].available,
+                                    spaces[((selectedFloor - 1) * selectedParking.parkingPlacesPerFloor) + ((i - 1) * 10 + j - 1)].parkingSessions)">
                     {{ (i - 1) * 10 + j }}
                   </div>
                 </div>
@@ -214,7 +221,10 @@ function getCost() {
                 {{ number }}
               </div>
               <div class="info">
-                <div>Ocuppied: {{ ocuppied }}</div>
+                <div style="font-weight: 600;">Floor: {{ selectedFloor }}</div> 
+                <div style="font-weight: 600;margin-bottom: 5%;">Space: {{ number }}</div>
+                <div v-if="!ocuppied">Ocuppied: {{ ocuppied }}</div>
+                <div v-if="ocuppied">Occupied by: {{ email }}</div>
                 <div>Available: {{ available }}</div>
                 <div v-if="ocuppied">Current earnings: {{ cost }} PLN</div>
                 <div>Daily earnings: {{ dailyEarning }} PLN</div>
