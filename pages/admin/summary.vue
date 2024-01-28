@@ -31,9 +31,9 @@ const chartFlag= ref(false);
 const yearFlag= ref(1);
 const monthFlag= ref(1);
 const periodFlag= ref(1);
-
-const years = ref([]);
+ const years = ref([]);
 const periods = ref([]);
+ 
 const months = ref([
   { id: 1, name: "January" },
   { id: 2, name: "February" },
@@ -71,6 +71,7 @@ const isLoading = ref(true);
 const sumOfMonthlyCosts = ref(0);
 const chartData = ref([]);
 const monthsRevenue = ref([]);
+const filteredMonths = ref([]);
 
  
  
@@ -112,7 +113,7 @@ const selectParking = async (id) => {
   years.value=[];
   periods.value=[];
   chartData.value=[];
-
+  filteredMonths.value=[];
 if (parkingId !== undefined   && parkings.value.some(parking => parking.id === parkingId) && param.value) {
   selectedParking.value = parkingId;
   selectedParkingData = parkings.value.find(parking => parking.id === parkingId);
@@ -201,7 +202,7 @@ else
 }
 
 const generatePeriodRange  = () => {
-  if (selectedParking.value !== null) {
+  if (selectedParking.value !== null&&years.value.length>0) {
   periods.value = [];
    const maxPeriod = 13 - selectedMonth.value.id;
    periods.value.push(...Array.from({ length: maxPeriod }, (_, index) => index + 1));
@@ -219,9 +220,9 @@ else
  };
 
  const calculateMonthlyRevenue = () => {
-  if (selectedParking.value !== null) {
+  if (selectedParking.value !== null&&years.value.length>0) {
   monthsRevenue.value=[];
-   const monthlyRevenue = Array.from({ length: 12 }, () => 0 - Number(sumOfMonthlyCosts.value));
+   const monthlyRevenue = Array.from({ length: 12 }, () => 0 );
 
    const filteredChartData = chartData.value.filter((item) => {
     const leaveDate = new Date(item.leaveDate);
@@ -252,12 +253,42 @@ else
 precisionrevenu.value = [];
   for (let i = startMonthIndex; i < endMonthIndex; i++) {
     labels.value.push(monthsshort.value[i].name);
-    precisionrevenu.value.push(monthsRevenue.value[i]);
+    precisionrevenu.value.push(monthsRevenue.value[i]-sumOfMonthlyCosts);
   } 
 if(years.value.length>0)
   chartFlag.value=true;
  
 }};
+const generateMonthOptions = () => {
+  if (selectedParking.value !== null && years.value.length > 0) {
+    const currentYear = new Date().getFullYear();
+    const selectedYearValue = selectedYear.value;
+
+    let minimumMonth = 1;
+    let maximumMonth = 12;
+
+    if (selectedYearValue === currentYear) {
+      minimumMonth = 1;
+      maximumMonth = new Date().getMonth() + 1;
+    } else if (selectedYearValue === Math.min(...years.value)) {
+      // Jest najmniejszym rokiem
+      const earliestLeaveDate = chartData.value.reduce((earliest, item) => {
+        const leaveDate = new Date(item.leaveDate);
+        const year = leaveDate.getFullYear();
+
+        if (year === selectedYearValue && leaveDate < earliest) {
+          return leaveDate;
+        }
+        return earliest;
+      }, new Date());
+
+      minimumMonth = earliestLeaveDate.getMonth() + 1;
+      maximumMonth = 12;
+    } 
+
+    filteredMonths.value = months.value.filter((month) => month.id >= minimumMonth && month.id <= maximumMonth);
+  }
+};
 
 
  const watchselectedyear = async () => {
@@ -268,10 +299,11 @@ if(years.value.length>0)
       if (selectedParking.value !== null) {
 
         calculateMonthlyRevenue();
-      if( selectedMonth.value != months.value[0])
-      
+        generateMonthOptions();
+      if( selectedMonth.value != filteredMonths.value[0])
       {
-selectedMonth.value = months.value[0];
+      
+selectedMonth.value = filteredMonths.value[0];
       }
     else
    {     
@@ -339,18 +371,27 @@ onMounted(async () => {
           />
         </div>
         <div class="buttons-container" ref="buttonsList">
-          <button
-            v-if="!isLoading"
-            v-for="parking in filteredParkings"
-            :key="parking.id"
-            class="left-button"
-            :class="{ active: selectedParking === parking.id }"
-            @click="selectParking(parking.id)"
-          >
-            {{ parking.name }}
-          </button>
-          <p v-if="isLoading">Loading...</p>
-        </div>
+  <button
+    v-if="!isLoading"
+    v-for="parking in filteredParkings"
+    :key="parking.id"
+    class="left-button"
+    :class="{ active: selectedParking === parking.id }"
+    @click="selectParking(parking.id)"
+  >
+    <div>
+      <div style="font-size:medium;">
+        {{ parking.name }}
+      </div>
+      <div style="font-size:small;">
+        {{ parking.city }}, {{ parking.address }}
+      </div>
+    </div>
+  </button>
+  <p v-if="isLoading">Loading...</p>
+</div>
+
+
       </div>
       <div class="right-side">
         <div class="selected-title">{{ selectedParkingName }}</div>
@@ -358,8 +399,7 @@ onMounted(async () => {
           <p>Monthly Costs: {{ sumOfMonthlyCosts }} PLN</p>
         </div>
         <div class="chart-container">
-          <!-- Zaktualizowane: Selektory i etykiety w jednej linii -->
-          <div class="selectors-container">
+           <div class="selectors-container">
             <div class="select-container">
               <label for="year">Year:</label>
               <select v-model="selectedYear" id="year">
@@ -369,7 +409,7 @@ onMounted(async () => {
             <div class="select-container">
               <label for="startingMonth">Starting month:</label>
               <select v-model="selectedMonth" id="startingMonth">
-                <option v-for="month in months" :key="month.id" :value="month">
+                <option v-for="month in filteredMonths" :key="month.id" :value="month">
                   {{ month.name }}
                 </option>
               </select>
@@ -402,25 +442,18 @@ onMounted(async () => {
     </div>
   </TopBar>
 </template>
-<style scoped>
-body {
-  margin: 0;
-  padding: 0;
-  font-family: "Arial", sans-serif;
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
+<style scoped> 
 
 .container {
+  position: relative;
   display: flex;
   justify-content: space-between;
   background-color: #eef0e5;
   width: 100%;
   height: 100%;
   color: #333;
-  max-height: 100%;
-}
+  overflow-y: auto;  
+ }
 
 .left-side {
   width: 18%;
@@ -428,7 +461,7 @@ body {
   flex-direction: column;
   align-items: center;
   margin: 0 1%;
-  max-height: 100%;
+  height: 100%;
   border-right: 1px solid #ccc;
 }
 
@@ -437,6 +470,7 @@ body {
   height: 100%;
   display: flex;
   flex-direction: column;
+  
 }
 
 .selected-title {
@@ -444,62 +478,62 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 65px;
-  font-size: 64px;
-  max-height: 100%;
-  font-weight: bold;
+  margin-bottom: 25px;
+  font-size: 40px;
+   font-weight: bold;
   color: #5c5c5c;
 }
-
 .search-input-container {
+  margin-top: 30px;
+  align-items: center;
+
   position: relative;
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  margin-bottom: 25px;
-}
+  margin-bottom: 35px;
+ 
+ }
 
 input {
-  margin-top: 80px;
-  padding: 10px;
-  border-radius: 20px;
-  width: 90%;
-  margin-right: 10%;
-  max-height: 200px;
-  height: 50px;
-  font-size: 30px;
-  color: #333;
-  background-color: #eef0e5;
+  margin-top: 60px;
+   border-radius: 14px;
+  width: 80%;
+   padding: 1% 4%;
+margin-left:10%;
+margin-right:10%;
+
+    color: #333;
+  background-color: white;
 }
 
 .buttons-container {
-  max-height: 45%;
-  overflow-y: auto;
+   overflow-y: auto;
   scrollbar-width: thin;
   display: flex;
   flex-direction: column;
   width: 100%;
 }
 
+ 
 .left-button {
+  align-items: left;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-  margin-top: 15px;
-  margin-bottom: 15px;
+  text-align: left;
+  justify-content: left;
+  margin: 5% auto;
+  padding: 1% 4%;
   cursor: pointer;
   border: none;
-  border-radius: 20px;
+  border-radius: 14px;
   background-color: #ffffff;
   color: #000000;
-  flex-shrink: 0;
-  box-sizing: border-box;
-  margin-right: 5%;
-  height: 50px;
-  transition: background-color 0.3s, box-shadow 0.3s;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 95%;
-  font-size: 30px;
-}
+   box-sizing: border-box;
+ 
+   transition: background-color 0.3s, box-shadow 0.3s;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
+  width: 90%;
+ }
 
 .buttons-container::-webkit-scrollbar {
   width: 10px;
@@ -527,15 +561,13 @@ input {
 }
 
 select {
-  padding: 10px;
-  border-radius: 20px;
-  max-width: 50%; /* Zwiększ maksymalną szerokość */
-  width: 50%; /* Zwiększ bieżącą szerokość */
+  padding: 5px;
+  border-radius: 14px;
+  max-width: 50%;  
+  width: 50%; 
   margin-top: 30px;
-  max-height: 200px;
-  height: 50px;
-  font-size: 25px;
-  margin-bottom: 30px;
+ 
+  margin-bottom: 15px;
   color: #333;
   background-color: #eef0e5;
   text-align: center;
@@ -543,26 +575,24 @@ select {
 
 .monthly-cost-container {
   margin-left: 11%;
-  font-size: 30px;
-  color: #000000;
+  font-weight: bold;
+   color: #000000;
   margin-bottom: 20px;
   margin-top: 20px;
 }
 .chart-container {
   background-color: #ffffff;
-  border-radius: 20px;
-  padding: 20px;
+  border-radius: 14px;
+  padding: 15px;
   margin-left: 8%;
   margin-right: 15%;
 
-  margin-top: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   max-width: 77%;
   width: 77%;
   box-sizing: border-box;
-  max-height: 80%;
-
-   display: flex;
+    display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;

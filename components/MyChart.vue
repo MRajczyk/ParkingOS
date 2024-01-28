@@ -37,7 +37,7 @@ export default {
     },
     chartWidth: {
       type: Number,
-      default: 800,
+      default: 600,
     },
     chartHeight: {
       type: Number,
