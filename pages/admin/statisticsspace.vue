@@ -115,27 +115,23 @@ onMounted(async () => {
  
           
     </div>
+    <div v-if="isModalVisible" class="modal-overlay" @click="closeModal"></div>
     <div v-if="isModalVisible" class="modal">
       <div class="modal-content">
         <span class="close" @click="closeModal">&times;</span>
         <div v-html="modalContent"></div>
       </div>
-</div>
+    </div>
   </TopBar>
 </template>
+
 <style scoped>
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Arial', sans-serif;
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
+
 .container {
+  overflow: auto;
   display: flex;
-  flex-direction: column;  /* Updated line to stack items vertically */
-  align-items: center;     /* Center items horizontally */
+  flex-direction: column;  
+  align-items: center;    
   background-color: #eef0e5;
   width: 100%;
   height: 100%;
@@ -143,18 +139,17 @@ body {
  }
  
 
+
 .selected-title {
-  margin-top: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 45px; 
-  margin-top: 45px; 
+  margin-bottom: 25px; 
+  margin-top: 25px; 
   margin-left: 33%;
   margin-right: 33%;
-  font-size: 64px;
-  max-height: 100%;
-  font-weight: bold;
+  font-size: 45px;
+   font-weight: bold;
   color: #5C5C5C;
 }
  
@@ -162,15 +157,12 @@ body {
 .revenue-container {
   text-align: center;
   align-items: center;
-  font-size: 30px;
-  color: #000000;
-  max-width: 34%;
-  margin-left: 33%;
+   color: #000000;
+   margin-left: 33%;
   margin-right: 33%;
-  margin-bottom: 50px;
+  margin-bottom: 25px;
   width: 34%;
-  max-height: 100%;
-}
+ }
 
 .custom-buttons-container {
   max-height: 80%;
@@ -178,9 +170,9 @@ body {
   scrollbar-width: thin;
   display: flex;
   flex-direction: column;
-  width: 60%;
-  margin-left: 20%;
-  margin-right: 20%;
+  width: 40%;
+  margin-left: 30%;
+  margin-right: 30%;
 }
 
 .custom-buttons-container::-webkit-scrollbar {
@@ -203,90 +195,105 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 10px;
-  margin-top: 15px;
-  margin-bottom: 15px;
+  margin-top: 10px;
+  margin-bottom: 10px;
   cursor: pointer;
   border: none;
   border-radius: 20px;
   background-color: #ffffff;
   color: #000000;
-  flex-shrink: 0;
-  box-sizing: border-box;
-  margin-right: 5%;
-  height: 80px;
-  transition: background-color 0.3s, box-shadow 0.3s;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 95%;
-  font-size: 30px;
-}
+   box-sizing: border-box;
+   margin-left: 2%;
+
+  margin-right: 2%;
+   transition: background-color 0.3s, box-shadow 0.3s;
+   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
+  width: 96%;
+ }
 
 .custom-button.active {
   background-color: #DDE7DD;
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
 }
 
 .custom-button:hover {
   background-color: #c7e5c2;
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
 }
 
 .custom-button-date {
-  margin-left:40px;
+  margin-left:10px;
  }
 
 .custom-button-label {
-  margin-left:40px;
+  margin-left:10px;
 
  }
 
 .custom-button-amount {
-  margin-right:70px;
+  margin-right:20px;
 
  }
- 
- .modal {
-  display: block;
+ .modal-overlay {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1000;
-}
-
-.modal-content {
-  background-color: #fefefe;
-  margin: auto;
-  padding: 30px;
-  border: 1px solid #888;
+  top: 0;
+  left: 0;
   width: 100%;
-  max-width: 1000px;
-  color: #000;
-  position: relative;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
 }
+ .modal {
+  line-height: 1.3;
+    display: block;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    border-radius: 10px; 
+    overflow: hidden;
+  }
 
-.close {
+  .modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 30px;
+    border: none; 
+    border-radius: 10px;  
+    width: 100%;
+    max-width: 1000px;
+    color: #000;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); 
+  }
+ 
+  .modal-content p {
+    margin: 10px 0;
+    font-size: 18px;
+  }
+
+  .modal-content p strong {
+    font-weight: bold;
+  }
+
+  .close {
   color: #aaa;
   float: right;
   font-size: 28px;
   font-weight: bold;
-  margin-top: -20px;
-}
-
- 
-.modal-content p {
-  margin: 10px 0;
-  font-size: 18px;
-}
-
-.modal-content p strong {
-  font-weight: bold;
+  margin-top: -21px;
+  cursor: pointer;
 }
 
 .close:hover,
 .close:focus {
   color: black;
   text-decoration: none;
-  cursor: pointer;
 }
 
   </style>

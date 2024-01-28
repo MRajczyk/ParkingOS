@@ -17,7 +17,7 @@ const selectedParkingName = ref('');
 const param= ref(true);
 
 const searchQuery = ref('');
-const rightSelected = ref('Parking');
+const rightSelected = ref('Space');
 const isLoading = ref(true);
  const parkingInfo = ref({
   maxCapacity: 0,
@@ -307,6 +307,7 @@ onMounted(async () => {
 
 
 <template>
+  
   <TopBar>
     <div class="container">
       <div class="left-side">
@@ -320,18 +321,27 @@ onMounted(async () => {
           />
         </div>
         <div class="buttons-container" ref="buttonsList">
-        <button
-          v-if="!isLoading"
-          v-for="parking in filteredParkings"
-          :key="parking.id"
-          class="left-button"
-          :class="{ active: selectedParking === parking.id }"
-          @click="selectParking(parking.id)"
-        >
-          {{ parking.name }}
-        </button>
-        <p v-if="isLoading">Loading...</p>
+  <button
+    v-if="!isLoading"
+    v-for="parking in filteredParkings"
+    :key="parking.id"
+    class="left-button"
+    :class="{ active: selectedParking === parking.id }"
+    @click="selectParking(parking.id)"
+  >
+    <div>
+      <div style="font-size:medium;">
+        {{ parking.name }}
       </div>
+      <div style="font-size:small;">
+        {{ parking.city }}, {{ parking.address }}
+      </div>
+    </div>
+  </button>
+  <p v-if="isLoading">Loading...</p>
+</div>
+
+
       </div>
       <div class="right-side">
         <div class="selected-title">{{ selectedParkingName }}</div>
@@ -433,37 +443,33 @@ onMounted(async () => {
   </TopBar>
 </template>
 <style scoped>
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Arial', sans-serif;
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
+ 
 
-.container {
+ .container {
+  position: relative;
   display: flex;
   justify-content: space-between;
   background-color: #eef0e5;
   width: 100%;
   height: 100%;
   color: #333;
-  max-height: 100%;
-}
+  overflow-y: auto;  
+ }
 
 .left-side {
+ 
   width: 18%;
   display: flex;
   flex-direction: column;
   align-items: center;
   margin: 0 1%;
-  max-height: 100%;
+  height: 100%;
   border-right: 1px solid #ccc;
 }
 
 .right-side {
   width: 80%;
+ 
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -471,66 +477,69 @@ body {
 }
 
 .selected-title {
+  position: relative;
+
   margin-top: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-bottom: 15px; 
   font-size: 64px;
-  max-height: 100%;
-  font-weight: bold;
+   font-weight: bold;
   color: #5C5C5C;
 }
 
 .search-input-container {
+  margin-top: 30px;
+  align-items: center;
+
   position: relative;
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  margin-bottom: 25px;
+  margin-bottom: 35px;
+ 
  }
 
 input {
-  margin-top: 80px;
-  padding: 10px;
-  border-radius: 20px;
-  width: 90%;
-  margin-right: 10%;
-  max-height: 200px;
-  height: 50px;
-  font-size: 30px;
-  color: #333;
-  background-color: #eef0e5;
+  margin-top: 60px;
+   border-radius: 14px;
+  width: 80%;
+   padding: 1% 4%;
+margin-left:10%;
+margin-right:10%;
+
+    color: #333;
+  background-color: white;
 }
 
 .buttons-container {
-  max-height: 45%;
-  overflow-y: auto;
+   overflow-y: auto;
   scrollbar-width: thin;
   display: flex;
   flex-direction: column;
   width: 100%;
 }
 
+ 
 .left-button {
+  align-items: left;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-  margin-top: 15px;
-  margin-bottom: 15px;
+  text-align: left;
+  justify-content: left;
+  margin: 5% auto;
+  padding: 1% 4%;
   cursor: pointer;
   border: none;
-  border-radius: 20px;
+  border-radius: 14px;
   background-color: #ffffff;
   color: #000000;
-  flex-shrink: 0;
-  box-sizing: border-box;
-  margin-right: 5%;
-  height: 50px;
-  transition: background-color 0.3s, box-shadow 0.3s;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 95%;
-  font-size: 30px;
-}
+   box-sizing: border-box;
+ 
+   transition: background-color 0.3s, box-shadow 0.3s;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
+  width: 90%;
+ }
 
 .buttons-container::-webkit-scrollbar {
   width: 10px;
@@ -565,16 +574,14 @@ input {
   margin: 5px;
   cursor: pointer;
   border: none;
-  border-radius: 20px;
+  border-radius: 14px;
   background-color: #DDE7DD;
   color: #ffffff;
   width: 100%;
-  height: 50px;
-  transition: background-color 0.3s, box-shadow 0.3s;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+   transition: background-color 0.3s, box-shadow 0.3s;
+   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
   font-weight: bold;
-  font-size: 30px;
-}
+ }
 
 .right-button.active {
   background-color: #163020;
@@ -596,25 +603,25 @@ input {
 
 .content-container {
   width: 100%;
-  max-height: 100%;
-}
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow-y: auto;  
+  height: 100%;
+
+ }
 .parking-info {
   box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
+   padding: 50px 40px;
+   line-height: 1.5;
+    background-color: white;
 
-  padding: 100px 40px;
-  font-size: 30px;
-  line-height: 2;
-  width: 30%;
-  max-height: 100%;
-  background-color: white;
-
-  margin-top: 80px; 
-
-  margin-left: 30%; 
-  margin-right: 40%; 
+  margin-top: 5%; 
+ 
+ width:30%;
   border-radius: 25px;  
-  overflow: hidden;  
-  display: flex;
+   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
@@ -636,30 +643,29 @@ input {
 
 .space-content {
   width: 100%;
-  height: 100%;
-  display: flex;
+   display: flex;
   flex-direction: column;
-}
+  position: relative;
+height: 100%;
+  
+ }
 
 .space-options-container {
   text-align: center;
-  max-height: 100%;
-  max-width: 100%;
-  display: flex;
+   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+
+ 
 }
 
 select {
   padding: 10px;
-  border-radius: 20px;
-  max-width: 30%;
-  width: 30%;
+  border-radius: 14px;
+   width: 30%;
   margin-top: 30px;
-  max-height: 200px;
-  height: 50px;
-  font-size: 25px;
-  margin-bottom: 30px;
+    margin-bottom: 30px;
   color: #333;
   background-color: #eef0e5;
 }
@@ -667,25 +673,24 @@ select {
 .revenue-container {
   text-align: center;
   align-items: center;
-  font-size: 30px;
-  color: #000000;
-  max-width: 34%;
-  margin-left: 33%;
+   color: #000000;
+   margin-left: 33%;
   margin-right: 33%;
   margin-bottom: 20px;
+  position: relative;
+
   width: 34%;
-  max-height: 100%;
-}
+ }
 
 .custom-buttons-container {
-  max-height: 80%;
   overflow-y: auto;
   scrollbar-width: thin;
   display: flex;
   flex-direction: column;
+  align-items: center;
   width: 100%;
-}
-
+  }
+ 
 .custom-buttons-container::-webkit-scrollbar {
   width: 10px;
   margin-left: 10px;
@@ -708,21 +713,27 @@ select {
   padding: 10px;
   margin-top: 15px;
   margin-bottom: 15px;
+ 
   cursor: pointer;
   border: none;
-  border-radius: 20px;
+  border-radius: 14px;
   background-color: #ffffff;
   color: #000000;
-  flex-shrink: 0;
-  box-sizing: border-box;
-  margin-right: 5%;
-  height: 80px;
-  transition: background-color 0.3s, box-shadow 0.3s;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 95%;
-  font-size: 30px;
-}
+   box-sizing: border-box;
+ 
 
+   transition: background-color 0.3s, box-shadow 0.3s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width:35%;
+   }
+
+   
+  
+   
+  
+  
+   
+   
 .custom-button.active {
   background-color: #DDE7DD;
   box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
@@ -734,16 +745,16 @@ select {
 }
 
 .custom-button-date {
-  margin-left:40px;
+  margin-left:10px;
  }
 
 .custom-button-label {
-  margin-left:40px;
+  margin-left:10px;
 
  }
 
 .custom-button-amount {
-  margin-right:70px;
+  margin-right:15px;
 
  }
  
@@ -770,16 +781,13 @@ select {
 .close {
   color: #aaa;
   float: right;
-  font-size: 28px;
-  font-weight: bold;
+   font-weight: bold;
   margin-top: -20px;
 }
 
  
 .modal-content p {
-  margin: 10px 0;
-  font-size: 18px;
-}
+  margin: 10px 0;}
 
 .modal-content p strong {
   font-weight: bold;
