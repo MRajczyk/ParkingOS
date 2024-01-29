@@ -13,6 +13,7 @@ const filterInput = ref("");
 
 let costsInitial;
 const costsFiltered = ref([]);
+const parkingName = ref("");
 
 onMounted(() => {
   axios
@@ -23,6 +24,18 @@ onMounted(() => {
     })
     .catch((error) => {
       alert(error);
+    });
+
+  axios
+    .get("/api/ticket/parking-info", {
+      params: { id: parkingId },
+    })
+    .then((response) => {
+      parkingName.value = response.data.name;
+      console.log("test");
+    })
+    .catch((error) => {
+      console.error("Error fetching parking info:", error);
     });
 });
 
@@ -62,29 +75,15 @@ watch(
   <TopBar>
     <div class="costs">
       <div class="costs-container">
+      <h1 style="margin-top: 50px;">{{ parkingName }}</h1>
         <div class="costs-buttons-container">
           <NuxtLink to="/admin/parkings" class="add-cost-button">Back</NuxtLink>
-          <NuxtLink
-            :to="`/admin/costs/${parkingId}/add`"
-            class="add-cost-button"
-            >Add cost</NuxtLink
-          >
+          <NuxtLink :to="`/admin/costs/${parkingId}/add`" class="add-cost-button">Add cost</NuxtLink>
         </div>
-        <input
-          name="filterInput"
-          v-model="filterInput"
-          class="cost-search-input"
-          placeholder="Search"
-          type="text"
-        />
-        <CostContainer
-          v-for="cost in costsFiltered"
-          :costId="Number.parseInt(cost.id)"
-          :parkingId="Number.parseInt(parkingId)"
-          :costName="cost.costName"
-          :costValue="cost.costValue"
-          :discardCallback="removeCost"
-        />
+        <input name="filterInput" v-model="filterInput" class="cost-search-input" placeholder="Search" type="text" />
+        <CostContainer v-for="cost in costsFiltered" :costId="Number.parseInt(cost.id)"
+          :parkingId="Number.parseInt(parkingId)" :costName="cost.costName" :costValue="cost.costValue"
+          :discardCallback="removeCost" />
       </div>
     </div>
   </TopBar>
@@ -93,10 +92,11 @@ watch(
 <style scoped>
 .costs-buttons-container {
   display: flex;
-  margin-top: 100px;
+  margin-top: 50px;
   flex-direction: column;
   gap: 6px;
 }
+
 .costs-container {
   display: flex;
   flex-direction: column;
@@ -147,6 +147,7 @@ watch(
   font-weight: 500;
   background-color: white;
 }
+
 @media screen and (min-width: 700px) {
   .cost-search-input {
     width: 434px;
