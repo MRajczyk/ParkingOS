@@ -50,7 +50,7 @@ function updateUser(id, isBanned) {
 
 const filterUsers = () => {
   filteredUsers.value = users.value.filter((user) =>
-    user.email.toLowerCase().includes(searchQuery.value.toLowerCase())
+    user.email.toLowerCase().includes(searchQuery.value.toLowerCase()) || (user.name + ' ' + user.surname).toLowerCase().includes(searchQuery.value.toLowerCase())
   );
   console.log(filterUsers.value)
 };
@@ -89,15 +89,15 @@ function statistics(id) {
         <h1>Users</h1>
         <input type="text" id="search" v-model="searchQuery" @input="filterUsers" placeholder="Search" />
         <div class="header">
-          <div style="width: 12%;padding-left: 1.5%;">Id</div>
-          <div style="width: 48%;padding-left: 1.5%;">E-mail</div>
+          <div style="width: 22%;padding-left: 1.5%;">Name</div>
+          <div style="width: 38%;padding-left: 1.5%;">E-mail</div>
           <div style="width: 14%;text-align: right;">Funds</div>
           <div style="width: 9.5%;text-align: right;padding-right: 2.5%;">Cars</div>
           <div style="width: 14%;text-align: center;">Block</div>
         </div>
         <div v-for="user in filteredUsers" class="background">
-          <div style="width: 12%;padding: 1.5%;">{{ user.id }}</div>
-          <div style="width: 48%;padding: 1.5%;">{{ user.email }}</div>
+          <div style="width: 22%;padding: 1.5%;">{{ user.name }} {{ user.surname }}</div>
+          <div style="width: 38%;padding: 1.5%;">{{ user.email }}</div>
           <div style="width: 14%;text-align: right;padding: 1.5% 2%;">{{ user.balance.toFixed(2) }} PLN</div>
           <div style="width: 12%;text-align: center;">
             <img src="/images/car.png" class="car" @click="showCars(user.id)">

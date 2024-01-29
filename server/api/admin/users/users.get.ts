@@ -22,6 +22,8 @@ export default defineEventHandler(async (event) => {
       email: true,
       balance: true,
       isBanned: true,
+      name: true,
+      surname: true,
     },
     where: {
       role: Role.USER,
