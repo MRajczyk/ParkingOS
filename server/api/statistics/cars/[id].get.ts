@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "#auth";
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 
 export default defineEventHandler(async (event) => {
   const prisma: PrismaClient = event.context.prisma;
