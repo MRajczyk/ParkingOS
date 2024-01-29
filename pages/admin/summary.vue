@@ -108,12 +108,17 @@ const fetchParkings = async () => {
 
 
 const selectParking = async (id) => {
-  chartFlag.value=false;
   let selectedParkingData;
+
+  chartFlag.value=false;
+  sumOfMonthlyCosts.value=0;
   years.value=[];
+  monthsRevenue.value=[];
   periods.value=[];
   chartData.value=[];
   filteredMonths.value=[];
+     labels.value=[];
+  precisionrevenu.value=[];
 if (parkingId !== undefined   && parkings.value.some(parking => parking.id === parkingId) && param.value) {
   selectedParking.value = parkingId;
   selectedParkingData = parkings.value.find(parking => parking.id === parkingId);
@@ -201,27 +206,28 @@ else
 }
 }
 
-const generatePeriodRange  = () => {
-  if (selectedParking.value !== null&&years.value.length>0) {
+const generatePeriodRange = () => {
   periods.value = [];
-   const maxPeriod = 13 - selectedMonth.value.id;
-   periods.value.push(...Array.from({ length: maxPeriod }, (_, index) => index + 1));
-  if(selectedPeriod.value != periods.value[0])
-{
-  selectedPeriod.value = periods.value[0];
-  }
-else
-{      
 
-  
-  periodFlag.value*=-1;
-}
+  if (selectedParking.value !== null && years.value.length > 0) {
+     const maxPeriod = Math.max(...filteredMonths.value.map(month => month.id))+1-selectedMonth.value.id;
+    
+     periods.value.push(...Array.from({ length: maxPeriod }, (_, index) => index + 1));
+
+    if (selectedPeriod.value != periods.value[0]) {
+      selectedPeriod.value = periods.value[0];
+    } else {
+      periodFlag.value *= -1;
+    }
+  } else if (years.value.length === 0) {
+    selectedPeriod.value = null;
   }
- };
+};
+
 
  const calculateMonthlyRevenue = () => {
-  if (selectedParking.value !== null&&years.value.length>0) {
   monthsRevenue.value=[];
+  if (selectedParking.value !== null&&years.value.length>0) {
    const monthlyRevenue = Array.from({ length: 12 }, () => 0 );
 
    const filteredChartData = chartData.value.filter((item) => {
@@ -241,25 +247,31 @@ else
  };
 
  const generateValues = () => {
-  if (selectedParking.value !== null) {
-    chartFlag.value=false;
+  chartFlag.value=false;
+  labels.value = [];
+precisionrevenu.value = [];
+  if (selectedParking.value !== null&&selectedPeriod.value!=null) {
 
   const selectedMonthIndex = Number(selectedMonth.value.id) - 1;
   const selectedPeriodValue = Number(selectedPeriod.value);
 
   const startMonthIndex = selectedMonthIndex;
   const endMonthIndex = selectedMonthIndex + selectedPeriodValue;
-  labels.value = [];
-precisionrevenu.value = [];
+
   for (let i = startMonthIndex; i < endMonthIndex; i++) {
     labels.value.push(monthsshort.value[i].name);
-    precisionrevenu.value.push(monthsRevenue.value[i]-sumOfMonthlyCosts);
+    precisionrevenu.value.push(Number(monthsRevenue.value[i])-Number(sumOfMonthlyCosts.value));
   } 
-if(years.value.length>0)
+ if(years.value.length>0)
   chartFlag.value=true;
  
 }};
+
+
+
 const generateMonthOptions = () => {
+  filteredMonths.value = [];
+
   if (selectedParking.value !== null && years.value.length > 0) {
     const currentYear = new Date().getFullYear();
     const selectedYearValue = selectedYear.value;
@@ -267,25 +279,22 @@ const generateMonthOptions = () => {
     let minimumMonth = 1;
     let maximumMonth = 12;
 
-    if (selectedYearValue === currentYear) {
+    if (Number(selectedYearValue) === currentYear) {
       minimumMonth = 1;
       maximumMonth = new Date().getMonth() + 1;
-    } else if (selectedYearValue === Math.min(...years.value)) {
-      // Jest najmniejszym rokiem
-      const earliestLeaveDate = chartData.value.reduce((earliest, item) => {
-        const leaveDate = new Date(item.leaveDate);
-        const year = leaveDate.getFullYear();
-
-        if (year === selectedYearValue && leaveDate < earliest) {
-          return leaveDate;
-        }
-        return earliest;
-      }, new Date());
-
-      minimumMonth = earliestLeaveDate.getMonth() + 1;
+    } else if (Number(selectedYearValue )=== Math.min(...years.value)) {
+      const earliestLeaveDate = new Date(
+        Math.min(
+          ...chartData.value
+            .filter((item) => new Date(item.leaveDate).getFullYear() === Number(selectedYearValue))
+            .map((item) => new Date(item.leaveDate).getTime())
+        )
+      );
+  minimumMonth = earliestLeaveDate.getMonth() + 1;
+ 
       maximumMonth = 12;
-    } 
-
+    }
+ 
     filteredMonths.value = months.value.filter((month) => month.id >= minimumMonth && month.id <= maximumMonth);
   }
 };
@@ -300,19 +309,47 @@ const generateMonthOptions = () => {
 
         calculateMonthlyRevenue();
         generateMonthOptions();
-      if( selectedMonth.value != filteredMonths.value[0])
+
+if(filteredMonths.value.length>0)
+{
+
+  if( selectedMonth.value != filteredMonths.value[0])
       {
       
 selectedMonth.value = filteredMonths.value[0];
       }
     else
    {     
-     monthFlag.value*=-1;
- 
+    monthFlag.value*=-1;
+
   }
+
+ 
+}
+else
+{
+
+  if(selectedMonth.value)
+{
+
+  selectedMonth.value =null;
+}
+
+
+else
+{
+
+  monthFlag.value*=-1;
+
+
+}
+
+
+}
+
+
       }
-    },
-    { deep: true }
+    }
   );
 };
 
@@ -325,8 +362,7 @@ const watchselectedmonth = async () => {
 
       generatePeriodRange();
       }
-     },
-    { deep: true }
+     }
   );
 };
 
@@ -334,13 +370,12 @@ const watchselectedperiod = async () => {
   watch(
     [selectedPeriod, periodFlag],
     ([newOption, newFlag], [oldOption, oldFlag]) => {
-      if (selectedParking.value !== null) {
+      if (selectedParking.value != null) {
 
         generateValues();
  
       }
-    },
-    { deep: true }
+    } 
   );
 };
 
