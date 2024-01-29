@@ -17,8 +17,10 @@ const selectedParkingName = ref('');
 const param= ref(true);
 
 const searchQuery = ref('');
-const rightSelected = ref('Space');
+const rightSelected = ref('Parking');
 const isLoading = ref(true);
+const isLoadingCar = ref(true);
+
  const parkingInfo = ref({
   maxCapacity: 0,
   revenueGenerated: '$0',
@@ -32,13 +34,22 @@ const customButtonsList = ref([]);
 
 const carOptions = ref([]);  
 const selectedCarOption = ref(null); 
-const sumForCar = ref('');
-const customButtonsCarList = ref([]);
+ const customButtonsCarList = ref([]);
 
-const openModal = (content) => {
-  isModalVisible.value = true;
-  modalContent.value = content;
+ const cars = ref([]);
+
+
+
+ const filteredCars = ref([]);
+const searchCarQuery = ref('');
+
+const filterCars = () => {
+  filteredCars.value = cars.value.filter(car =>
+    car.registrationNumber.toLowerCase().startsWith(searchCarQuery.value.toLowerCase())
+  );
 };
+
+ 
 const handleRightButtonClick = (selected) => {
   rightSelected.value = selected;
   closeModal();
@@ -84,65 +95,22 @@ const fetchParkingSpaceDetails = async ( ) => {
 
 const fetchCarList = async ( ) => {
   try {
-    carOptions.value.splice(0, carOptions.value.length);
-     const response = await fetch(`/api/statistics/carlist/${selectedParking.value}`);
-    const data = await response.json();
+    cars.value=[];
+    filteredCars.value=[];
 
-   
-     data.resultData.forEach((car) => {
-        carOptions.value.push({
-          id: car.id,
-          registrationNumber: car.registrationNumber,
-        });
-      });
- 
-      if (carOptions.value.length > 0) {
-      selectedCarOption.value = carOptions.value[0];
-      }
+    const response = await fetch(`/api/statistics/cars/${selectedParking.value}`);
+    const data = await response.json();
+    cars.value = data.filteredResultData;
+ filteredCars.value=cars.value;
+    filterCars();
    } catch (error) {
     console.error('Error fetching Car list:', error);
   }
-};
-
-
-const fetchParkingCarDetails = async () => {
-  try {
-
-    customButtonsCarList.value.splice(0, customButtonsCarList.value.length);
-    if (!selectedParking.value || !selectedCarOption.value) {
-      return;}
-     const response = await fetch(`/api/statistics/cars/${selectedParking.value}/${selectedCarOption.value.id}`);
-    const data = await response.json();
-
-   
-     data.filteredResultData.forEach((car) => {
-    
-        const date = new Date(car.entranceDate);
-
-const formattedDate =`${date.toISOString().split("T")[0]} ${date.toTimeString().split(" ")[0]}`;
-const date2 = new Date(car.leaveDate);
-
-const formattedDate2 =`${date2.toISOString().split("T")[0]} ${date2.toTimeString().split(" ")[0]}`;
-        customButtonsCarList.value.push({
-        spot: car.spot,
-        id: car.id,
-        date: formattedDate,
-        leaveDate: formattedDate2,
-        registrationNumber: car.registrationNumber,
-        name: car.name,
-        amount: car.totalCost,
-      });
-
-
-      });
-      const totalAmount = customButtonsCarList.value.reduce((sum, item) => sum + item.amount, 0);
-sumForCar.value = `${totalAmount.toFixed(2)}`;
-
-   } catch (error) {
-    console.error('Error fetching parking car details:', error);
+  finally{
+  isLoadingCar.value = false;
   }
 };
-
+ 
 const fetchParkingSessions = async () => {
   try {
     
@@ -180,37 +148,41 @@ const formattedDate2 =`${date2.toISOString().split("T")[0]} ${date2.toTimeString
 };
 
  
-const handleCarButtonClick = (item) => {
-  const content = `
-    <p>Space: ${item.spot}</p>
-    <p>Date: ${item.date}</p>
-    <p>LeaveDate: ${item.leaveDate} </p>
-    <p>RegistrationNumber: ${item.registrationNumber}</p>
-    <p>Name: ${item.name}</p>
-    <p>Amount: ${item.amount} PLN</p>
-  `;
-  openModal(content);
-};
+ 
 
 const handleCustomButtonClick = (item) => {
-  const content = `
-  <p>Space: ${item.spot}</p>
-    <p>Date: ${item.date}</p>
-    <p>LeaveDate: ${item.leaveDate} </p>
-    <p>RegistrationNumber: ${item.registrationNumber}</p>
-    <p>Name: ${item.name}</p>
-     <p>Amount: ${item.amount} PLN</p>
-  `;
-     
+  const sessionsContent = item.sessions.map((session) => {
+    return `
+      <p>Date: ${session.entranceDate}</p>
+      <p>Leave Date: ${session.leaveDate}</p>
+      <p>Amount: ${session.totalCost} PLN</p>
+      <p>PlaceNumber: ${session.placeNumber}</p>
+      <p>Floor: ${session.floor}</p>
+      <p>Parking Name: ${session.parkingName}</p>
+      <p>Parking Address: ${session.parkingAddress}</p>
+      <p>City: ${session.city}</p>
 
-  
+      <hr />
+    `;
+  }).join('');
+
+  const content = `
+    <div class="sessions-list">${sessionsContent}</div>
+  `;
+
   openModal(content);
 };
-handleCarButtonClick
+
+const openModal = (content) => {
+  isModalVisible.value = true;
+  modalContent.value = content;
+};
+
 const closeModal = () => {
   isModalVisible.value = false;
   modalContent.value = '';
 };
+
 
 const fetchParkings = async () => {
   try {
@@ -218,7 +190,7 @@ const fetchParkings = async () => {
     const data = await response.json();
     parkings.value = data.data;
     filterParkings();
-
+filterCars();
     if (parkings.value.length > 0) {
        selectParking(parkings.value[0].id, parkings.value[0].name);
     }
@@ -255,8 +227,7 @@ if (parkingId !== undefined   && parkings.value.some(parking => parking.id === p
   customButtonsList.value.splice(0, customButtonsList.value.length);
   sumForSpace.value=null;
 
-  sumForCar.value=null;
-  try {
+   try {
     const response = await fetch(`/api/statistics/${selectedParking.value}`);
     const data = await response.json();
     updateParkingInfo(data.data);
@@ -269,6 +240,13 @@ if (parkingId !== undefined   && parkings.value.some(parking => parking.id === p
   }
 };
  
+
+
+ 
+
+
+
+
 const watchSelectedSpaceOption = () => {
   watch(selectedSpaceOption, (newOption, oldOption) => {
     closeModal();
@@ -404,42 +382,45 @@ onMounted(async () => {
  
           </div>
           <div v-if="rightSelected === 'Car'" class="space-content">
-            <div class="space-options-container">
-              <select v-model="selectedCarOption">
-                <option v-for="option in carOptions" :key="option.id" :value="option">
-                 {{ option.registrationNumber }}
-                </option>
-              </select>
-            </div>
-            <div class="revenue-container">
-              <p>Revenue sum: <strong>{{ sumForCar }} PLN</strong></p>
-            </div>
-            <div class="custom-buttons-container" ref="rightButtonsList">
+  <div class="search-list">
+    <input
+      type="text"
+      id="searchCar"
+      v-model="searchCarQuery"
+      @input="filterCars"
+      placeholder="Search Car"
+    />
+    
+  </div>
+
+  <div class="custom-buttons-container" ref="buttonsCarList">
   <button
-    v-for="item in customButtonsCarList"
-    :key="item.id"
+  v-if="!isLoadingCar"
+     v-for="car in filteredCars"
+    :key="car.carId"
     class="custom-button"
-    @click="handleCarButtonClick(item)"
+    @click="handleCustomButtonClick(car)"
   >
-    <div>  
-      <span class="custom-button-date">{{ new Date( item.date).toLocaleDateString('en-CA')}}</span>
-      <span class="custom-button-label">Space {{ item.spot }}</span>
+  <div>  
+      <span class="custom-button-date">{{ car.carName }}</span>
+      <span class="custom-button-label">{{ car.registrationNumber }}</span>
     </div>
-    <span class="custom-button-amount">{{ item.amount }} PLN</span>
+    <span class="custom-button-amount">{{ car.sumForCar }} PLN</span>
   </button>
 </div>
 
- 
-          </div>
+</div>
+
         </div>
       </div>
     </div>
+    <div v-if="isModalVisible" class="modal-overlay" @click="closeModal"></div>
     <div v-if="isModalVisible" class="modal">
       <div class="modal-content">
         <span class="close" @click="closeModal">&times;</span>
         <div v-html="modalContent"></div>
       </div>
-</div>
+    </div>
   </TopBar>
 </template>
 <style scoped>
@@ -501,17 +482,45 @@ onMounted(async () => {
  
  }
 
-input {
+ .search-input-container input {
   margin-top: 60px;
    border-radius: 14px;
-  width: 80%;
    padding: 1% 4%;
-margin-left:10%;
-margin-right:10%;
+ 
 
     color: #333;
   background-color: white;
 }
+
+
+.search-list {
+  margin-top: 30px;
+  align-items: center;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 15px;
+ 
+ }
+ .search-list input {
+  margin-top: 30px;
+   border-radius: 14px;
+  width: 15%;
+   padding-left: 10px;
+   padding-bottom: 10px;
+   padding-top: 10px;
+   padding-right: 20px;
+
+margin-left:42.5%;
+margin-right:42.5%;
+
+    color: #333;
+  background-color: white;
+}
+ 
+
 
 .buttons-container {
    overflow-y: auto;
@@ -723,14 +732,14 @@ select {
  
 
    transition: background-color 0.3s, box-shadow 0.3s;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
   width:35%;
    }
 
    
   
    
-  
+
   
    
    
@@ -757,48 +766,81 @@ select {
   margin-right:15px;
 
  }
- 
- .modal {
+ .modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.modal {
   display: block;
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 1000;
+  border-radius: 10px;
 }
 
 .modal-content {
   background-color: #fefefe;
   margin: auto;
   padding: 30px;
-  border: 1px solid #888;
+  border: none;
+  border-radius: 10px;
   width: 100%;
-  max-width: 1000px;
-  color: #000;
+  max-height: 500px; 
+  overflow-y: auto;
+    color: #000;
   position: relative;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  scrollbar-width: thin;
+
+}
+
+.modal-content p {
+  margin: 10px 0;
+  font-size: 18px;
+}
+
+.modal-content p strong {
+  font-weight: bold;
 }
 
 .close {
   color: #aaa;
   float: right;
-   font-weight: bold;
-  margin-top: -20px;
-}
-
- 
-.modal-content p {
-  margin: 10px 0;}
-
-.modal-content p strong {
+  font-size: 28px;
   font-weight: bold;
+  margin-top: -21px;
+  cursor: pointer;
 }
 
 .close:hover,
 .close:focus {
   color: black;
   text-decoration: none;
-  cursor: pointer;
 }
 
+.modal-content::-webkit-scrollbar {
+  width: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background-color: #68a691;  
+  border-radius: 20px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background-color: #eef0e5;
+}
   </style>
   

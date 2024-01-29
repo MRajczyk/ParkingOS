@@ -254,8 +254,6 @@ onMounted(async () => {
   cursor: pointer;
 }
  .modal {
-  line-height: 1.3;
-
     display: block;
     position: fixed;
     top: 50%;
