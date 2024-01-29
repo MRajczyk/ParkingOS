@@ -20,6 +20,7 @@ const searchQuery = ref('');
 const rightSelected = ref('Parking');
 const isLoading = ref(true);
 const isLoadingCar = ref(true);
+const isLoadingSpace = ref(true);
 
  const parkingInfo = ref({
   maxCapacity: 0,
@@ -27,27 +28,37 @@ const isLoadingCar = ref(true);
   carsParkedToDate: 0,
   sumOfMonthlyCosts: '$0',
 });
-const spaceOptions = ref([]);  
-const selectedSpaceOption = ref(null); 
-const sumForSpace = ref('');
-const customButtonsList = ref([]);
+ 
 
-const carOptions = ref([]);  
-const selectedCarOption = ref(null); 
- const customButtonsCarList = ref([]);
-
+ 
+ 
  const cars = ref([]);
+ const spaces = ref([]);
 
 
 
  const filteredCars = ref([]);
+ const filteredSpaces = ref([]);
+
 const searchCarQuery = ref('');
+const searchPlaceNumberQuery = ref('');
+const searchFloorQuery = ref('');
+
 
 const filterCars = () => {
   filteredCars.value = cars.value.filter(car =>
     car.registrationNumber.toLowerCase().startsWith(searchCarQuery.value.toLowerCase())
   );
 };
+
+
+const filterSpaces = () => {
+  filteredSpaces.value = spaces.value.filter(space =>
+    space.placeNumber.toString().toLowerCase().startsWith(searchPlaceNumberQuery.value.toLowerCase()) &&
+    space.floor.toString().toLowerCase().startsWith(searchFloorQuery.value.toLowerCase())
+  );
+};
+
 
  
 const handleRightButtonClick = (selected) => {
@@ -71,24 +82,22 @@ const filterParkings = () => {
 };
 
 
-const fetchParkingSpaceDetails = async ( ) => {
+const fetchParkingSpaceDetails = async ( ) => 
+  {
   try {
-    spaceOptions.value.splice(0, spaceOptions.value.length);
-     const response = await fetch(`/api/statistics/spaces/${selectedParking.value}`);
-    const data = await response.json();
+    spaces.value=[];
+    filteredSpaces.value=[];
 
-   
-     data.data.parkingSpaceIds.forEach((spaceId) => {
-        spaceOptions.value.push({
-          id: spaceId,
-        });
-      });
-      if (spaceOptions.value.length > 0) {
-     selectedSpaceOption.value = spaceOptions.value[0];
-     }
-    console.log('Updated Space Options:', spaceOptions.value);
-  } catch (error) {
-    console.error('Error fetching parking space details:', error);
+    const response = await fetch(`/api/statistics/spaces/${selectedParking.value}`);
+    const data = await response.json();
+    spaces.value = data.filteredResultData;
+ filteredSpaces.value=spaces.value;
+    filterSpaces();
+   } catch (error) {
+    console.error('Error fetching Spaces list:', error);
+  }
+  finally{
+  isLoadingSpace.value = false;
   }
 };
 
@@ -111,47 +120,14 @@ const fetchCarList = async ( ) => {
   }
 };
  
-const fetchParkingSessions = async () => {
-  try {
-    
-    customButtonsList.value.splice(0, customButtonsList.value.length);
-    if (!selectedParking.value || !selectedSpaceOption.value) {
-      return;}
-    const response = await fetch(`/api/statistics/spacestats/${selectedSpaceOption.value.id}`);
-    const data = await response.json();
-    const parkingSessions = data.sortData;
-      customButtonsList.value = parkingSessions.map((session) => {
-      
-        const date = new Date(session.entranceDate);
-
-const formattedDate =`${date.toISOString().split("T")[0]} ${date.toTimeString().split(" ")[0]}`;
-const date2 = new Date(session.leaveDate);
-
-const formattedDate2 =`${date2.toISOString().split("T")[0]} ${date2.toTimeString().split(" ")[0]}`;
-      return {
-        spot: selectedSpaceOption.value.id,
-        id: session.id,
-        date: formattedDate,
-        leaveDate: formattedDate2,
-        registrationNumber: session.registrationNumber,
-        name: session.name,
-        amount: session.totalCost,
-      };
-    });
-    const totalAmount = customButtonsList.value.reduce((sum, item) => sum + item.amount, 0);
-
-    sumForSpace.value = `${totalAmount.toFixed(2)}`;
-    console.log('Updated customButtonsList:', customButtonsList.value);
-  } catch (error) {
-    console.error('Error fetching parking sessions:', error);
-  }
-};
+ 
 
  
  
 
 const handleCustomButtonClick = (item) => {
-  const sessionsContent = item.sessions.map((session) => {
+  if(rightSelected.value=='Car')
+  {const sessionsContent = item.sessions.map((session) => {
     return `
       <p>Date: ${session.entranceDate}</p>
       <p>Leave Date: ${session.leaveDate}</p>
@@ -170,7 +146,24 @@ const handleCustomButtonClick = (item) => {
     <div class="sessions-list">${sessionsContent}</div>
   `;
 
-  openModal(content);
+  openModal(content);}
+  else if(rightSelected.value=='Space')
+  {const sessionsContent = item.sessions.map((session) => {
+    return `
+      <p>Date: ${session.entranceDate}</p>
+      <p>Leave Date: ${session.leaveDate}</p>
+      <p>Amount: ${session.totalCost} PLN</p>
+      <p>Name: ${session.carName}</p>
+      <p>Registration Number: ${session.registrationNumber}</p>
+      <hr />
+    `;
+  }).join('');
+
+  const content = `
+    <div class="sessions-list">${sessionsContent}</div>
+  `;
+
+  openModal(content);}
 };
 
 const openModal = (content) => {
@@ -191,6 +184,8 @@ const fetchParkings = async () => {
     parkings.value = data.data;
     filterParkings();
 filterCars();
+filterSpaces();
+
     if (parkings.value.length > 0) {
        selectParking(parkings.value[0].id, parkings.value[0].name);
     }
@@ -223,9 +218,7 @@ if (parkingId !== undefined   && parkings.value.some(parking => parking.id === p
   }
  
   selectedParkingName.value = selectedParkingData.name;
-  customButtonsCarList.value.splice(0, customButtonsCarList.value.length);
-  customButtonsList.value.splice(0, customButtonsList.value.length);
-  sumForSpace.value=null;
+  
 
    try {
     const response = await fetch(`/api/statistics/${selectedParking.value}`);
@@ -246,25 +239,7 @@ if (parkingId !== undefined   && parkings.value.some(parking => parking.id === p
 
 
 
-
-const watchSelectedSpaceOption = () => {
-  watch(selectedSpaceOption, (newOption, oldOption) => {
-    closeModal();
-
-     console.log('Selected Space Option changed:', newOption);
-    
-     fetchParkingSessions();
-  });
-};
-const watchSelectedCarOption = () => {
-  watch(selectedCarOption, (newOption, oldOption) => {
-    closeModal();
-
-     console.log('Selected Car Option changed:', newOption);
-    
-     fetchParkingCarDetails();
-  });
-};
+ 
 const watchselectedParking = () => {
   watch(selectedParking, (newOption, oldOption) => {
      console.log('Selected Parking Option changed:', newOption);
@@ -275,9 +250,7 @@ const watchselectedParking = () => {
 onMounted(async () => {
   closeModal();
   await watchselectedParking();
-  await watchSelectedSpaceOption();  
-  await watchSelectedCarOption();
-  await fetchParkings();
+   await fetchParkings();
 
 });
 </script>
@@ -353,34 +326,41 @@ onMounted(async () => {
     <p><span class="label">Cars parked to date</span> <span class="variable">{{ parkingInfo.carsParkedToDate }}</span></p>
     <p><span class="label">Sum of monthly costs</span> <span class="variable">{{ parkingInfo.sumOfMonthlyCosts }} PLN</span></p>
   </div>
-          <div v-if="rightSelected === 'Space'" class="space-content">
-            <div class="space-options-container">
-              <select v-model="selectedSpaceOption">
-                <option v-for="option in spaceOptions" :key="option.id" :value="option">
-                  Space {{ option.id }}
-                </option>
-              </select>
-            </div>
-            <div class="revenue-container">
-              <p>Revenue sum: <strong>{{ sumForSpace }} PLN</strong></p>
-            </div>
-            <div class="custom-buttons-container" ref="rightButtonsList">
+  <div v-if="rightSelected === 'Space'" class="space-content">
+    <div class="search-list">
+    <input
+      type="text"
+      id="searchPlaceNumber"
+      v-model="searchPlaceNumberQuery"
+      @input="filterSpaces"
+      placeholder="Search Places"
+    />
+     <input
+      type="text"
+      id="searchFloor"
+      v-model="searchFloorQuery"
+      @input="filterSpaces"
+      placeholder="Search Floor"
+    />
+  </div>
+
+  <div class="custom-buttons-container" ref="buttonsSpaceList">
   <button
-    v-for="item in customButtonsList"
-    :key="item.id"
+  v-if="!isLoadingSpace"
+     v-for="space in filteredSpaces"
+    :key="space.spaceId"
     class="custom-button"
-    @click="handleCustomButtonClick(item)"
+    @click="handleCustomButtonClick(space)"
   >
-    <div>  
-      <span class="custom-button-date">{{ new Date( item.date).toLocaleDateString('en-CA')}}</span>
-      <span class="custom-button-label">{{ item.name }}</span>
+  <div>  
+      <span class="custom-button-date">Number: {{ space.placeNumber }}</span>
+      <span class="custom-button-label">Floor: {{ space.floor }}</span>
     </div>
-    <span class="custom-button-amount">{{ item.amount }} PLN</span>
+    <span class="custom-button-amount">{{ space.sumForSpace }} PLN</span>
   </button>
 </div>
 
- 
-          </div>
+</div>
           <div v-if="rightSelected === 'Car'" class="space-content">
   <div class="search-list">
     <input
