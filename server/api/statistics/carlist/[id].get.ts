@@ -17,12 +17,8 @@ export default defineEventHandler(async (event) => {
      const parkingSessions = await prisma.parkingSession.findMany({
       where: {
         parkingId: Number(id),
-        leaveDate: {
-          not: null,
-        },
       },
     });
-
 
      const uniqueCarIds = [...new Set(parkingSessions.map((session) => session.carId))];
 

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="hasData">
+    <div v-if="hasData" class="chart-container">
       <Bar :data="chartData" :options="chartOptions" :width="chartWidth" :height="chartHeight" />
     </div>
     <div v-else>
@@ -91,5 +91,7 @@ export default {
 </script>
 
 <style scoped>
+.chart-container {
+ }
 </style>
 
