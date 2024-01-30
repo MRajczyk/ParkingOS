@@ -22,13 +22,21 @@ const openModal = (content) => {
 
 const handleCarButtonClick = (item) => {
   const content = `
-    <p>Space: ${item.spot}</p>
+    <p>Space: ${item.placeNumber}</p>
+    <p>Floor: ${item.floor}</p>
     <p>Date: ${item.date}</p>
     <p>LeaveDate: ${item.leaveDate} </p>
+    <p>Address: ${item.address} </p>
+    <p>LeaveDate: ${item.city} </p>
     <p>Parking Name: ${item.name}</p>
     <p>Amount: ${item.amount} PLN</p>
   `;
-  openModal(content);
+
+
+
+  
+        
+   openModal(content);
 };
 
   
@@ -71,12 +79,17 @@ const formattedDate2 =`${date2.toISOString().split("T")[0]} ${date2.toTimeString
         date: formattedDate,
         leaveDate: formattedDate2,
         registrationNumber: car.registrationNumber,
+        city: car.city,
+        placeNumber:car.placeNumber ,
+        carName:car.carName,
+        floor: car.floor,
+        address:car.address,
         name: car.name,
         amount: car.totalCost,
       });
 
-
-      });
+    
+});
       const totalAmount = customButtonsCarList.value.reduce((sum, item) => sum + item.amount, 0);
 sumForCar.value = `${totalAmount.toFixed(2)}`;
 
@@ -98,7 +111,7 @@ onMounted(async () => {
 <template>
   <TopBar>
     <div class="container">
-      <div class="selected-title">{{ carRegistration }}</div>
+      <div class="selected-title">Registration: {{ carRegistration }}</div>
 
       <div class="revenue-container">
         <p>Revenue sum: <strong>{{ sumForCar }} PLN</strong></p>
@@ -112,10 +125,10 @@ onMounted(async () => {
           @click="handleCarButtonClick(item)"
         >
           <div>
-            <span class="custom-button-date">{{ new Date(item.date).toLocaleDateString('en-CA') }}</span>
-            <span class="custom-button-label">Space {{ item.spot }}</span>
+            <span class="custom-button-date">Date:  {{ new Date(item.date).toLocaleDateString('en-CA') }},</span>
+            <span class="custom-button-label">Space:  {{ item.placeNumber }},   Floor:  {{ item.floor }}  </span>
           </div>
-          <span class="custom-button-amount">{{ item.amount }} PLN</span>
+          <span class="custom-button-amount">Amount:  {{ item.amount }} PLN</span>
         </button>
       </div>
     </div>

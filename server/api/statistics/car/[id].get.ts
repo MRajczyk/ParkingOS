@@ -12,9 +12,57 @@ export default defineEventHandler(async (event) => {
   const { id } = getRouterParams(event);
 
   try {
-   
-   const parkings = await prisma.parking.findMany();
-   
+    type ParkingSpaceInfo = {
+      spaceId: number;
+      floor: number;
+      placeNumber: number;
+      parkingName: string;
+      parkingAddress: string;
+      city: string;
+    };
+    
+    const parkingSpaceInfo: ParkingSpaceInfo[] = [];
+    
+    const allParkings = await prisma.parking.findMany();
+    
+    for (const parking of allParkings) {
+      const parkingSpaces = await prisma.parkingSpace.findMany({
+        orderBy: {
+          id: 'asc',
+        },
+      });
+    
+      const parkingSpacesOnFloor = parking.parkingPlacesPerFloor;
+      const totalFloors = parking.floors;
+    
+      let spaceIdCounter = 0;
+    
+      for (let floor = 1; floor <= totalFloors; floor++) {
+        for (let placeNumber = 1; placeNumber <= parkingSpacesOnFloor; placeNumber++) {
+          if (spaceIdCounter >= parkingSpaces.length) {
+            break;
+          }
+    
+          const space = parkingSpaces[spaceIdCounter];
+          const parkingSpace = {
+            spaceId: space.id,
+            floor,
+            placeNumber,
+            parkingName: parking.name,
+            parkingAddress: parking.address,
+            city: parking.city,
+          };
+    
+          parkingSpaceInfo.push(parkingSpace);
+          spaceIdCounter++;
+        }
+    
+        if (spaceIdCounter >= parkingSpaces.length) {
+          break;
+        }
+      }
+    }
+    
      const parkingSessions = await prisma.parkingSession.findMany({
       where: {
         carId:  Number(id),
@@ -22,11 +70,15 @@ export default defineEventHandler(async (event) => {
           not: null,
         },
       },
+      include: {
+        car: true,
+      },
     });
 
  
     const resultData = parkingSessions.map((session) => {
-      const parking = parkings.find((parking) => parking.id === session.parkingId);
+      const parking = allParkings.find((parking) => parking.id === session.parkingId);
+      const spaceInfo = parkingSpaceInfo.find(info => info.spaceId === session.spot);
 
       if (parking) {
         return {
@@ -35,7 +87,12 @@ export default defineEventHandler(async (event) => {
           leaveDate: session.leaveDate,
           totalCost: session.finalCost,
           name: parking.name,
-           spot: session.spot,
+          city: parking.city,
+          floor: spaceInfo.floor,
+          placeNumber: spaceInfo.placeNumber,
+          address: parking.address,
+            carName: session.car.name,
+           registrationNumber: session.car.registrationNumber,
         };
       } else {
         return null;
