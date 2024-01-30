@@ -7,8 +7,12 @@ import TopBar from "/components/TopBar.vue";
 const route = useRoute();
 const spaceId = Number(route.query.spaceId);  
  
+ 
 const isModalVisible = ref(false);
 const modalContent = ref('');
+
+const floor = ref('');
+const spaceNumber = ref('');
 
  
  const sumForSpace = ref(0);
@@ -71,6 +75,8 @@ const formattedDate2 =`${date2.toISOString().split("T")[0]} ${date2.toTimeString
       });
       const totalAmount = customButtonsSpaceList.value.reduce((sum, item) => sum + item.amount, 0);
 sumForSpace.value = `${totalAmount.toFixed(2)}`;
+floor.value=String(data.floor);
+spaceNumber.value=String(data.placeNumber);
 
    } catch (error) {
     console.error('Error fetching parking space details:', error);
@@ -90,7 +96,7 @@ onMounted(async () => {
   <TopBar>
     <div class="container">
     
-         <div class="selected-title">Space {{spaceId }}</div>
+         <div class="selected-title">Space {{ spaceNumber }}  Floor {{ floor}}</div>
 
             <div class="revenue-container">
               <p>Revenue sum: <strong>{{ sumForSpace }} PLN</strong></p>
@@ -105,10 +111,10 @@ onMounted(async () => {
     @click="handleSpaceButtonClick(item)"
   >
     <div>  
-      <span class="custom-button-date">{{ new Date( item.date).toLocaleDateString('en-CA')}}</span>
-      <span class="custom-button-label">{{ item.registrationNumber }}</span>
+      <span class="custom-button-date">Date: {{ new Date( item.date).toLocaleDateString('en-CA')}},</span>
+      <span class="custom-button-label">Registration: {{ item.registrationNumber }}</span>
     </div>
-    <span class="custom-button-amount">{{ item.amount }} PLN</span>
+    <span class="custom-button-amount">Amount: {{ item.amount }} PLN</span>
   </button>
 </div>
 
@@ -248,7 +254,6 @@ onMounted(async () => {
   cursor: pointer;
 }
  .modal {
-  line-height: 1.3;
     display: block;
     position: fixed;
     top: 50%;

@@ -327,22 +327,23 @@ onMounted(async () => {
     <p><span class="label">Sum of monthly costs</span> <span class="variable">{{ parkingInfo.sumOfMonthlyCosts }} PLN</span></p>
   </div>
   <div v-if="rightSelected === 'Space'" class="space-content">
-    <div class="search-list">
-    <input
-      type="text"
-      id="searchPlaceNumber"
-      v-model="searchPlaceNumberQuery"
-      @input="filterSpaces"
-      placeholder="Search Places"
-    />
-     <input
-      type="text"
-      id="searchFloor"
-      v-model="searchFloorQuery"
-      @input="filterSpaces"
-      placeholder="Search Floor"
-    />
-  </div>
+    <div class="search-list-space">
+  <input
+    type="text"
+    id="searchPlaceNumber"
+    v-model="searchPlaceNumberQuery"
+    @input="filterSpaces"
+    placeholder="Search Places"
+  />
+  <input
+    type="text"
+    id="searchFloor"
+    v-model="searchFloorQuery"
+    @input="filterSpaces"
+    placeholder="Search Floor"
+  />
+</div>
+
 
   <div class="custom-buttons-container" ref="buttonsSpaceList">
   <button
@@ -356,7 +357,7 @@ onMounted(async () => {
       <span class="custom-button-date">Number: {{ space.placeNumber }}</span>
       <span class="custom-button-label">Floor: {{ space.floor }}</span>
     </div>
-    <span class="custom-button-amount">{{ space.sumForSpace }} PLN</span>
+    <span class="custom-button-amount">Amount:{{ space.sumForSpace }} PLN</span>
   </button>
 </div>
 
@@ -382,10 +383,10 @@ onMounted(async () => {
     @click="handleCustomButtonClick(car)"
   >
   <div>  
-      <span class="custom-button-date">{{ car.carName }}</span>
-      <span class="custom-button-label">{{ car.registrationNumber }}</span>
+      <span class="custom-button-date">Name: {{ car.carName }}</span>
+      <span class="custom-button-label">Registration: {{ car.registrationNumber }}</span>
     </div>
-    <span class="custom-button-amount">{{ car.sumForCar }} PLN</span>
+    <span class="custom-button-amount">Amount: {{ car.sumForCar }} PLN</span>
   </button>
 </div>
 
@@ -474,8 +475,7 @@ onMounted(async () => {
 
 
 .search-list {
-  margin-top: 30px;
-  align-items: center;
+   align-items: center;
 
   position: relative;
   display: flex;
@@ -500,6 +500,27 @@ margin-right:42.5%;
   background-color: white;
 }
  
+.search-list-space {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30px;
+  margin-bottom: 30px;
+
+}
+
+.search-list-space input {
+  border-radius: 14px;
+  padding-left: 10px;
+  padding-bottom: 10px;
+  padding-top: 10px;
+  padding-right: 20px;
+  margin: 0 5px;  
+  box-sizing: border-box;
+  color: #333;
+  background-color: white;
+}
+
 
 
 .buttons-container {
@@ -638,38 +659,8 @@ margin-right:42.5%;
 height: 100%;
   
  }
-
-.space-options-container {
-  text-align: center;
-   display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-
  
-}
-
-select {
-  padding: 10px;
-  border-radius: 14px;
-   width: 30%;
-  margin-top: 30px;
-    margin-bottom: 30px;
-  color: #333;
-  background-color: #eef0e5;
-}
-
-.revenue-container {
-  text-align: center;
-  align-items: center;
-   color: #000000;
-   margin-left: 33%;
-  margin-right: 33%;
-  margin-bottom: 20px;
-  position: relative;
-
-  width: 34%;
- }
+ 
 
 .custom-buttons-container {
   overflow-y: auto;
@@ -715,14 +706,6 @@ select {
    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
   width:35%;
    }
-
-   
-  
-   
-
-  
-   
-   
 .custom-button.active {
   background-color: #DDE7DD;
   box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
@@ -738,7 +721,7 @@ select {
  }
 
 .custom-button-label {
-  margin-left:10px;
+  margin-left:15px;
 
  }
 
