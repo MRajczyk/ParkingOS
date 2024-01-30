@@ -14,6 +14,7 @@ const isCostAmountError = ref(false);
 const postSuccess = ref("");
 const postError = ref("");
 
+
 function addNewCost() {
   postSuccess.value = "";
   postError.value = "";
@@ -47,36 +48,18 @@ function addNewCost() {
 <template>
   <TopBar>
     <div class="add-cost-content">
-      <form
-        v-on:submit.prevent="onsubmit"
-        class="add-cost-form"
-        method="POST"
-        @submit="addNewCost()"
-      >
+      <form v-on:submit.prevent="onsubmit" class="add-cost-form" method="POST" @submit="addNewCost()">
         <h3 class="add-cost-heading">Add cost</h3>
         <div class="setting-wrapper">
           <label class="label">Cost name</label>
-          <input
-            form="none"
-            type="text"
-            name="cost-name"
-            v-model="costName"
-            class="add-cost-input"
-          />
+          <input form="none" type="text" name="cost-name" v-model="costName" class="add-cost-input" />
           <span class="info-span" style="color: red" v-if="isCostNameError">
             Incorrect cost name
           </span>
         </div>
         <div class="setting-wrapper">
           <label class="label">Cost amount in PLN</label>
-          <input
-            form="none"
-            type="number"
-            step="0.5"
-            name="cost-amount"
-            v-model="costAmount"
-            class="add-cost-input"
-          />
+          <input form="none" type="number" step="0.5" name="cost-amount" v-model="costAmount" class="add-cost-input" />
           <span class="info-span" style="color: red" v-if="isCostAmountError">
             Incorrect cost amount
           </span>
@@ -84,22 +67,13 @@ function addNewCost() {
         <span class="info-span" style="color: red" v-if="postError.length > 0">
           {{ postError }}
         </span>
-        <span
-          class="info-span"
-          style="color: green"
-          v-if="postSuccess.length > 0"
-        >
+        <span class="info-span" style="color: green" v-if="postSuccess.length > 0">
           {{ postSuccess }}
         </span>
 
         <div class="add-cost-navigation-buttons-container">
+          <NuxtLink type="submit" :to="`/admin/costs/${parkingId}`" class="add-cost-form-button">Back</NuxtLink>
           <button type="submit" class="add-cost-form-button">Add</button>
-          <NuxtLink
-            type="submit"
-            :to="`/admin/costs/${parkingId}`"
-            class="add-cost-form-button"
-            >Back</NuxtLink
-          >
         </div>
       </form>
     </div>
