@@ -19,6 +19,7 @@ onMounted(() => {
   axios
     .get(`http://localhost:3000/api/admin/costs/${parkingId}`)
     .then((response) => {
+      console.log(response.data.data);
       costsInitial = response.data.data;
       costsFiltered.value = costsInitial;
     })
@@ -75,15 +76,35 @@ watch(
   <TopBar>
     <div class="costs">
       <div class="costs-container">
-      <h1 style="margin-top: 50px;">{{ parkingName }}</h1>
+        <h1 style="margin-top: 50px">{{ parkingName }}</h1>
         <div class="costs-buttons-container">
           <NuxtLink to="/admin/parkings" class="add-cost-button">Back</NuxtLink>
-          <NuxtLink :to="`/admin/costs/${parkingId}/add`" class="add-cost-button">Add cost</NuxtLink>
+          <NuxtLink
+            :to="`/admin/costs/${parkingId}/add`"
+            class="add-cost-button"
+            >Add cost</NuxtLink
+          >
         </div>
-        <input name="filterInput" v-model="filterInput" class="cost-search-input" placeholder="Search" type="text" />
-        <CostContainer v-for="cost in costsFiltered" :costId="Number.parseInt(cost.id)"
-          :parkingId="Number.parseInt(parkingId)" :costName="cost.costName" :costValue="cost.costValue"
-          :discardCallback="removeCost" />
+        <input
+          name="filterInput"
+          v-model="filterInput"
+          class="cost-search-input"
+          placeholder="Search"
+          type="text"
+        />
+        <CostContainer
+          v-for="cost in costsFiltered"
+          :costId="Number.parseInt(cost.id)"
+          :parkingId="Number.parseInt(parkingId)"
+          :costName="cost.costName"
+          :costValue="cost.costValue"
+          :discardCallback="removeCost"
+          :cyclic="cost.cyclic"
+          :startMonth="cost.startMonth"
+          :startYear="cost.startYear"
+          :endMonth="cost.endMonth"
+          :endYear="cost.endYear"
+        />
       </div>
     </div>
   </TopBar>

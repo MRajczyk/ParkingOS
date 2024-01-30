@@ -26,9 +26,9 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-     const transformedSessions = parkingSessions.map(session => {
+    const transformedSessions = parkingSessions.map((session) => {
       return {
-        id:session.id,
+        id: session.id,
         leaveDate: formatDate(session.leaveDate),
         finalCost: session.finalCost,
       };
@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
 
     return {
       statusCode: 200,
-       transformedSessions,
+      transformedSessions,
     };
   } catch (error) {
     console.error(error);
@@ -49,7 +49,7 @@ export default defineEventHandler(async (event) => {
   }
 });
 
- function formatDate(date) {
+function formatDate(date) {
   const formattedDate = new Date(date);
   return formattedDate.toISOString().split("T")[0];
 }

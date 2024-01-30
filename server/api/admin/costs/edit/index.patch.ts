@@ -33,7 +33,32 @@ export default eventHandler(async (event) => {
     !body.costName ||
     body.costName.length === 0 ||
     !body.costValue ||
-    body.costValue < 0
+    Number.isNaN(body.costValue) ||
+    Number.parseInt(body.costValue) < 0
+  ) {
+    throw createError({
+      statusMessage: "Invalid value or name of the cost",
+      statusCode: 404,
+    });
+  }
+
+  if (
+    body.isCyclic === undefined ||
+    body.startMonth === undefined ||
+    Number.isNaN(body.startMonth) ||
+    Number.parseInt(body.startMonth) < 0 ||
+    body.startYear === undefined ||
+    Number.isNaN(body.startYear) ||
+    Number.parseInt(body.startYear) < 0 ||
+    (body.endMonth === undefined && body.endYear) ||
+    (body.endMonth && !body.endYear) ||
+    (body.endMonth &&
+      body.endYear &&
+      (Number.isNaN(body.endYear) ||
+        Number.isNaN(body.endMonth) ||
+        Number.parseInt(body.endMonth) < 0 ||
+        Number.parseInt(body.endYear) < 0 ||
+        body.isCyclic === false))
   ) {
     throw createError({
       statusMessage: "Invalid value or name of the cost",
@@ -50,6 +75,11 @@ export default eventHandler(async (event) => {
       data: {
         costName: body.costName,
         costValue: Number.parseFloat(body.costValue),
+        cyclic: body.isCyclic,
+        startMonth: Number.parseInt(body.startMonth),
+        startYear: Number.parseInt(body.startYear),
+        endMonth: Number.parseInt(body.endMonth),
+        endYear: Number.parseInt(body.endYear),
       },
     });
 

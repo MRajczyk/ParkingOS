@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "#auth";
 
+//endpoint do zmiany
 export default defineEventHandler(async (event) => {
   const prisma: PrismaClient = event.context.prisma;
   const session = await getServerSession(event);
@@ -12,29 +13,21 @@ export default defineEventHandler(async (event) => {
   const { id } = getRouterParams(event);
 
   try {
-    const sumOfMonthlyCosts = await prisma.monthlyCost.aggregate({
+    const sumOfMonthlyCosts = await prisma.monthlyCost.findMany({
       where: {
         parkingId: Number(id),
       },
-      _sum: {
-        costValue: true,
-      },
     });
 
- 
     return {
       statusCode: 200,
-   
-        sum: sumOfMonthlyCosts._sum.costValue || 0,
-      
+      costs: sumOfMonthlyCosts,
     };
   } catch (error) {
     console.error(error);
     throw createError({
-      statusMessage: "Error fetching parking details",
+      statusMessage: "Error fetching parking's costs",
       statusCode: 500,
     });
-  } finally {
-    await prisma.$disconnect();
   }
 });

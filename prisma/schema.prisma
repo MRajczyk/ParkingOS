@@ -103,4 +103,9 @@ model MonthlyCost {
     parkingId   Int 
     costName    String
     costValue   Float
+    startYear   Int
+    startMonth  Int
+    endYear     Int?
+    endMonth    Int?
+    cyclic      Boolean
 }

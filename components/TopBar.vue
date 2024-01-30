@@ -1,5 +1,8 @@
 <script setup>
+import axios from "axios";
 const { data: session, status, signOut } = useAuth();
+
+const userName = ref("");
 
 function hideBurger() {
   const burgerOptions = document.getElementById("burger-options");
@@ -14,6 +17,20 @@ function hideBurger() {
     burgerButton.style.backgroundColor = "white";
   }
 }
+
+onMounted(() => {
+  if (session.value.user.role === "USER") {
+    axios
+      .get("http://localhost:3000/api/profiles/" + session.value.user.id)
+      .then((response) => {
+        console.log(response.data.data.name);
+        userName.value = response.data.data.name;
+      })
+      .catch((error) => {
+        alert(error);
+      });
+  }
+});
 </script>
 
 <template>
@@ -34,7 +51,14 @@ function hideBurger() {
         <NuxtLink to="/payment" class="profile-link">Payment</NuxtLink>
       </div>
       <NuxtLink to="/" class="topbar-title"> ParkingOS </NuxtLink>
+      <span class="welcome-text-burger"
+        >Hello, <b>{{ userName }}</b></span
+      >
       <div class="topbar-buttons" style="padding-right: 16px">
+        <span class="welcome-text"
+          >Hello, <b>{{ userName }}</b></span
+        >
+        <span class="split" style="font-weight: 200">|</span>
         <NuxtLink to="/account/user-data" class="profile-link"
           >Account</NuxtLink
         >
@@ -80,7 +104,10 @@ function hideBurger() {
         <NuxtLink to="/admin/liveview" class="profile-link">Live View</NuxtLink>
       </div>
       <NuxtLink to="/" class="topbar-title"> ParkingOS </NuxtLink>
+      <span class="welcome-text-burger">Hello, <b>Admin!</b></span>
       <div class="topbar-buttons" style="padding-right: 16px">
+        <span class="welcome-text">Hello, <b>Admin!</b></span>
+        <span class="split" style="font-weight: 200">|</span>
         <NuxtLink to="/admin/statistics" class="profile-link"
           >Statistics</NuxtLink
         >
@@ -116,6 +143,13 @@ function hideBurger() {
 </template>
 
 <style scoped>
+.welcome-text {
+  display: none;
+}
+
+.welcome-text-burger {
+  display: none;
+}
 .container {
   display: flex;
   height: 100%;
@@ -194,6 +228,8 @@ function hideBurger() {
   border: none;
 }
 
+.welcome-text-burger,
+.welcome-text,
 .recipes,
 .profile-link,
 .create,
@@ -220,7 +256,21 @@ a.logout:hover,
   cursor: pointer;
 }
 
-@media screen and (min-width: 900px) {
+@media screen and (min-width: 550px) {
+  .welcome-text-burger {
+    display: inline-block;
+    position: absolute;
+    right: 6px;
+  }
+}
+
+@media screen and (min-width: 1050px) {
+  .welcome-text-burger {
+    display: none;
+  }
+  .welcome-text {
+    display: inline-block;
+  }
   .burger-options {
     display: none;
   }

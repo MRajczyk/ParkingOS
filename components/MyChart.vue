@@ -1,7 +1,12 @@
 <template>
   <div>
     <div v-if="hasData" class="chart-container">
-      <Bar :data="chartData" :options="chartOptions" :width="chartWidth" :height="chartHeight" />
+      <Bar
+        :data="chartData"
+        :options="chartOptions"
+        :width="chartWidth"
+        :height="chartHeight"
+      />
     </div>
     <div v-else>
       <p>No data available.</p>
@@ -10,13 +15,21 @@
 </template>
 
 <script>
-import { Bar } from 'vue-chartjs';
-import { Chart, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js';
+import { Bar } from "vue-chartjs";
+import {
+  Chart,
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+} from "chart.js";
 
 Chart.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
 export default {
-  name: 'BarChart',
+  name: "BarChart",
   components: { Bar },
   props: {
     chartLabels: {
@@ -27,13 +40,25 @@ export default {
       type: Array,
       required: true,
     },
+    chartCostValues: {
+      type: Array,
+      required: true,
+    },
     chartLabel: {
       type: String,
-      default: 'Revenue',
+      default: "Revenue",
+    },
+    chartLabelCosts: {
+      type: String,
+      default: "Costs",
     },
     chartBackgroundColor: {
       type: String,
-      default: '#304D30',
+      default: "#304D30",
+    },
+    chartBackgroundColorRed: {
+      type: String,
+      default: "#FF0000",
     },
     chartWidth: {
       type: Number,
@@ -56,8 +81,15 @@ export default {
             label: this.chartLabel,
             backgroundColor: this.chartBackgroundColor,
             data: this.chartDataValues,
-          }
-        ]
+            stack: "stack 0",
+          },
+          {
+            label: this.chartLabelCosts,
+            backgroundColor: this.chartBackgroundColorRed,
+            data: this.chartCostValues.map((cost) => cost * -1),
+            stack: "stack 0",
+          },
+        ],
       };
     },
     chartOptions() {
@@ -65,14 +97,16 @@ export default {
         scales: {
           x: {
             grid: {
-              display: false,  
+              display: false,
             },
           },
           y: {
-            beginAtZero: true,
+            //tu sie gmera ze stackowaniem
+            stacked: true,
+            // beginAtZero: true,
             ticks: {
               callback: function (value) {
-                return value + ' PLN';
+                return value + " PLN";
               },
             },
           },
@@ -92,6 +126,5 @@ export default {
 
 <style scoped>
 .chart-container {
- }
+}
 </style>
-
