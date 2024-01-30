@@ -73,7 +73,7 @@ export default eventHandler(async (event) => {
         cyclic: body.isCyclic,
         startMonth: Number.parseInt(body.startMonth),
         startYear: Number.parseInt(body.startYear),
-        endMonth: Number.parseInt(body.endYear),
+        endMonth: Number.parseInt(body.endMonth),
         endYear: Number.parseInt(body.endYear),
       },
     });

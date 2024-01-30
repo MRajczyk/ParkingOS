@@ -16,35 +16,38 @@ const calculateYears = () => {
 };
 
 const years = calculateYears();
+const yearsEnd = calculateYears();
+yearsEnd.push(undefined);
 
 const monthsStart = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+  { idx: 0, name: "January" },
+  { idx: 1, name: "February" },
+  { idx: 2, name: "March" },
+  { idx: 3, name: "April" },
+  { idx: 4, name: "May" },
+  { idx: 5, name: "June" },
+  { idx: 6, name: "July" },
+  { idx: 7, name: "August" },
+  { idx: 8, name: "September" },
+  { idx: 9, name: "October" },
+  { idx: 10, name: "November" },
+  { idx: 11, name: "December" },
 ];
+
 const monthsEnd = [
-  "",
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+  { idx: 0, name: "January" },
+  { idx: 1, name: "February" },
+  { idx: 2, name: "March" },
+  { idx: 3, name: "April" },
+  { idx: 4, name: "May" },
+  { idx: 5, name: "June" },
+  { idx: 6, name: "July" },
+  { idx: 7, name: "August" },
+  { idx: 8, name: "September" },
+  { idx: 9, name: "October" },
+  { idx: 10, name: "November" },
+  { idx: 11, name: "December" },
+  { id: 12, name: "" },
 ];
 
 const route = useRoute();
@@ -57,15 +60,13 @@ const costName = ref("");
 const isCostNameError = ref(false);
 const costAmount = ref("");
 const isCostAmountError = ref(false);
-const isCyclic = ref("");
-const startMonth = ref(1);
-const isStartMonthError = ref(false);
+const isCyclic = ref(false);
+const startMonth = ref(monthsStart[new Date().getMonth()]);
 const startYear = ref(new Date().getFullYear());
-const isStartYearError = ref(false);
+const isStartDateError = ref(false);
 const endMonth = ref(undefined);
-const isEndMonthError = ref(false);
 const endYear = ref(undefined);
-const isEndYearError = ref(false);
+const isEndDateError = ref(false);
 
 onMounted(() => {
   axios
@@ -73,6 +74,11 @@ onMounted(() => {
     .then((response) => {
       costName.value = response.data.data.costName;
       costAmount.value = response.data.data.costValue;
+      isCyclic.value = response.data.data.cyclic;
+      startMonth.value = monthsStart[response.data.data.startMonth];
+      startYear.value = response.data.data.startYear;
+      endMonth.value = monthsEnd[response.data.data.endMonth];
+      endYear.value = response.data.data.endYear;
     })
     .catch((error) => {
       alert(error);
@@ -87,20 +93,58 @@ function updateCost() {
   putError.value = "";
   isCostNameError.value = false;
   isCostAmountError.value = false;
+  isStartDateError.value = false;
+  isEndDateError.value = false;
 
   if (costName.value.length === 0) {
     isCostNameError.value = true;
+    return;
   }
-  if (costAmount < 0) {
+
+  if (!costAmount.value || costAmount.value < 0) {
     isCostAmountError.value = true;
     return;
   }
+
+  //handle no start date
+  if (!startMonth.value || !startYear.value) {
+    isStartDateError.value = true;
+    return;
+  }
+
+  //handle cyclic and missing either year or month (have to check for month with empty name)
+  if (
+    (isCyclic.value &&
+      endYear.value &&
+      (!endMonth.value.name || (endMonth.value && !endMonth.value.name))) ||
+    (isCyclic.value && !endYear.value && endMonth.value && endMonth.value.name)
+  ) {
+    isEndDateError.value = true;
+    return;
+  }
+
+  //handle start date >= end date
+  if (
+    isCyclic.value &&
+    endMonth.value &&
+    new Date(startYear.value, startMonth.value.idx, 1).getTime() >=
+      new Date(endYear.value, endMonth.value.idx, 1).getTime()
+  ) {
+    isEndDateError.value = true;
+    return;
+  }
+
   axios
     .patch(`http://localhost:3000/api/admin/costs/edit`, {
       parkingId: parkingId,
       costId: costId,
       costName: costName.value,
       costValue: costAmount.value,
+      isCyclic: isCyclic.value,
+      startMonth: startMonth.value.idx,
+      startYear: startYear.value,
+      endMonth: endMonth.value ? endMonth.value.idx : undefined,
+      endYear: endYear.value,
     })
     .then((response) => {
       putSuccess.value = response.data.statusMessage;
@@ -120,13 +164,13 @@ function updateCost() {
         method="PUT"
         @submit="updateCost()"
       >
-        <h3 class="add-cost-heading">Edit cost info</h3>
+        <h3 class="add-cost-heading">Add cost</h3>
         <div class="setting-wrapper">
           <label class="label">Cost name</label>
           <input
             form="none"
             type="text"
-            name="costName"
+            name="cost-name"
             v-model="costName"
             class="add-cost-input"
           />
@@ -140,7 +184,7 @@ function updateCost() {
             form="none"
             type="number"
             step="0.5"
-            name="costAmount"
+            name="cost-amount"
             v-model="costAmount"
             class="add-cost-input"
           />
@@ -148,19 +192,94 @@ function updateCost() {
             Incorrect cost amount
           </span>
         </div>
-        <div class="setting-wrapper">
+        <div
+          class="setting-wrapper"
+          style="display: flex; align-items: start; flex-direction: column"
+        >
           <label class="label">Cyclic cost</label>
-          <input form="none" type="checkbox" v-model="isCyclic" />
+          <input
+            form="none"
+            type="checkbox"
+            style="margin: 10px; margin-bottom: 0px; height: 20px; width: 20px"
+            v-model="isCyclic"
+          />
         </div>
         <div class="setting-wrapper">
-          <label class="label">Date start</label>
-          <select v-model="ticketId">
-            <option v-for="year in years" :key="year" :value="year">
-              {{ year }}
-            </option>
-          </select>
-          <span class="info-span" style="color: red" v-if="isCostAmountError">
-            Incorrect cost amount
+          <div style="display: flex; flex-direction: row; gap: 10px">
+            <div>
+              <label class="label">Month start</label>
+              <select
+                v-model="startMonth"
+                class="add-cost-input"
+                style="width: 120px"
+              >
+                <option
+                  v-for="month in monthsStart"
+                  :key="month.name + `start`"
+                  :value="month"
+                >
+                  {{ month.name }}
+                </option>
+              </select>
+            </div>
+            <div>
+              <label class="label">Year start</label>
+              <select
+                v-model="startYear"
+                class="add-cost-input"
+                style="width: 80px"
+              >
+                <option
+                  v-for="year in years"
+                  :key="year + `start`"
+                  :value="year"
+                >
+                  {{ year }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <span class="info-span" style="color: red" v-if="isStartDateError">
+            Select correct date
+          </span>
+        </div>
+        <div class="setting-wrapper" v-if="isCyclic">
+          <div style="display: flex; flex-direction: row; gap: 10px">
+            <div>
+              <label class="label">Month end</label>
+              <select
+                v-model="endMonth"
+                class="add-cost-input"
+                style="width: 120px"
+              >
+                <option
+                  v-for="month in monthsEnd"
+                  :key="month.name + `end`"
+                  :value="month"
+                >
+                  {{ month.name }}
+                </option>
+              </select>
+            </div>
+            <div>
+              <label class="label">Year end</label>
+              <select
+                v-model="endYear"
+                class="add-cost-input"
+                style="width: 80px"
+              >
+                <option
+                  v-for="year in yearsEnd"
+                  :key="year + `end`"
+                  :value="year"
+                >
+                  {{ year }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <span class="info-span" style="color: red" v-if="isEndDateError">
+            Select correct date
           </span>
         </div>
         <span class="info-span" style="color: red" v-if="putError.length > 0">
@@ -174,13 +293,13 @@ function updateCost() {
           {{ putSuccess }}
         </span>
         <div class="add-cost-navigation-buttons-container">
-          <button type="submit" class="add-cost-form-button">Save</button>
           <NuxtLink
             type="submit"
             :to="`/admin/costs/${parkingId}`"
             class="add-cost-form-button"
             >Back</NuxtLink
           >
+          <button type="submit" class="add-cost-form-button">Save</button>
         </div>
       </form>
     </div>
