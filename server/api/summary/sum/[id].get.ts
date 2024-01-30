@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "#auth";
 
+//endpoint do zmiany
 export default defineEventHandler(async (event) => {
   const prisma: PrismaClient = event.context.prisma;
   const session = await getServerSession(event);
@@ -21,12 +22,10 @@ export default defineEventHandler(async (event) => {
       },
     });
 
- 
     return {
       statusCode: 200,
-   
-        sum: sumOfMonthlyCosts._sum.costValue || 0,
-      
+
+      sum: sumOfMonthlyCosts._sum.costValue || 0,
     };
   } catch (error) {
     console.error(error);

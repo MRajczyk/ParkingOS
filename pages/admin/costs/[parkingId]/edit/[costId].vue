@@ -3,6 +3,50 @@ import TopBar from "/components/TopBar.vue";
 import axios from "axios";
 definePageMeta({ middleware: "auth" });
 
+const calculateYears = () => {
+  const currentYear = new Date().getFullYear();
+
+  const tempYears = [];
+  let yearToAddToAnArray = 2020;
+  while (yearToAddToAnArray <= currentYear) {
+    tempYears.push(yearToAddToAnArray);
+    yearToAddToAnArray++;
+  }
+  return tempYears;
+};
+
+const years = calculateYears();
+
+const monthsStart = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+const monthsEnd = [
+  "",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
 const route = useRoute();
 const parkingId = route.params.parkingId;
 const costId = route.params.costId;
@@ -13,6 +57,15 @@ const costName = ref("");
 const isCostNameError = ref(false);
 const costAmount = ref("");
 const isCostAmountError = ref(false);
+const isCyclic = ref("");
+const startMonth = ref(1);
+const isStartMonthError = ref(false);
+const startYear = ref(new Date().getFullYear());
+const isStartYearError = ref(false);
+const endMonth = ref(undefined);
+const isEndMonthError = ref(false);
+const endYear = ref(undefined);
+const isEndYearError = ref(false);
 
 onMounted(() => {
   axios
@@ -91,6 +144,21 @@ function updateCost() {
             v-model="costAmount"
             class="add-cost-input"
           />
+          <span class="info-span" style="color: red" v-if="isCostAmountError">
+            Incorrect cost amount
+          </span>
+        </div>
+        <div class="setting-wrapper">
+          <label class="label">Cyclic cost</label>
+          <input form="none" type="checkbox" v-model="isCyclic" />
+        </div>
+        <div class="setting-wrapper">
+          <label class="label">Date start</label>
+          <select v-model="ticketId">
+            <option v-for="year in years" :key="year" :value="year">
+              {{ year }}
+            </option>
+          </select>
           <span class="info-span" style="color: red" v-if="isCostAmountError">
             Incorrect cost amount
           </span>
