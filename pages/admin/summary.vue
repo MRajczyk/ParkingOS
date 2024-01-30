@@ -55,13 +55,15 @@ const monthsshort = ref([
 ]);
 const labels = ref([]);
 const precisionrevenu = ref([]);
+const precisionCosts = ref([]);
 
 const searchQuery = ref("");
 const isLoading = ref(true);
 
-const sumOfMonthlyCosts = ref(0);
+const monthlyCosts = ref([]);
 const chartData = ref([]);
 const monthsRevenue = ref([]);
+const monthsCosts = ref([]);
 const filteredMonths = ref([]);
 
 const filterParkings = () => {
@@ -90,7 +92,7 @@ const selectParking = async (id) => {
   let selectedParkingData;
 
   chartFlag.value = false;
-  sumOfMonthlyCosts.value = 0;
+  monthlyCosts.value = [];
   years.value = [];
   monthsRevenue.value = [];
   periods.value = [];
@@ -137,14 +139,14 @@ const fetchSummary = async () => {
   if (!selectedParking.value) {
     return;
   }
-  //tu jest patologiczny endpoint z kosztami, mozna go reuse zrobic, ale zmienic ofc
-  // try {
-  //   const response = await fetch(`/api/summary/sum/${selectedParking.value}`);
-  //   const data = await response.json();
-  //   sumOfMonthlyCosts.value = data.sum;
-  // } catch (error) {
-  //   console.error(error);
-  // }
+
+  try {
+    const response = await fetch(`/api/summary/sum/${selectedParking.value}`);
+    const data = await response.json();
+    monthlyCosts.value = data.costs;
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 const addYearsFromChartData = () => {
@@ -157,7 +159,18 @@ const addYearsFromChartData = () => {
 
       uniqueYears.add(year);
     });
-    uniqueYears.add(2023);
+
+    //tu dodaje lata w ktorych sie koszty zaczynaly
+    monthlyCosts.value.forEach((item) => {
+      const currentYear = new Date().getFullYear();
+      const cyclicCostStartYear = new Date(item.startYear, 1, 1).getFullYear();
+
+      let iteratorYears = cyclicCostStartYear;
+      while (iteratorYears <= currentYear) {
+        uniqueYears.add(iteratorYears);
+        iteratorYears++;
+      }
+    });
 
     const yearsList = Array.from(uniqueYears).sort((a, b) => b - a);
     years.value = yearsList;
@@ -180,6 +193,7 @@ const addYearsFromChartData = () => {
   }
 };
 
+//patrzec moze jakos na koszty
 const generatePeriodRange = () => {
   periods.value = [];
 
@@ -207,9 +221,46 @@ const calculateMonthlyRevenue = () => {
   monthsRevenue.value = [];
   if (selectedParking.value !== null && years.value.length > 0) {
     const monthlyRevenue = Array.from({ length: 12 }, () => 0);
+    const monthlyCostAmount = Array.from({ length: 12 }, () => 0);
 
     //tutaj filtruje sobie hajs z sesyjek
     //todo: pomylec czy tu tez nie filtrowac kosztów, ale to TODO:  w kosztach tez zwracac z ep wszystkie dane i paczec po roku + jezeli jest finish date to czy miesiac jest winkszy
+    monthlyCosts.value.forEach((cost) => {
+      if (!cost.cyclic) {
+        if (cost.startYear === Number(selectedYear.value)) {
+          monthlyCostAmount[cost.startMonth] += Number(cost.costValue);
+        }
+      } else {
+        if (cost.startYear === Number(selectedYear.value)) {
+          if (cost.endYear) {
+            if (cost.endYear > Number(selectedYear.value)) {
+              for (let i = cost.startMonth; i < 12; ++i) {
+                monthlyCostAmount[i] += Number(cost.costValue);
+              }
+            } else if (cost.endYear === Number(selectedYear.value)) {
+              for (let i = cost.startMonth; i <= cost.endMonth; ++i) {
+                monthlyCostAmount[i] += Number(cost.costValue);
+              }
+            }
+          } else {
+            for (let i = cost.startMonth; i < 12; ++i) {
+              monthlyCostAmount[i] += Number(cost.costValue);
+            }
+          }
+        } else if (cost.startYear < Number(selectedYear.value)) {
+          if (cost.endYear > Number(selectedYear.value)) {
+            for (let i = 0; i < 12; ++i) {
+              monthlyCostAmount[i] += Number(cost.costValue);
+            }
+          } else if (cost.endYear === Number(selectedYear.value)) {
+            for (let i = 0; i <= cost.endMonth; ++i) {
+              monthlyCostAmount[i] += Number(cost.costValue);
+            }
+          }
+        }
+      }
+    });
+
     const filteredChartData = chartData.value.filter((item) => {
       const leaveDate = new Date(item.leaveDate);
 
@@ -223,13 +274,17 @@ const calculateMonthlyRevenue = () => {
     });
 
     monthsRevenue.value = monthlyRevenue;
+    monthsCosts.value = monthlyCostAmount;
+    console.log(monthlyCostAmount);
   }
 };
 
+//ta funkcja dodaje do tablicy dane do wyswietlenia na wyrkesie - precisionrevenu (xd) to po kolei hajs dla danego miesiaca co jest labels
 const generateValues = () => {
   chartFlag.value = false;
   labels.value = [];
   precisionrevenu.value = [];
+  precisionCosts.value = [];
   if (selectedParking.value !== null && selectedPeriod.value != null) {
     const selectedMonthIndex = Number(selectedMonth.value.id) - 1;
     const selectedPeriodValue = Number(selectedPeriod.value);
@@ -239,10 +294,8 @@ const generateValues = () => {
 
     for (let i = startMonthIndex; i < endMonthIndex; i++) {
       labels.value.push(monthsshort.value[i].name);
-      precisionrevenu.value.push(
-        //tu sie to to wylicza zysk - koszty
-        Number(monthsRevenue.value[i]) - Number(sumOfMonthlyCosts.value)
-      );
+      precisionrevenu.value.push(Number(monthsRevenue.value[i]));
+      precisionCosts.value.push(Number(monthsCosts.value[i]));
     }
     if (years.value.length > 0) chartFlag.value = true;
   }
@@ -250,42 +303,42 @@ const generateValues = () => {
 
 const generateMonthOptions = () => {
   filteredMonths.value = [];
+  filteredMonths.value = months.value;
+  // if (selectedParking.value !== null && years.value.length > 0) {
+  //   const currentYear = new Date().getFullYear();
+  //   const selectedYearValue = selectedYear.value;
 
-  if (selectedParking.value !== null && years.value.length > 0) {
-    const currentYear = new Date().getFullYear();
-    const selectedYearValue = selectedYear.value;
+  //   let minimumMonth = 1;
+  //   let maximumMonth = 12;
 
-    let minimumMonth = 1;
-    let maximumMonth = 12;
+  //   //tu moze zostawie narazie tak, albo w ogole zmienie zeby zawsze od poczatku roku sie dalo
+  //   if (Number(selectedYearValue) === currentYear) {
+  //     minimumMonth = 1;
+  //     maximumMonth = new Date().getMonth() + 1;
+  //   } else if (Number(selectedYearValue) === Math.min(...years.value)) {
+  //     const earliestLeaveDate = new Date(
+  //       Math.min(
+  //         ...chartData.value
+  //           .filter(
+  //             (item) =>
+  //               new Date(item.leaveDate).getFullYear() ===
+  //               Number(selectedYearValue)
+  //           )
+  //           .map((item) => new Date(item.leaveDate).getTime())
+  //       )
+  //     );
+  //     minimumMonth = earliestLeaveDate.getMonth() + 1;
+  //     if (!minimumMonth) {
+  //       minimumMonth = 1;
+  //     }
 
-    //tu moze zostawie narazie tak, albo w ogole zmienie zeby zawsze od poczatku roku sie dalo!
-    if (Number(selectedYearValue) === currentYear) {
-      minimumMonth = 1;
-      maximumMonth = new Date().getMonth() + 1;
-    } else if (Number(selectedYearValue) === Math.min(...years.value)) {
-      const earliestLeaveDate = new Date(
-        Math.min(
-          ...chartData.value
-            .filter(
-              (item) =>
-                new Date(item.leaveDate).getFullYear() ===
-                Number(selectedYearValue)
-            )
-            .map((item) => new Date(item.leaveDate).getTime())
-        )
-      );
-      minimumMonth = earliestLeaveDate.getMonth() + 1;
-      if (!minimumMonth) {
-        minimumMonth = 1;
-      }
+  //     maximumMonth = 12;
+  //   }
 
-      maximumMonth = 12;
-    }
-
-    filteredMonths.value = months.value.filter(
-      (month) => month.id >= minimumMonth && month.id <= maximumMonth
-    );
-  }
+  //   filteredMonths.value = months.value.filter(
+  //     (month) => month.id >= minimumMonth && month.id <= maximumMonth
+  //   );
+  // }
 };
 
 const watchselectedyear = async () => {
@@ -380,9 +433,6 @@ onMounted(async () => {
       </div>
       <div class="right-side">
         <div class="selected-title">{{ selectedParkingName }}</div>
-        <div class="monthly-cost-container">
-          <p>Monthly Costs: {{ sumOfMonthlyCosts }} PLN</p>
-        </div>
         <div class="chart-container">
           <div class="selectors-container">
             <div class="select-container">
@@ -418,6 +468,7 @@ onMounted(async () => {
               v-if="chartFlag"
               :chartLabels="labels"
               :chartDataValues="precisionrevenu"
+              :chartCostValues="precisionCosts"
             />
             <div v-else></div>
           </div>
@@ -553,13 +604,6 @@ select {
   text-align: center;
 }
 
-.monthly-cost-container {
-  margin-left: 11%;
-  font-weight: bold;
-  color: #000000;
-  margin-bottom: 20px;
-  margin-top: 20px;
-}
 .chart-container {
   background-color: #ffffff;
   border-radius: 14px;

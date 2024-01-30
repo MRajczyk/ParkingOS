@@ -40,9 +40,17 @@ export default {
       type: Array,
       required: true,
     },
+    chartCostValues: {
+      type: Array,
+      required: true,
+    },
     chartLabel: {
       type: String,
       default: "Revenue",
+    },
+    chartLabelCosts: {
+      type: String,
+      default: "Costs",
     },
     chartBackgroundColor: {
       type: String,
@@ -68,7 +76,6 @@ export default {
     chartData() {
       return {
         labels: this.chartLabels,
-        //tu sie dodaje data testy
         datasets: [
           {
             label: this.chartLabel,
@@ -76,12 +83,12 @@ export default {
             data: this.chartDataValues,
             stack: "stack 0",
           },
-          // {
-          //   label: "koszty",
-          //   backgroundColor: this.chartBackgroundColorRed,
-          //   data: this.chartDataValues.map((val) => val * -1),
-          //   stack: "stack 0",
-          // },
+          {
+            label: this.chartLabelCosts,
+            backgroundColor: this.chartBackgroundColorRed,
+            data: this.chartCostValues.map((cost) => cost * -1),
+            stack: "stack 0",
+          },
         ],
       };
     },
