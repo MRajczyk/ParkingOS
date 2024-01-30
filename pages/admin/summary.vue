@@ -193,7 +193,6 @@ const addYearsFromChartData = () => {
   }
 };
 
-//patrzec moze jakos na koszty
 const generatePeriodRange = () => {
   periods.value = [];
 
@@ -224,7 +223,6 @@ const calculateMonthlyRevenue = () => {
     const monthlyCostAmount = Array.from({ length: 12 }, () => 0);
 
     //tutaj filtruje sobie hajs z sesyjek
-    //todo: pomylec czy tu tez nie filtrowac kosztów, ale to TODO:  w kosztach tez zwracac z ep wszystkie dane i paczec po roku + jezeli jest finish date to czy miesiac jest winkszy
     monthlyCosts.value.forEach((cost) => {
       if (!cost.cyclic) {
         if (cost.startYear === Number(selectedYear.value)) {
