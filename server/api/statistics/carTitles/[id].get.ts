@@ -10,27 +10,29 @@ export default defineEventHandler(async (event) => {
   }
 
   const { id } = getRouterParams(event);
-   console.log(id)
 
   try {
-    const parkingSpaces = await prisma.parkingSpace.findMany({
-        where: {
-            parkingId: Number.parseInt(id),
-        },
-        
-      });
-const parkingSpaceIds = parkingSpaces.map(space => space.id)
-    // Zwróć dane w odpowiedzi
+     const car = await prisma.car.findUnique({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    if (!car) {
+      throw createError({ statusMessage: "Car not found", statusCode: 404 });
+    }
+
+      
     return {
-        statusCode: 200,
-        data: {
-          parkingSpaceIds,
-        },
-      };
+      statusCode: 200,
+      data: {
+        registrationNumber: car.registrationNumber,
+       },
+    };
   } catch (error) {
     console.error(error);
     throw createError({
-      statusMessage: "Error fetching parking space details",
+      statusMessage: "Error fetching car details",
       statusCode: 500,
     });
   } finally {

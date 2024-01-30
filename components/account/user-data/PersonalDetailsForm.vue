@@ -26,15 +26,15 @@ const isPasswordError = ref(false);
 const isNameError = ref(false);
 const isSurnameError = ref(false);
 
-const putSuccess = ref("");
-const putError = ref("");
+const patchSuccess = ref("");
+const patchError = ref("");
 
 function putUserData() {
   isPasswordError.value = false;
   isSurnameError.value = false;
   isNameError.value = false;
-  putSuccess.value = "";
-  putError.value = "";
+  patchSuccess.value = "";
+  patchError.value = "";
 
   if (name.value.length === 0) {
     isNameError.value = true;
@@ -51,17 +51,17 @@ function putUserData() {
   }
 
   axios
-    .put("http://localhost:3000/api/profiles/personal-data", {
+    .patch("http://localhost:3000/api/profiles/personal-data", {
       id: data.value.user.id,
       name: name.value,
       surname: surname.value,
       password: password.value,
     })
     .then((response) => {
-      putSuccess.value = response.data.statusMessage;
+      patchSuccess.value = response.data.statusMessage;
     })
     .catch((error) => {
-      putError.value = error.response.data.statusMessage;
+      patchError.value = error.response.data.statusMessage;
     });
 }
 </script>
@@ -106,15 +106,15 @@ function putUserData() {
     <span class="info-span" style="color: red" v-if="isPasswordError">
       Password can't be blank
     </span>
-    <span class="info-span" style="color: red" v-if="putError.length > 0">
-      {{ putError }}
+    <span class="info-span" style="color: red" v-if="patchError.length > 0">
+      {{ patchError }}
     </span>
     <span
       class="info-span"
       style="color: green; align-self: center"
-      v-if="putSuccess.length > 0"
+      v-if="patchSuccess.length > 0"
     >
-      {{ putSuccess }}
+      {{ patchSuccess }}
     </span>
     <button type="submit" class="profile-form-button">Update</button>
   </form>

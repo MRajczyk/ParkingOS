@@ -1,223 +1,85 @@
 <script setup>
 import TopBar from "/components/TopBar.vue";
- import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from "vue";
+import DynamicChart from "/components/DynamicChart.vue";
 
-definePageMeta({ middleware: "auth" });
+definePageMeta({ middlesware: "auth" });
 
-const isModalVisible = ref(false);
-const modalContent = ref('');
+const route = useRoute();
+const parkingId = Number(route.query.parkingId);
 
 const parkings = ref([]);
 const filteredParkings = ref([]);
 const selectedParking = ref(null);
-const selectedParkingName = ref('');
+const selectedParkingName = ref("");
+const param = ref(true);
 
-const searchQuery = ref('');
-const rightSelected = ref('Parking');
+const selectedYear = ref(null);
+const selectedMonth = ref(null);
+const selectedPeriod = ref(null);
+const chartFlag = ref(false);
+
+const yearFlag = ref(1);
+const monthFlag = ref(1);
+const periodFlag = ref(1);
+const years = ref([]);
+const periods = ref([]);
+
+const months = ref([
+  { id: 1, name: "January" },
+  { id: 2, name: "February" },
+  { id: 3, name: "March" },
+  { id: 4, name: "April" },
+  { id: 5, name: "May" },
+  { id: 6, name: "June" },
+  { id: 7, name: "July" },
+  { id: 8, name: "August" },
+  { id: 9, name: "September" },
+  { id: 10, name: "October" },
+  { id: 11, name: "November" },
+  { id: 12, name: "December" },
+]);
+const monthsshort = ref([
+  { id: 1, name: "Jan" },
+  { id: 2, name: "Feb" },
+  { id: 3, name: "Mar" },
+  { id: 4, name: "Apr" },
+  { id: 5, name: "May" },
+  { id: 6, name: "Jun" },
+  { id: 7, name: "Jul" },
+  { id: 8, name: "Aug" },
+  { id: 9, name: "Sep" },
+  { id: 10, name: "Oct" },
+  { id: 11, name: "Nov" },
+  { id: 12, name: "Dec" },
+]);
+const labels = ref([]);
+const precisionrevenu = ref([]);
+const precisionCosts = ref([]);
+
+const searchQuery = ref("");
 const isLoading = ref(true);
- const parkingInfo = ref({
-  maxCapacity: 0,
-  revenueGenerated: '$0',
-  carsParkedToDate: 0,
-  sumOfMonthlyCosts: '$0',
-});
-const spaceOptions = ref([]);  
-const selectedSpaceOption = ref(null); 
-const sumForSpace = ref('');
-const customButtonsList = ref([]);
 
-const carOptions = ref([]);  
-const selectedCarOption = ref(null); 
-const sumForCar = ref('');
-const customButtonsCarList = ref([]);
-
-const openModal = (content) => {
-  isModalVisible.value = true;
-  modalContent.value = content;
-};
-const handleRightButtonClick = (selected) => {
-  rightSelected.value = selected;
-  closeModal();
-};
+const monthlyCosts = ref([]);
+const chartData = ref([]);
+const monthsRevenue = ref([]);
+const monthsCosts = ref([]);
+const filteredMonths = ref([]);
 
 const filterParkings = () => {
-   filteredParkings.value = parkings.value.filter((parking) =>
+  filteredParkings.value = parkings.value.filter((parking) =>
     parking.name.toLowerCase().startsWith(searchQuery.value.toLowerCase())
   );
 };
-
- const updateParkingInfo = (data) => {
-  parkingInfo.value = {
-    maxCapacity: data.maxCapacity,
-    revenueGenerated: data.revenueGenerated,
-    carsParkedToDate: data.carsParkedToDate,
-    sumOfMonthlyCosts: data.sumOfMonthlyCosts,
-  };
-};
-
-
-const fetchParkingSpaceDetails = async ( ) => {
-  try {
-    spaceOptions.value.splice(0, spaceOptions.value.length);
-     const response = await fetch(`/api/statistics/spaces/${selectedParking.value}`);
-    const data = await response.json();
-
-   
-     data.data.parkingSpaceIds.forEach((spaceId) => {
-        spaceOptions.value.push({
-          id: spaceId,
-        });
-      });
-      if (spaceOptions.value.length > 0) {
-     selectedSpaceOption.value = spaceOptions.value[0];
-     }
-    console.log('Updated Space Options:', spaceOptions.value);
-  } catch (error) {
-    console.error('Error fetching parking space details:', error);
-  }
-};
-
-
-const fetchCarList = async ( ) => {
-  try {
-    carOptions.value.splice(0, carOptions.value.length);
-     const response = await fetch(`/api/statistics/carlist/${selectedParking.value}`);
-    const data = await response.json();
-
-   
-     data.resultData.forEach((car) => {
-        carOptions.value.push({
-          id: car.id,
-          registrationNumber: car.registrationNumber,
-        });
-      });
-      //pozniej sprawdzaj czy lista dluzsza niz 0 i uwzgledniac parametr
-
-      if (carOptions.value.length > 0) {
-      selectedCarOption.value = carOptions.value[0];
-      }
-   } catch (error) {
-    console.error('Error fetching Car list:', error);
-  }
-};
-
-
-const fetchParkingCarDetails = async () => {
-  try {
-
-    customButtonsCarList.value.splice(0, customButtonsCarList.value.length);
-    if (!selectedParking.value || !selectedCarOption.value) {
-      return;}
-     const response = await fetch(`/api/statistics/cars/${selectedParking.value}/${selectedCarOption.value.id}`);
-    const data = await response.json();
-
-   
-     data.filteredResultData.forEach((car) => {
-    
-        const date = new Date(car.entranceDate);
-
-const formattedDate =`${date.toISOString().split("T")[0]} ${date.toTimeString().split(" ")[0]}`;
-const date2 = new Date(car.leaveDate);
-
-const formattedDate2 =`${date2.toISOString().split("T")[0]} ${date2.toTimeString().split(" ")[0]}`;
-        customButtonsCarList.value.push({
-        spot: car.spot,
-        id: car.id,
-        date: formattedDate,
-        leaveDate: formattedDate2,
-        registrationNumber: car.registrationNumber,
-        name: car.name,
-        amount: car.totalCost,
-      });
-
-
-      });
-      const totalAmount = customButtonsCarList.value.reduce((sum, item) => sum + item.amount, 0);
-sumForCar.value = `${totalAmount.toFixed(2)}`;
-
-   } catch (error) {
-    console.error('Error fetching parking car details:', error);
-  }
-};
-
-const fetchParkingSessions = async () => {
-  try {
-    
-    customButtonsList.value.splice(0, customButtonsList.value.length);
-    if (!selectedParking.value || !selectedSpaceOption.value) {
-      return;}
-    const response = await fetch(`/api/statistics/spacestats/${selectedSpaceOption.value.id}`);
-    const data = await response.json();
-    const parkingSessions = data.sortData;
-      customButtonsList.value = parkingSessions.map((session) => {
-      
-        const date = new Date(session.entranceDate);
-
-const formattedDate =`${date.toISOString().split("T")[0]} ${date.toTimeString().split(" ")[0]}`;
-const date2 = new Date(session.leaveDate);
-
-const formattedDate2 =`${date2.toISOString().split("T")[0]} ${date2.toTimeString().split(" ")[0]}`;
-      return {
-        spot: selectedSpaceOption.value.id,
-        id: session.id,
-        date: formattedDate,
-        leaveDate: formattedDate2,
-        registrationNumber: session.registrationNumber,
-        name: session.name,
-        amount: session.totalCost,
-      };
-    });
-    const totalAmount = customButtonsList.value.reduce((sum, item) => sum + item.amount, 0);
-
-    sumForSpace.value = `${totalAmount.toFixed(2)}`;
-    console.log('Updated customButtonsList:', customButtonsList.value);
-  } catch (error) {
-    console.error('Error fetching parking sessions:', error);
-  }
-};
-
- 
-const handleCarButtonClick = (item) => {
-  const content = `
-    <p>Space: ${item.spot}</p>
-    <p>Date: ${item.date}</p>
-    <p>LeaveDate: ${item.leaveDate} </p>
-    <p>RegistrationNumber: ${item.registrationNumber}</p>
-    <p>Name: ${item.name}</p>
-    <p>Amount: ${item.amount} PLN</p>
-  `;
-  openModal(content);
-};
-
-const handleCustomButtonClick = (item) => {
-  const content = `
-  <p>Space: ${item.spot}</p>
-    <p>Date: ${item.date}</p>
-    <p>LeaveDate: ${item.leaveDate} </p>
-    <p>RegistrationNumber: ${item.registrationNumber}</p>
-    <p>Name: ${item.name}</p>
-     <p>Amount: ${item.amount} PLN</p>
-  `;
-     
-
-  
-  openModal(content);
-};
-handleCarButtonClick
-const closeModal = () => {
-  isModalVisible.value = false;
-  modalContent.value = '';
-};
-
 const fetchParkings = async () => {
   try {
-    const response = await fetch('/api/statistics/all');
+    const response = await fetch("/api/statistics/all");
     const data = await response.json();
     parkings.value = data.data;
     filterParkings();
 
     if (parkings.value.length > 0) {
-       selectParking(parkings.value[0].id, parkings.value[0].name);
+      selectParking(parkings.value[0].id, parkings.value[0].name);
     }
   } catch (error) {
     console.error(error);
@@ -226,69 +88,315 @@ const fetchParkings = async () => {
   }
 };
 
+const selectParking = async (id) => {
+  let selectedParkingData;
 
+  chartFlag.value = false;
+  monthlyCosts.value = [];
+  years.value = [];
+  monthsRevenue.value = [];
+  periods.value = [];
+  chartData.value = [];
+  filteredMonths.value = [];
+  labels.value = [];
+  precisionrevenu.value = [];
+  if (
+    parkingId !== undefined &&
+    parkings.value.some((parking) => parking.id === parkingId) &&
+    param.value
+  ) {
+    selectedParking.value = parkingId;
+    selectedParkingData = parkings.value.find(
+      (parking) => parking.id === parkingId
+    );
+    param.value = false;
+  } else {
+    selectedParking.value = id;
+    selectedParkingData = parkings.value.find(
+      (parking) => parking.id === selectedParking.value
+    );
+  }
+  selectedParkingName.value = selectedParkingData.name;
+  await fetchSummary();
+  await fetchChart();
+  addYearsFromChartData();
+};
 
-const selectParking = async (id, name) => {
-  selectedParking.value = id;
-  selectedParkingName.value = name;
-  customButtonsCarList.value.splice(0, customButtonsCarList.value.length);
-  customButtonsList.value.splice(0, customButtonsList.value.length);
-  sumForSpace.value=null;
-
-  sumForCar.value=null;
+const fetchChart = async () => {
+  if (!selectedParking.value) {
+    return;
+  }
   try {
-    const response = await fetch(`/api/statistics/${id}`);
+    const response = await fetch(`/api/summary/chart/${selectedParking.value}`);
     const data = await response.json();
-    updateParkingInfo(data.data);
-    await fetchParkingSpaceDetails();
-     await fetchCarList();
- 
-
+    chartData.value = data.transformedSessions;
   } catch (error) {
     console.error(error);
   }
 };
- 
-const watchSelectedSpaceOption = () => {
-  watch(selectedSpaceOption, (newOption, oldOption) => {
-    closeModal();
 
-     console.log('Selected Space Option changed:', newOption);
-    
-     fetchParkingSessions();
-  });
-};
-const watchSelectedCarOption = () => {
-  watch(selectedCarOption, (newOption, oldOption) => {
-    closeModal();
+const fetchSummary = async () => {
+  if (!selectedParking.value) {
+    return;
+  }
 
-     console.log('Selected Car Option changed:', newOption);
-    
-     fetchParkingCarDetails();
-  });
+  try {
+    const response = await fetch(`/api/summary/sum/${selectedParking.value}`);
+    const data = await response.json();
+    monthlyCosts.value = data.costs;
+  } catch (error) {
+    console.error(error);
+  }
 };
-const watchselectedParking = () => {
-  watch(selectedParking, (newOption, oldOption) => {
-     console.log('Selected Parking Option changed:', newOption);
-     closeModal();
 
-    //  fetchParkingSpaceDetails();
-    //   fetchParkingSessions();
-    //   fetchCarList();
-    //   fetchParkingCarDetails();
-      });
+const addYearsFromChartData = () => {
+  if (selectedParking.value !== null) {
+    const uniqueYears = new Set();
+
+    chartData.value.forEach((item) => {
+      const leaveDate = new Date(item.leaveDate);
+      const year = leaveDate.getFullYear();
+
+      uniqueYears.add(year);
+    });
+
+    //tu dodaje lata w ktorych sie koszty zaczynaly
+    monthlyCosts.value.forEach((item) => {
+      const currentYear = new Date().getFullYear();
+      const cyclicCostStartYear = new Date(item.startYear, 1, 1).getFullYear();
+
+      let iteratorYears = cyclicCostStartYear;
+      while (iteratorYears <= currentYear) {
+        uniqueYears.add(iteratorYears);
+        iteratorYears++;
+      }
+    });
+
+    const yearsList = Array.from(uniqueYears).sort((a, b) => b - a);
+    years.value = yearsList;
+
+    if (years.value.length > 0) {
+      if (selectedYear.value && selectedYear.value != years.value[0]) {
+        selectedYear.value = years.value[0];
+      } else {
+        if (!selectedYear.value) {
+          selectedYear.value = years.value[0];
+        } else {
+          yearFlag.value *= -1;
+        }
+      }
+    } else {
+      chartFlag.value = false;
+      if (selectedYear.value) selectedYear.value = null;
+      else yearFlag.value *= -1;
+    }
+  }
 };
+
+//patrzec moze jakos na koszty
+const generatePeriodRange = () => {
+  periods.value = [];
+
+  if (selectedParking.value !== null && years.value.length > 0) {
+    const maxPeriod =
+      Math.max(...filteredMonths.value.map((month) => month.id)) +
+      1 -
+      selectedMonth.value.id;
+
+    periods.value.push(
+      ...Array.from({ length: maxPeriod }, (_, index) => index + 1)
+    );
+
+    if (selectedPeriod.value != periods.value[0]) {
+      selectedPeriod.value = periods.value[0];
+    } else {
+      periodFlag.value *= -1;
+    }
+  } else if (years.value.length === 0) {
+    selectedPeriod.value = null;
+  }
+};
+
+const calculateMonthlyRevenue = () => {
+  monthsRevenue.value = [];
+  if (selectedParking.value !== null && years.value.length > 0) {
+    const monthlyRevenue = Array.from({ length: 12 }, () => 0);
+    const monthlyCostAmount = Array.from({ length: 12 }, () => 0);
+
+    //tutaj filtruje sobie hajs z sesyjek
+    //todo: pomylec czy tu tez nie filtrowac kosztów, ale to TODO:  w kosztach tez zwracac z ep wszystkie dane i paczec po roku + jezeli jest finish date to czy miesiac jest winkszy
+    monthlyCosts.value.forEach((cost) => {
+      if (!cost.cyclic) {
+        if (cost.startYear === Number(selectedYear.value)) {
+          monthlyCostAmount[cost.startMonth] += Number(cost.costValue);
+        }
+      } else {
+        if (cost.startYear === Number(selectedYear.value)) {
+          if (cost.endYear) {
+            if (cost.endYear > Number(selectedYear.value)) {
+              for (let i = cost.startMonth; i < 12; ++i) {
+                monthlyCostAmount[i] += Number(cost.costValue);
+              }
+            } else if (cost.endYear === Number(selectedYear.value)) {
+              for (let i = cost.startMonth; i <= cost.endMonth; ++i) {
+                monthlyCostAmount[i] += Number(cost.costValue);
+              }
+            }
+          } else {
+            for (let i = cost.startMonth; i < 12; ++i) {
+              monthlyCostAmount[i] += Number(cost.costValue);
+            }
+          }
+        } else if (cost.startYear < Number(selectedYear.value)) {
+          if (cost.endYear > Number(selectedYear.value)) {
+            for (let i = 0; i < 12; ++i) {
+              monthlyCostAmount[i] += Number(cost.costValue);
+            }
+          } else if (cost.endYear === Number(selectedYear.value)) {
+            for (let i = 0; i <= cost.endMonth; ++i) {
+              monthlyCostAmount[i] += Number(cost.costValue);
+            }
+          }
+        }
+      }
+    });
+
+    const filteredChartData = chartData.value.filter((item) => {
+      const leaveDate = new Date(item.leaveDate);
+
+      return leaveDate.getFullYear() === Number(selectedYear.value);
+    });
+    filteredChartData.forEach((item) => {
+      const leaveDate = new Date(item.leaveDate);
+      const month = leaveDate.getMonth();
+
+      monthlyRevenue[month] += Number(item.finalCost);
+    });
+
+    monthsRevenue.value = monthlyRevenue;
+    monthsCosts.value = monthlyCostAmount;
+    console.log(monthlyCostAmount);
+  }
+};
+
+//ta funkcja dodaje do tablicy dane do wyswietlenia na wyrkesie - precisionrevenu (xd) to po kolei hajs dla danego miesiaca co jest labels
+const generateValues = () => {
+  chartFlag.value = false;
+  labels.value = [];
+  precisionrevenu.value = [];
+  precisionCosts.value = [];
+  if (selectedParking.value !== null && selectedPeriod.value != null) {
+    const selectedMonthIndex = Number(selectedMonth.value.id) - 1;
+    const selectedPeriodValue = Number(selectedPeriod.value);
+
+    const startMonthIndex = selectedMonthIndex;
+    const endMonthIndex = selectedMonthIndex + selectedPeriodValue;
+
+    for (let i = startMonthIndex; i < endMonthIndex; i++) {
+      labels.value.push(monthsshort.value[i].name);
+      precisionrevenu.value.push(Number(monthsRevenue.value[i]));
+      precisionCosts.value.push(Number(monthsCosts.value[i]));
+    }
+    if (years.value.length > 0) chartFlag.value = true;
+  }
+};
+
+const generateMonthOptions = () => {
+  filteredMonths.value = [];
+  filteredMonths.value = months.value;
+  // if (selectedParking.value !== null && years.value.length > 0) {
+  //   const currentYear = new Date().getFullYear();
+  //   const selectedYearValue = selectedYear.value;
+
+  //   let minimumMonth = 1;
+  //   let maximumMonth = 12;
+
+  //   //tu moze zostawie narazie tak, albo w ogole zmienie zeby zawsze od poczatku roku sie dalo
+  //   if (Number(selectedYearValue) === currentYear) {
+  //     minimumMonth = 1;
+  //     maximumMonth = new Date().getMonth() + 1;
+  //   } else if (Number(selectedYearValue) === Math.min(...years.value)) {
+  //     const earliestLeaveDate = new Date(
+  //       Math.min(
+  //         ...chartData.value
+  //           .filter(
+  //             (item) =>
+  //               new Date(item.leaveDate).getFullYear() ===
+  //               Number(selectedYearValue)
+  //           )
+  //           .map((item) => new Date(item.leaveDate).getTime())
+  //       )
+  //     );
+  //     minimumMonth = earliestLeaveDate.getMonth() + 1;
+  //     if (!minimumMonth) {
+  //       minimumMonth = 1;
+  //     }
+
+  //     maximumMonth = 12;
+  //   }
+
+  //   filteredMonths.value = months.value.filter(
+  //     (month) => month.id >= minimumMonth && month.id <= maximumMonth
+  //   );
+  // }
+};
+
+const watchselectedyear = async () => {
+  watch(
+    [selectedYear, yearFlag],
+    ([newOption, newFlag], [oldOption, oldFlag]) => {
+      if (selectedParking.value !== null) {
+        calculateMonthlyRevenue();
+        generateMonthOptions();
+
+        if (filteredMonths.value.length > 0) {
+          if (selectedMonth.value != filteredMonths.value[0]) {
+            selectedMonth.value = filteredMonths.value[0];
+          } else {
+            monthFlag.value *= -1;
+          }
+        } else {
+          if (selectedMonth.value) {
+            selectedMonth.value = null;
+          } else {
+            monthFlag.value *= -1;
+          }
+        }
+      }
+    }
+  );
+};
+
+const watchselectedmonth = async () => {
+  watch(
+    [selectedMonth, monthFlag],
+    ([newOption, newFlag], [oldOption, oldFlag]) => {
+      if (selectedParking.value !== null) {
+        generatePeriodRange();
+      }
+    }
+  );
+};
+
+const watchselectedperiod = async () => {
+  watch(
+    [selectedPeriod, periodFlag],
+    ([newOption, newFlag], [oldOption, oldFlag]) => {
+      if (selectedParking.value != null) {
+        generateValues();
+      }
+    }
+  );
+};
+
 onMounted(async () => {
-  closeModal();
+  await nextTick();
+  await watchselectedyear();
+  await watchselectedmonth();
+  await watchselectedperiod();
   await fetchParkings();
-  await watchselectedParking();
-  await watchSelectedSpaceOption();  
-  await watchSelectedCarOption();
 });
 </script>
-
-
-
 <template>
   <TopBar>
     <div class="container">
@@ -303,136 +411,82 @@ onMounted(async () => {
           />
         </div>
         <div class="buttons-container" ref="buttonsList">
-        <button
-          v-if="!isLoading"
-          v-for="parking in filteredParkings"
-          :key="parking.id"
-          class="left-button"
-          :class="{ active: selectedParking === parking.id }"
-          @click="selectParking(parking.id, parking.name)"
-        >
-          {{ parking.name }}
-        </button>
-        <p v-if="isLoading">Loading...</p>
-      </div>
+          <button
+            v-if="!isLoading"
+            v-for="parking in filteredParkings"
+            :key="parking.id"
+            class="left-button"
+            :class="{ active: selectedParking === parking.id }"
+            @click="selectParking(parking.id)"
+          >
+            <div>
+              <div style="font-size: medium">
+                {{ parking.name }}
+              </div>
+              <div style="font-size: small">
+                {{ parking.city }}, {{ parking.address }}
+              </div>
+            </div>
+          </button>
+          <p v-if="isLoading">Loading...</p>
+        </div>
       </div>
       <div class="right-side">
         <div class="selected-title">{{ selectedParkingName }}</div>
-        <div class="right-buttons">
-          <button
-            @click="handleRightButtonClick('Parking')"
-            class="right-button"
-            :class="{ active: rightSelected === 'Parking' }"
-          >
-            Parking
-          </button>
-          <button
-            @click="handleRightButtonClick('Space')"
-            class="right-button"
-            :class="{ active: rightSelected === 'Space' }"
-          >
-            Space
-          </button>
-          <button
-            @click="handleRightButtonClick('Car')"
-            class="right-button"
-            :class="{ active: rightSelected === 'Car' }"
-          >
-            Car
-          </button>
-        </div>
-        <div class="content-container">
-          <div v-if="rightSelected === 'Parking'" class="parking-info">
-             <p>Max. capacity: {{ parkingInfo.maxCapacity }}</p>
-            <p>Revenue generated: {{ parkingInfo.revenueGenerated }}</p>
-            <p>Cars parked to date: {{ parkingInfo.carsParkedToDate }}</p>
-            <p>Sum of monthly costs: {{ parkingInfo.sumOfMonthlyCosts }}</p>
-          </div>
-          <div v-if="rightSelected === 'Space'" class="space-content">
-            <div class="space-options-container">
-              <select v-model="selectedSpaceOption">
-                <option v-for="option in spaceOptions" :key="option.id" :value="option">
-                  Space {{ option.id }}
+        <div class="chart-container">
+          <div class="selectors-container">
+            <div class="select-container">
+              <label for="year">Year:</label>
+              <select v-model="selectedYear" id="year">
+                <option v-for="year in years" :key="year">{{ year }}</option>
+              </select>
+            </div>
+            <div class="select-container">
+              <label for="startingMonth">Starting month:</label>
+              <select v-model="selectedMonth" id="startingMonth">
+                <option
+                  v-for="month in filteredMonths"
+                  :key="month.id"
+                  :value="month"
+                >
+                  {{ month.name }}
                 </option>
               </select>
             </div>
-            <div class="revenue-container">
-              <p>Revenue sum: <strong>{{ sumForSpace }} PLN</strong></p>
-            </div>
-            <div class="custom-buttons-container" ref="rightButtonsList">
-  <button
-    v-for="item in customButtonsList"
-    :key="item.id"
-    class="custom-button"
-    @click="handleCustomButtonClick(item)"
-  >
-    <div>  
-      <span class="custom-button-date">{{ new Date( item.date).toLocaleDateString('en-CA')}}</span>
-      <span class="custom-button-label">{{ item.name }}</span>
-    </div>
-    <span class="custom-button-amount">{{ item.amount }} PLN</span>
-  </button>
-</div>
 
- 
-          </div>
-          <div v-if="rightSelected === 'Car'" class="space-content">
-            <div class="space-options-container">
-              <select v-model="selectedCarOption">
-                <option v-for="option in carOptions" :key="option.id" :value="option">
-                 {{ option.registrationNumber }}
+            <div class="select-container">
+              <label for="period">Period in month:</label>
+              <select v-model="selectedPeriod" id="period">
+                <option v-for="period in periods" :key="period">
+                  {{ period }}
                 </option>
               </select>
             </div>
-            <div class="revenue-container">
-              <p>Revenue sum: <strong>{{ sumForCar }} PLN</strong></p>
-            </div>
-            <div class="custom-buttons-container" ref="rightButtonsList">
-  <button
-    v-for="item in customButtonsCarList"
-    :key="item.id"
-    class="custom-button"
-    @click="handleCarButtonClick(item)"
-  >
-    <div>  
-      <span class="custom-button-date">{{ new Date( item.date).toLocaleDateString('en-CA')}}</span>
-      <span class="custom-button-label">Space {{ item.spot }}</span>
-    </div>
-    <span class="custom-button-amount">{{ item.amount }} PLN</span>
-  </button>
-</div>
-
- 
+          </div>
+          <div>
+            <DynamicChart
+              v-if="chartFlag"
+              :chartLabels="labels"
+              :chartDataValues="precisionrevenu"
+              :chartCostValues="precisionCosts"
+            />
+            <div v-else></div>
           </div>
         </div>
       </div>
     </div>
-    <div v-if="isModalVisible" class="modal">
-      <div class="modal-content">
-        <span class="close" @click="closeModal">&times;</span>
-        <div v-html="modalContent"></div>
-      </div>
-</div>
   </TopBar>
 </template>
 <style scoped>
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Arial', sans-serif;
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
-
 .container {
+  position: relative;
   display: flex;
   justify-content: space-between;
   background-color: #eef0e5;
   width: 100%;
   height: 100%;
   color: #333;
-  max-height: 100%;
+  overflow-y: auto;
 }
 
 .left-side {
@@ -441,7 +495,7 @@ body {
   flex-direction: column;
   align-items: center;
   margin: 0 1%;
-  max-height: 100%;
+  height: 100%;
   border-right: 1px solid #ccc;
 }
 
@@ -450,7 +504,6 @@ body {
   height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
 }
 
 .selected-title {
@@ -458,34 +511,35 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 15px; 
-  font-size: 64px;
-  max-height: 100%;
+  margin-bottom: 25px;
+  font-size: 40px;
   font-weight: bold;
-  color: #5C5C5C;
+  color: #5c5c5c;
+}
+.search-input-container {
+  margin-top: 30px;
+  align-items: center;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 35px;
 }
 
-.search-input-container {
-  position: relative;
-  width: 100%;
-  margin-bottom: 25px;
- }
-
 input {
-  margin-top: 80px;
-  padding: 10px;
-  border-radius: 20px;
-  width: 90%;
+  margin-top: 60px;
+  border-radius: 14px;
+  width: 80%;
+  padding: 1% 4%;
+  margin-left: 10%;
   margin-right: 10%;
-  max-height: 200px;
-  height: 50px;
-  font-size: 30px;
+
   color: #333;
-  background-color: #eef0e5;
+  background-color: white;
 }
 
 .buttons-container {
-  max-height: 45%;
   overflow-y: auto;
   scrollbar-width: thin;
   display: flex;
@@ -494,25 +548,22 @@ input {
 }
 
 .left-button {
+  align-items: left;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-  margin-top: 15px;
-  margin-bottom: 15px;
+  text-align: left;
+  justify-content: left;
+  margin: 5% auto;
+  padding: 1% 4%;
   cursor: pointer;
   border: none;
-  border-radius: 20px;
+  border-radius: 14px;
   background-color: #ffffff;
   color: #000000;
-  flex-shrink: 0;
   box-sizing: border-box;
-  margin-right: 5%;
-  height: 50px;
+
   transition: background-color 0.3s, box-shadow 0.3s;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 95%;
-  font-size: 30px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
+  width: 90%;
 }
 
 .buttons-container::-webkit-scrollbar {
@@ -531,7 +582,7 @@ input {
 }
 
 .left-button.active {
-  background-color: #DDE7DD;
+  background-color: #dde7dd;
   box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
 }
 
@@ -540,215 +591,58 @@ input {
   box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
 }
 
-.right-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-  margin: 5px;
-  cursor: pointer;
-  border: none;
-  border-radius: 20px;
-  background-color: #DDE7DD;
-  color: #ffffff;
-  width: 100%;
-  height: 50px;
-  transition: background-color 0.3s, box-shadow 0.3s;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  font-weight: bold;
-  font-size: 30px;
-}
-
-.right-button.active {
-  background-color: #163020;
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
-}
-
-.right-button:hover {
-  background-color: #68a691;
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
-}
-
-.right-buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-left: 13%;
-  margin-right: 14%;
-  width: 73%;
-}
-
-.content-container {
-  width: 100%;
-  max-height: 100%;
-}
-
-.parking-info {
-  font-size: 30px;
-  line-height: 2;
-  width: 95%;
-  align-items: left;
-  margin-top: 40px;
-  margin-left: 5%;
-  max-height: 100%;
-}
-
-.space-content {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.space-options-container {
-  text-align: center;
-  max-height: 100%;
-  max-width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
 select {
-  padding: 10px;
-  border-radius: 20px;
-  max-width: 30%;
-  width: 30%;
+  padding: 5px;
+  border-radius: 14px;
+  max-width: 50%;
+  width: 50%;
   margin-top: 30px;
-  max-height: 200px;
-  height: 50px;
-  font-size: 25px;
-  margin-bottom: 30px;
+
+  margin-bottom: 15px;
   color: #333;
   background-color: #eef0e5;
-}
-
-.revenue-container {
   text-align: center;
-  align-items: center;
-  font-size: 30px;
-  color: #000000;
-  max-width: 34%;
-  margin-left: 33%;
-  margin-right: 33%;
-  margin-bottom: 20px;
-  width: 34%;
-  max-height: 100%;
 }
 
-.custom-buttons-container {
-  max-height: 80%;
-  overflow-y: auto;
-  scrollbar-width: thin;
+.chart-container {
+  background-color: #ffffff;
+  border-radius: 14px;
+  padding: 15px;
+  margin-left: 8%;
+  margin-right: 15%;
+
+  margin-top: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 77%;
+  width: 77%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  width: 100%;
-}
-
-.custom-buttons-container::-webkit-scrollbar {
-  width: 10px;
-  margin-left: 10px;
-}
-
-.custom-buttons-container::-webkit-scrollbar-thumb {
-  background-color: #c7e5c2;
-  border-radius: 20px;
-  border: 6px solid transparent;
-}
-
-.custom-buttons-container::-webkit-scrollbar-track {
-  background-color: #eef0e5;
-}
-
-.custom-button {
-  display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 10px;
-  margin-top: 15px;
-  margin-bottom: 15px;
-  cursor: pointer;
-  border: none;
-  border-radius: 20px;
-  background-color: #ffffff;
-  color: #000000;
-  flex-shrink: 0;
-  box-sizing: border-box;
-  margin-right: 5%;
-  height: 80px;
-  transition: background-color 0.3s, box-shadow 0.3s;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 95%;
-  font-size: 30px;
+  align-items: center;
 }
 
-.custom-button.active {
-  background-color: #DDE7DD;
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
-}
-
-.custom-button:hover {
-  background-color: #c7e5c2;
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
-}
-
-.custom-button-date {
-  margin-left:40px;
- }
-
-.custom-button-label {
-  margin-left:40px;
-
- }
-
-.custom-button-amount {
-  margin-right:70px;
-
- }
- 
- .modal {
-  display: block;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1000;
-}
-
-.modal-content {
-  background-color: #fefefe;
-  margin: auto;
-  padding: 30px;
-  border: 1px solid #888;
+.selectors-container {
+  display: flex;
+  justify-content: space-between;
   width: 100%;
-  max-width: 1000px;
-  color: #000;
-  position: relative;
+  margin-bottom: 35px;
 }
 
-.close {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-  margin-top: -20px;
+.select-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 600px;
 }
 
-/* Nowe style dla danych w modalu */
-.modal-content p {
-  margin: 10px 0;
-  font-size: 18px;
+.select-container label {
+  margin-bottom: 5px;
+  color: #5c5c5c;
 }
 
-.modal-content p strong {
-  font-weight: bold;
+.select-container select {
+  margin-top: 5px;
+  width: 100%;
 }
-
-.close:hover,
-.close:focus {
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-  </style>
-  
+</style>

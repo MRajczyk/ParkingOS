@@ -19,41 +19,66 @@ export default defineEventHandler(async (event) => {
     }
 
     try {
-        const spaces = await prisma.parkingSpace.deleteMany({
+        let exists = await prisma.parkingSpace.findFirst({
             where: {
                 parkingId: +body.parkingId,
-                ocuppied: false,
-            },
-        });
-
-        const exists = await prisma.parkingSpace.findFirst({
-            where: {
-                parkingId: +body.parkingId,
+                ocuppied: true,
             }
         });
 
-        if(exists) {
+        if (exists) {
+            const upd = await prisma.parkingSpace.updateMany({
+                where: {
+                    parkingId: +body.parkingId,
+                    ocuppied: false,
+                },
+                data: {
+                    available: false,
+                }
+            });
+
             throw {
                 statusMessage: "Unable to delete all spaces.",
                 statusCode: 400,
             }
-        } 
+        } else {
 
-        const chargePlan = await prisma.chargePlan.delete({
-            where: {
-                parkingId: +body.parkingId,
+            const spaces = await prisma.parkingSpace.deleteMany({
+                where: {
+                    parkingId: +body.parkingId,
+                    ocuppied: false,
+                },
+            });
+
+            exists = await prisma.parkingSpace.findFirst({
+                where: {
+                    parkingId: +body.parkingId,
+                }
+            });
+
+            if (exists) {
+                throw {
+                    statusMessage: "Unable to delete all spaces.",
+                    statusCode: 400,
+                }
             }
-        });
 
-        const parking = await prisma.parking.delete({
-            where: {
-                id: +body.parkingId,
-            }
-        })
+            const chargePlan = await prisma.chargePlan.delete({
+                where: {
+                    parkingId: +body.parkingId,
+                }
+            });
 
-        return {
-            statusMessage: "deleted successfully",
-        };
+            const parking = await prisma.parking.delete({
+                where: {
+                    id: +body.parkingId,
+                }
+            })
+
+            return {
+                statusMessage: "deleted successfully",
+            };
+        }
 
     } catch (e) {
         //@ts-expect-error

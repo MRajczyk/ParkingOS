@@ -1,9 +1,29 @@
 <script setup>
+const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
 const props = defineProps({
   costId: Number,
   parkingId: Number,
   costName: String,
   costValue: Number,
+  cyclic: Boolean,
+  startMonth: Number,
+  startYear: Number,
+  endMonth: Number,
+  endYear: Number,
   discardCallback: Function,
 });
 
@@ -70,7 +90,7 @@ function hideModal() {
           class="cost-input"
           style="display: flex; align-items: center; justify-content: start"
         >
-          {{ props.costValue }}
+          {{ props.costValue }} PLN
         </span>
       </div>
       <button
@@ -87,6 +107,62 @@ function hideModal() {
       >
         <img src="/images/recycle-bin.png" style="height: 34px; width: 34px" />
       </button>
+    </div>
+    <div class="cost-container-row" v-if="props.cyclic">
+      <div style="width: 100%">
+        <label class="cost-label">Month start</label>
+        <span
+          name="name"
+          class="cost-input"
+          style="display: flex; align-items: center; justify-content: start"
+        >
+          {{ months[props.startMonth] }}
+          {{ props.startYear }}
+        </span>
+      </div>
+      <div style="display: flex; flex-direction: column">
+        <label class="cost-label">Cyclic</label>
+        <input
+          type="checkbox"
+          disabled
+          style="margin: 10px; height: 20px"
+          :checked="props.cyclic"
+        />
+      </div>
+    </div>
+    <div class="cost-container-row" v-if="props.cyclic">
+      <div style="width: 100%">
+        <label class="cost-label">Month End</label>
+        <span
+          name="name"
+          class="cost-input"
+          style="display: flex; align-items: center; justify-content: start"
+        >
+          {{ months[props.endMonth] }}
+          {{ props.endYear ?? "----" }}
+        </span>
+      </div>
+    </div>
+    <div class="cost-container-row" v-else>
+      <div style="width: 100%">
+        <label class="cost-label">Assigned month</label>
+        <span
+          name="name"
+          class="cost-input"
+          style="display: flex; align-items: center; justify-content: start"
+        >
+          {{ months[props.startMonth] }} {{ props.startYear }}
+        </span>
+      </div>
+      <div style="display: flex; flex-direction: column">
+        <label class="cost-label">Cyclic</label>
+        <input
+          type="checkbox"
+          disabled
+          style="margin: 10px; height: 20px"
+          :checked="props.cyclic"
+        />
+      </div>
     </div>
   </div>
 </template>

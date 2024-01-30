@@ -60,8 +60,10 @@ model Parking {
 model ParkingSpace {
     id                 Int @id @default(autoincrement())
     ocuppied           Boolean
+    available          Boolean @default(true)
     parkingId          Int
     parking            Parking @relation(fields: [parkingId], references: [id])
+    parkingSessions    ParkingSession[]
 }
 
 model ParkingSession {
@@ -72,6 +74,7 @@ model ParkingSession {
     finalCost       Float
     parkingId       Int
     spot            Int
+    parkingSpace    ParkingSpace @relation(fields: [spot], references: [id])
     carId           Int
     car             Car @relation(fields: [carId], references: [id])
     userId          Int
@@ -100,4 +103,9 @@ model MonthlyCost {
     parkingId   Int 
     costName    String
     costValue   Float
+    startYear   Int
+    startMonth  Int
+    endYear     Int?
+    endMonth    Int?
+    cyclic      Boolean
 }

@@ -26,8 +26,24 @@ export default defineEventHandler(async (event) => {
                 },
                 orderBy: {
                     id: 'asc',
-                }
+                },
+                include: {
+                    parkingSessions: {
+                        where: {
+                            leaveDate: null,
+                        },
+                        include: {
+                            user: {
+                                select: {
+                                    email: true,
+                                }
+                            }
+                        },
+                    },
+                },
             });
+
+            console.log(spaces);
 
             return spaces;
         } else {
