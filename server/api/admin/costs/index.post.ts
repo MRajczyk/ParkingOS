@@ -73,8 +73,8 @@ export default eventHandler(async (event) => {
         cyclic: body.isCyclic,
         startMonth: Number.parseInt(body.startMonth),
         startYear: Number.parseInt(body.startYear),
-        endMonth: Number.parseInt(body.endMonth),
-        endYear: Number.parseInt(body.endYear),
+        endMonth: body.endMonth ? Number.parseInt(body.endMonth) : null,
+        endYear: body.endYear ? Number.parseInt(body.endYear) : null,
       },
     });
     if (createdCost) {

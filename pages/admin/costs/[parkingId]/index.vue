@@ -19,7 +19,6 @@ onMounted(() => {
   axios
     .get(`http://localhost:3000/api/admin/costs/${parkingId}`)
     .then((response) => {
-      console.log(response.data.data);
       costsInitial = response.data.data;
       costsFiltered.value = costsInitial;
     })
@@ -33,7 +32,6 @@ onMounted(() => {
     })
     .then((response) => {
       parkingName.value = response.data.name;
-      console.log("test");
     })
     .catch((error) => {
       console.error("Error fetching parking info:", error);
