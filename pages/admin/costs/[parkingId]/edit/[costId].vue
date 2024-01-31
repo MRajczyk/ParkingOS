@@ -143,8 +143,12 @@ function updateCost() {
       isCyclic: isCyclic.value,
       startMonth: startMonth.value.idx,
       startYear: startYear.value,
-      endMonth: endMonth.value ? endMonth.value.idx : undefined,
-      endYear: endYear.value,
+      endMonth: !isCyclic.value
+        ? undefined
+        : endMonth.value
+        ? endMonth.value.idx
+        : undefined,
+      endYear: !isCyclic.value ? undefined : endYear.value,
     })
     .then((response) => {
       putSuccess.value = response.data.statusMessage;
