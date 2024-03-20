@@ -1,8 +1,15 @@
-# Nuxt 3 Minimal Starter
-
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
-
-## Setup
+# ParkingOS
+Group project for Advanced Web Applications at the University made with Nuxt. <br>
+My contributions:
+- App configuration + db dockerization.
+- Most of the styling.
+- Various FE components (ex. Topbar).
+- Auth module (endpoints and views) with password recovery through email (gmail smtp).
+- User profile management panel (full CRUD).
+- Various modules for admin panel + took up work on charts from one group member.
+- Ensured reactivity on views made by myself.
+- Limited the number of logins allowed in a given period of time from a given IP address.
+- Provided session validation for protected BE endpoints.
 
 Make sure to install the dependencies:
 
