@@ -1,7 +1,7 @@
 # ParkingOS
 Group project for Advanced Web Applications at the University made with Nuxt.
 
-##My contributions:
+## My contributions:
 - App configuration + db dockerization.
 - Most of the styling.
 - Various FE components (ex. Topbar).
